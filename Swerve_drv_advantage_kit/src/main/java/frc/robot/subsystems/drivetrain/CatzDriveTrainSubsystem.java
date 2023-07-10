@@ -98,6 +98,30 @@ public class CatzDriveTrainSubsystem extends SubsystemBase
             module.periodic();
         }
 
+            // Update odometry
+    SwerveModuleState[] measuredStatesDiff = new SwerveModuleState[4];
+    for (int i = 0; i < 4; i++) {
+      measuredStatesDiff[i] = new SwerveModuleState(
+          (moduleInputs[i].drivePositionRad - lastModulePositionsRad[i])
+              * wheelRadius,
+          turnPositions[i]);
+      lastModulePositionsRad[i] = moduleInputs[i].drivePositionRad;
+    }
+    ChassisSpeeds chassisStateDiff =
+        kinematics.toChassisSpeeds(measuredStatesDiff);
+    if (gyroInputs.connected) { // Use gyro for angular change when connected
+      odometryPose =
+          odometryPose.exp(new Twist2d(chassisStateDiff.vxMetersPerSecond,
+              chassisStateDiff.vyMetersPerSecond,
+              gyroInputs.positionRad - lastGyroPosRad));
+    } else { // Fall back to using angular velocity (disconnected or sim)
+      odometryPose =
+          odometryPose.exp(new Twist2d(chassisStateDiff.vxMetersPerSecond,
+              chassisStateDiff.vyMetersPerSecond,
+              chassisStateDiff.omegaRadiansPerSecond));
+    }
+    lastGyroPosRad = gyroInputs.positionRad;
+
     }
 
     public void cmdProcSwerve(double leftJoyX, double leftJoyY, double rightJoyX, double navXAngle, double pwrMode)
