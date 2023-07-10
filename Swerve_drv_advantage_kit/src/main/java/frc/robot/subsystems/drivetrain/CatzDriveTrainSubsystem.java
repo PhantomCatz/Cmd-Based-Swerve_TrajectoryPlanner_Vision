@@ -98,6 +98,7 @@ public class CatzDriveTrainSubsystem extends SubsystemBase
             module.periodic();
         }
 
+        /* 
             // Update odometry
     SwerveModuleState[] measuredStatesDiff = new SwerveModuleState[4];
     for (int i = 0; i < 4; i++) {
@@ -121,7 +122,7 @@ public class CatzDriveTrainSubsystem extends SubsystemBase
               chassisStateDiff.omegaRadiansPerSecond));
     }
     lastGyroPosRad = gyroInputs.positionRad;
-
+*/
     }
 
     public void cmdProcSwerve(double leftJoyX, double leftJoyY, double rightJoyX, double navXAngle, double pwrMode)
