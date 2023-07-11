@@ -13,6 +13,9 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.subsystems.Arm.CatzArmSubsystem;
+import frc.robot.subsystems.Elevator.CatzElevatorSubsystem;
+import frc.robot.subsystems.Intake.CatzIntakeSubsytem;
 import frc.robot.subsystems.drivetrain.CatzDriveTrainSubsystem;
 import frc.robot.subsystems.drivetrain.ModuleIO;
 import frc.robot.subsystems.drivetrain.ModuleIOReal;
@@ -27,6 +30,9 @@ import frc.robot.subsystems.vision.CatzRobotTracker;
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
       private final CatzDriveTrainSubsystem driveTrain;
+      private final CatzElevatorSubsystem elevator;
+      //private final CatzIntakeSubsytem intake;
+      private final CatzArmSubsystem arm;
       //private final CatzRobotTracker robotTracker;
       
       private CommandXboxController xboxDrv;
@@ -43,6 +49,8 @@ public class RobotContainer {
   public RobotContainer() 
   {
     driveTrain = CatzDriveTrainSubsystem.getInstance();
+    elevator = CatzElevatorSubsystem.getInstance();
+    arm = CatzArmSubsystem.getInstance();
     xboxDrv = new CommandXboxController(XBOX_DRV_PORT); 
     xboxAux = new CommandXboxController(XBOX_AUX_PORT);
 

@@ -48,9 +48,6 @@ public class SwerveModule
 
     private double offset;
 
-
-
-
     private int index;
 
 
@@ -85,7 +82,7 @@ public class SwerveModule
     public void periodic() 
     {
         io.updateInputs(inputs);
-        Logger.getInstance().processInputs("Drive/Module" + Integer.toString(index), inputs);
+        Logger.getInstance().processInputs("Drive/Module " + Integer.toString(index), inputs);
 
         //edit outputs all output collection should be declared here.
         Logger.getInstance().recordOutput("motor value test", inputs.driveMtrPercentOutput);

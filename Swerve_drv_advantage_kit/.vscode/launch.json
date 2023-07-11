@@ -6,6 +6,13 @@
   "configurations": [
     {
       "type": "java",
+      "name": "Launch ArmIOReal",
+      "request": "launch",
+      "mainClass": "frc.robot.subsystems.Arm.ArmIOReal",
+      "projectName": "Swerve_drv_advantage_kit"
+    },
+    {
+      "type": "java",
       "name": "Launch hw",
       "request": "launch",
       "mainClass": "frc.robot.hw",
