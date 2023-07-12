@@ -5,6 +5,9 @@
 package frc.robot.subsystems.Arm;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+
+import org.littletonrobotics.junction.Logger;
+
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.LimitSwitchNormal;
@@ -101,6 +104,9 @@ public class CatzArmSubsystem extends SubsystemBase
 
   @Override
   public void periodic() {
+    io.updateInputs(inputs);
+    Logger.getInstance().processInputs("Arm", inputs);
+
     // This method will be called once per scheduler run
     if(highExtendProcess == true) 
     {
@@ -122,6 +128,7 @@ public class CatzArmSubsystem extends SubsystemBase
     {
         numConsectSamples = 0;
     }
+
   }
 
   

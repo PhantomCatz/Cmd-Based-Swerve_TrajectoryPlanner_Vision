@@ -14,9 +14,13 @@ public interface ElevatorIO
 
     public default void elevatorManualIO(double finalMtrPower) {}
 
-    public default void elevatorSetToLowPosIO() {}
+    public default void elevatorConfig_kPIO(double elevatorkP) {}
 
-    public default void elevatorSetToMidPosConeIo() {}
+    public default void elevatorConfig_kIIO(double elevatorkI) {}
+
+    public default void elevatorConfig_kDIO(double elevatorkD) {}
+
+
     
     
 
