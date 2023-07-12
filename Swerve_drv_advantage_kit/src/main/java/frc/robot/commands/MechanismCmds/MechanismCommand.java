@@ -5,16 +5,94 @@
 package frc.robot.commands.MechanismCmds;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.CatzConstants;
+import frc.robot.Utils.CatzStateUtil;
+import frc.robot.subsystems.Arm.CatzArmSubsystem;
+import frc.robot.subsystems.Elevator.CatzElevatorSubsystem;
+import frc.robot.subsystems.Intake.CatzIntakeSubsytem;
 
-public class MechanismCommand extends CommandBase {
-  /** Creates a new MechanismCommand. */
-  public MechanismCommand() {
-    // Use addRequirements() here to declare subsystem dependencies.
+public class MechanismCommand extends CommandBase 
+{
+  CatzElevatorSubsystem elevator;
+  CatzArmSubsystem arm;
+  CatzIntakeSubsytem intake;
+  CatzStateUtil.MechanismState currentMechState;
+  CatzStateUtil.GamePieceState currentGamePieceState;
+  public MechanismCommand(CatzElevatorSubsystem elevator, 
+                          CatzArmSubsystem arm, 
+                          CatzIntakeSubsytem intake, 
+                          CatzStateUtil.MechanismState currentMechState) 
+  {
+    this.currentMechState = currentMechState;
+
+
+    addRequirements(elevator, arm, intake);
   }
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {}
+  public void initialize() 
+  {
+    
+    switch(currentMechState)
+    {
+      case ScoreHigh:
+        switch(currentGamePieceState)
+        {
+          case CONE:
+
+          break;
+          case CUBE:
+
+          break;
+          default:
+
+          break;
+        }
+      break;
+      case ScoreMid:
+        switch(currentGamePieceState)
+        {
+          case CONE:
+          
+          break;
+          case CUBE:
+
+          break;
+          default:
+
+          break;
+        }
+      break;
+      case ScoreLow:
+        switch(currentGamePieceState)
+        {
+          case CONE:
+          
+          break;
+          case CUBE:
+
+          break;
+          default:
+
+          break;
+        }
+      break;
+      case PickupLow:
+
+      break;
+      case PickupSingle:
+
+      break;
+      case PickupDouble:
+
+      break;
+
+      default:
+        break;
+    }
+
+  }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override

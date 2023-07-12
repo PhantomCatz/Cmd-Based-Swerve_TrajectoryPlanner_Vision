@@ -27,7 +27,7 @@ import edu.wpi.first.wpilibj.Timer;
 public class CatzElevatorSubsystem extends SubsystemBase {
 
   private final ElevatorIO io;
-  private final EleavtorIOInputsAutoLogged  inputs = new EleavtorIOInputsAutoLogged();
+  private final ElevatorIOInputsAutoLogged  inputs = new ElevatorIOInputsAutoLogged();
 
   private static CatzElevatorSubsystem instance;
 

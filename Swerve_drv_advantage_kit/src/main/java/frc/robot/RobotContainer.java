@@ -13,6 +13,10 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.Utils.CatzStateUtil;
+import frc.robot.Utils.CatzStateUtil.GamePieceState;
+import frc.robot.Utils.CatzStateUtil.MechanismState;
+import frc.robot.commands.MechanismCmds.MechanismCommand;
 import frc.robot.subsystems.Arm.CatzArmSubsystem;
 import frc.robot.subsystems.Elevator.CatzElevatorSubsystem;
 import frc.robot.subsystems.Intake.CatzIntakeSubsytem;
@@ -34,6 +38,7 @@ public class RobotContainer {
       //private final CatzIntakeSubsytem intake;
       private final CatzArmSubsystem arm;
       //private final CatzRobotTracker robotTracker;
+      private final CatzStateUtil stateUtil;
       
       private CommandXboxController xboxDrv;
       private CommandXboxController xboxAux;
@@ -51,6 +56,8 @@ public class RobotContainer {
     driveTrain = CatzDriveTrainSubsystem.getInstance();
     elevator = CatzElevatorSubsystem.getInstance();
     arm = CatzArmSubsystem.getInstance();
+    stateUtil = new CatzStateUtil();
+
     xboxDrv = new CommandXboxController(XBOX_DRV_PORT); 
     xboxAux = new CommandXboxController(XBOX_AUX_PORT);
 
@@ -74,7 +81,7 @@ public class RobotContainer {
   {
     // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
 
-
+    xboxAux.y().onTrue(new MechanismCommand(elevator, arm, null, MechanismState.ScoreHigh));
 
     
 
