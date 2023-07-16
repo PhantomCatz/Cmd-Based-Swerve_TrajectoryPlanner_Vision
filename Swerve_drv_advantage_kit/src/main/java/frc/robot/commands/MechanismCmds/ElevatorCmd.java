@@ -2,15 +2,23 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.commands.ManualCommands;
+package frc.robot.commands.MechanismCmds;
+
+import java.util.function.Supplier;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.Utils.CatzStateUtil;
+import frc.robot.subsystems.Elevator.CatzElevatorSubsystem;
 
-public class TeleopDriveCmd extends CommandBase {
-  /** Creates a new TeleopDriveCmd. */
-  public TeleopDriveCmd() 
-  {
-    // Use addRequirements() here to declare subsystem dependencies.
+public class ElevatorCmd extends CommandBase {
+  CatzElevatorSubsystem elevator;
+  /** Creates a new ElevatorCmd. */
+  public ElevatorCmd(CatzElevatorSubsystem elevator, 
+                     CatzStateUtil.MechanismState currentMechState, 
+                     CatzStateUtil.ElevatorState currentElevatorState, Supplier<Double> elevatorPwr, Supplier<Boolean> manualMode) {
+    this.elevator = elevator;
+
+    addRequirements(elevator);
   }
 
   // Called when the command is initially scheduled.

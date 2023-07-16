@@ -12,29 +12,28 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
-import com.ctre.phoenix.sensors.AbsoluteSensorRange;
-import com.ctre.phoenix.sensors.CANCoder;
-import com.ctre.phoenix.sensors.SensorInitializationStrategy;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.Robot;
-import frc.robot.RobotContainer;
-import edu.wpi.first.util.datalog.DoubleLogEntry;
-import edu.wpi.first.util.datalog.StringLogEntry;
-import edu.wpi.first.util.datalog.BooleanLogEntry;
+import frc.robot.CatzConstants;
+import frc.robot.Utils.CatzStateUtil;
+import frc.robot.Utils.CatzStateUtil.GamePieceState;
 
 
-public class CatzIntakeSubsytem extends SubsystemBase {
+
+public class CatzIntakeSubsystem extends SubsystemBase {
+    
+    private final IntakeIO io;
+    private final IntakeIOInputsAutoLogged inputs = new IntakeIOInputsAutoLogged();
+
+    public static CatzIntakeSubsystem instance;
+
     //----------------------------------------------------------------------------------------------
     //
-    //  Roller
+    //  Roller Control Constants
     //
     //----------------------------------------------------------------------------------------------
-    private WPI_TalonFX rollersMtr;
-
-    private final int ROLLERS_MC_ID  = 30;
 
     private final double ROLLERS_PWR_CUBE_IN = -0.8;   
     private final double ROLLERS_PWR_CONE_IN =  1.0; //TBD decide pwrs for all cube cone scoring rollers
@@ -42,29 +41,6 @@ public class CatzIntakeSubsytem extends SubsystemBase {
     private final double ROLLERS_PWR_CUBE_OUT =  1.0;   
     private final double ROLLERS_PWR_CONE_OUT = -0.5;
 
-    private SupplyCurrentLimitConfiguration rollerCurrentLimit;
-
-    private final int     CURRENT_LIMIT_AMPS_ROLLER            = 40;    
-    private final int     CURRENT_LIMIT_TRIGGER_AMPS_ROLLER    = 40;
-
-    //----------------------------------------------------------------------------------------------
-    //
-    //  Wrist
-    //
-    //----------------------------------------------------------------------------------------------
-    private WPI_TalonFX wristMtr;
-
-    private final int    WRIST_MC_ID   = 31;
-
-    private final double WRIST_MAX_PWR = 0.3;
-
-    //current limiting
-    private SupplyCurrentLimitConfiguration wristCurrentLimit;
-
-    private final int     CURRENT_LIMIT_AMPS            = 55;
-    private final int     CURRENT_LIMIT_TRIGGER_AMPS    = 55;
-    private final double  CURRENT_LIMIT_TIMEOUT_SECONDS = 0.5;
-    private final boolean ENABLE_CURRENT_LIMIT          = true;
     
 
     //----------------------------------------------------------------------------------------------
@@ -81,22 +57,22 @@ public class CatzIntakeSubsytem extends SubsystemBase {
 
     //TBD - ADD comment for ref point
     //Reference Point = wrist would be slight above "Parallel to the ground"
-    private final double CENTER_OF_MASS_OFFSET_DEG     = 177.0; 
-    private final double WRIST_ABS_ENC_OFFSET_DEG = 0.0; //Set to make stow pos equal to 0
-    private final double WRIST_ABS_ENC_OFFSET = WRIST_ABS_ENC_OFFSET_DEG * WRIST_CNTS_PER_DEGREE;//-989.0; //Negative value means abs enc 0 is above intake angle 0   
+    public final double CENTER_OF_MASS_OFFSET_DEG     = 177.0; 
+    public final double WRIST_ABS_ENC_OFFSET_DEG = 0.0; //Set to make stow pos equal to 0
+    public final double WRIST_ABS_ENC_OFFSET = WRIST_ABS_ENC_OFFSET_DEG * WRIST_CNTS_PER_DEGREE;//-989.0; //Negative value means abs enc 0 is above intake angle 0   
     
-    private final double STOW_ENC_POS               =  0.0 + WRIST_ABS_ENC_OFFSET_DEG;//4872.0 + WRIST_ABS_ENC_OFFSET; //3883
+    public final double STOW_ENC_POS               =  0.0 + WRIST_ABS_ENC_OFFSET_DEG;//4872.0 + WRIST_ABS_ENC_OFFSET; //3883
     private final double STOW_CUTOFF                =  -7.232 + WRIST_ABS_ENC_OFFSET_DEG;// + WRIST_ABS_ENC_OFFSET; //3670
 
-    private final double INTAKE_CUBE_ENC_POS        =  -147.000 + WRIST_ABS_ENC_OFFSET_DEG;//1324.0 + WRIST_ABS_ENC_OFFSET;    //-335
-    private final double INTAKE_PICKUP_CONE_ENC_POS_GROUND =  -184.524 + WRIST_ABS_ENC_OFFSET_DEG;//-306.0  + WRIST_ABS_ENC_OFFSET;  //-1295  
-    private final double INTAKE_PICKUP_CONE_ENC_POS_SINGLE =  -116.400 + WRIST_ABS_ENC_OFFSET_DEG;//2089.0 + WRIST_ABS_ENC_OFFSET;  //1100
+    public final double INTAKE_CUBE_ENC_POS        =  -147.000 + WRIST_ABS_ENC_OFFSET_DEG;//1324.0 + WRIST_ABS_ENC_OFFSET;    //-335
+    public final double INTAKE_PICKUP_CONE_ENC_POS_GROUND =  -184.524 + WRIST_ABS_ENC_OFFSET_DEG;//-306.0  + WRIST_ABS_ENC_OFFSET;  //-1295  
+    public final double INTAKE_PICKUP_CONE_ENC_POS_SINGLE =  -116.400 + WRIST_ABS_ENC_OFFSET_DEG;//2089.0 + WRIST_ABS_ENC_OFFSET;  //1100
 
-    private final double SCORE_CUBE_ENC_POS         =  -104.000 + WRIST_ABS_ENC_OFFSET_DEG;//1859.0 + WRIST_ABS_ENC_OFFSET;  //870     // Applies to low-mid-high
+    public final double SCORE_CUBE_ENC_POS         =  -104.000 + WRIST_ABS_ENC_OFFSET_DEG;//1859.0 + WRIST_ABS_ENC_OFFSET;  //870     // Applies to low-mid-high
 
-    private final double SCORE_CONE_HIGH_ENC_POS    =  -153.000 + WRIST_ABS_ENC_OFFSET_DEG;//289.0 + WRIST_ABS_ENC_OFFSET;  //-700
-    private final double SCORE_CONE_MID_ENC_POS     = INTAKE_PICKUP_CONE_ENC_POS_GROUND; //TBD verify if its the same as high
-    private final double SCORE_CONE_LOW_ENC_POS     = INTAKE_PICKUP_CONE_ENC_POS_GROUND; //TBD
+    public final double SCORE_CONE_HIGH_ENC_POS    =  -153.000 + WRIST_ABS_ENC_OFFSET_DEG;//289.0 + WRIST_ABS_ENC_OFFSET;  //-700
+    public final double SCORE_CONE_MID_ENC_POS     = INTAKE_PICKUP_CONE_ENC_POS_GROUND; //TBD verify if its the same as high
+    public final double SCORE_CONE_LOW_ENC_POS     = INTAKE_PICKUP_CONE_ENC_POS_GROUND; //TBD
 
 
     private final double SOFT_LIMIT_FORWARD = 0.0; //4876  + WRIST_ABS_ENC_OFFSET;  //3887
@@ -137,54 +113,26 @@ public class CatzIntakeSubsytem extends SubsystemBase {
     private int numConsectSamples = 0;
 
 
-    //Datalogging
-    private DoubleLogEntry log_targetPwr;
 
     //button overides
     private Supplier<Boolean> softLimitOverideBumperEnabledRight;
     private Supplier<Boolean> softLimitOverideBumperEnabledLeft;
 
-  public CatzIntakeSubsytem(Supplier<Boolean> softLimitOverideBumperEnabledRight, Supplier<Boolean> softLimitOverideBumperEnabledLeft) 
+  public CatzIntakeSubsystem() 
   {
-        this.softLimitOverideBumperEnabledRight = softLimitOverideBumperEnabledRight;
-        this.softLimitOverideBumperEnabledLeft = softLimitOverideBumperEnabledLeft;
+    switch(CatzConstants.currentMode)
+    {
+        case REAL:
+            io = new IntakeIOReal();
+            break;
+        case SIM :
+            io = new IntakeIOSim();
+            break;
+        default:
+            io = new IntakeIOReal() {};
+            break;
+    }
 
-        //----------------------------------------------------------------------------------------------
-        //  Roller
-        //----------------------------------------------------------------------------------------------
-        rollersMtr = new WPI_TalonFX(ROLLERS_MC_ID);
-        rollersMtr.configFactoryDefault();
-        rollersMtr.setNeutralMode(NeutralMode.Brake);
-
-        rollerCurrentLimit = new SupplyCurrentLimitConfiguration(ENABLE_CURRENT_LIMIT, CURRENT_LIMIT_AMPS_ROLLER, 
-                                                                                       CURRENT_LIMIT_TRIGGER_AMPS_ROLLER, 
-                                                                                       CURRENT_LIMIT_TIMEOUT_SECONDS);
-
-        rollersMtr.configSupplyCurrentLimit(rollerCurrentLimit);
-
-        //----------------------------------------------------------------------------------------------
-        //  Wrist
-        //----------------------------------------------------------------------------------------------
-        wristMtr = new WPI_TalonFX(WRIST_MC_ID);
-
-        wristMtr.configFactoryDefault();
-
-        wristMtr.configIntegratedSensorInitializationStrategy(SensorInitializationStrategy.BootToAbsolutePosition);
-        wristMtr.configIntegratedSensorAbsoluteRange(AbsoluteSensorRange.Unsigned_0_to_360);
-        wristMtr.configIntegratedSensorOffset(0.0);
-        
-        wristMtr.setNeutralMode(NeutralMode.Brake);
-
-        wristMtr.configForwardSoftLimitThreshold(SOFT_LIMIT_FORWARD);
-        wristMtr.configReverseSoftLimitThreshold(SOFT_LIMIT_REVERSE);
-
-        wristMtr.configForwardSoftLimitEnable(true);                  
-        wristMtr.configReverseSoftLimitEnable(true);
-
-        wristCurrentLimit  = new SupplyCurrentLimitConfiguration(ENABLE_CURRENT_LIMIT, CURRENT_LIMIT_AMPS, 
-                                                                                       CURRENT_LIMIT_TRIGGER_AMPS, 
-                                                                                       CURRENT_LIMIT_TIMEOUT_SECONDS);        
-        wristMtr.configSupplyCurrentLimit(wristCurrentLimit);
 
         pid = new PIDController(GROSS_kP, GROSS_kI, GROSS_kD);
   }
@@ -192,13 +140,14 @@ public class CatzIntakeSubsytem extends SubsystemBase {
   @Override
   public void periodic() 
   {
+    io.updateInputs(inputs);
     // This method will be called once per scheduler run
     if(pidEnable)
     {
                     //----------------------------------------------------------------------------------
                     //  Chk if at final position
                     //----------------------------------------------------------------------------------
-                    currentPosition = wristMtr.getSelectedSensorPosition() / WRIST_CNTS_PER_DEGREE;
+                    currentPosition = inputs.wristPosEnc / WRIST_CNTS_PER_DEGREE;
                     positionError = currentPosition - targetPositionDeg;
 
 
@@ -252,22 +201,12 @@ public class CatzIntakeSubsytem extends SubsystemBase {
                     {
                         targetPower = 0.0;
                     }
-                    wristMtr.set(ControlMode.PercentOutput, targetPower);
+                    io.intakeSetPercentOuputIO(targetPower);
 
                     prevCurrentPosition = currentPosition;
                     prevTargetPwr = targetPower;
                    
     }
-
-    if(softLimitOverideBumperEnabledRight.get() && softLimitOverideBumperEnabledLeft.get()){
-        wristMtr.configForwardSoftLimitEnable(false);
-        wristMtr.configReverseSoftLimitEnable(false);
-    }
-    else{
-        wristMtr.configForwardSoftLimitEnable(true);
-        wristMtr.configReverseSoftLimitEnable(true);
-    }
-    smartdashboardIntakeDebug();
 
 
   }
@@ -294,29 +233,48 @@ public class CatzIntakeSubsytem extends SubsystemBase {
     *  Utilities - Rollers
     *
     *---------------------------------------------------------------------------------------------*/
+    public void intakeRollerFunctionIN()
+    {
+        if(CatzStateUtil.currentGamePieceState == CatzStateUtil.GamePieceState.CUBE) {
+        rollersInCube();
+        }
+        else {
+        rollersInCone();
+        }
+    }
+    public void intakeRollerFunctionOUT()
+    {
+        if(CatzStateUtil.currentGamePieceState == CatzStateUtil.GamePieceState.CUBE) {
+        rollersOutCube();
+        }
+        else {
+        rollersOutCone();
+        }
+    }
+    
     public void rollersOff()
     {
-        rollersMtr.set(ControlMode.PercentOutput, 0.0);
+        io.rollersOffIO();
     }
 
     public void rollersInCube()
     {
-        rollersMtr.set(ControlMode.PercentOutput, ROLLERS_PWR_CUBE_IN);
+        io.rollersOnIO(ROLLERS_PWR_CUBE_IN);
     }
 
     public void rollersOutCube()
     {
-        rollersMtr.set(ControlMode.PercentOutput, ROLLERS_PWR_CUBE_OUT);
+        io.rollersOnIO(ROLLERS_PWR_CUBE_OUT);
     }
 
     public void rollersInCone()
     {
-        rollersMtr.set(ControlMode.PercentOutput, ROLLERS_PWR_CONE_IN);
+        io.rollersOnIO(ROLLERS_PWR_CONE_IN);
     }
 
     public void rollersOutCone()
     {
-        rollersMtr.set(ControlMode.PercentOutput, ROLLERS_PWR_CONE_OUT);
+        io.rollersOnIO(ROLLERS_PWR_CONE_OUT);
     }
     
 
@@ -327,16 +285,16 @@ public class CatzIntakeSubsytem extends SubsystemBase {
     *---------------------------------------------------------------------------------------------*/
     public void intakeManualHolding(double targetHoldingPwr)
     {
-        wristMtr.set(ControlMode.PercentOutput, targetHoldingPwr);
+        io.intakeManualHoldingIO(targetHoldingPwr);
     }
     public double calcWristAngle()
     {
-        double wristAngle = ((wristMtr.getSelectedSensorPosition() / WRIST_CNTS_PER_DEGREE) - WRIST_ABS_ENC_OFFSET_DEG);
+        double wristAngle = ((inputs.wristPosEnc / WRIST_CNTS_PER_DEGREE) - WRIST_ABS_ENC_OFFSET_DEG);
         return wristAngle;
     }
 
     public double getWristPosition(){
-        return wristMtr.getSelectedSensorPosition();
+        return inputs.wristPosEnc;
     }
     
     public double calculateGravityFF()
@@ -349,7 +307,7 @@ public class CatzIntakeSubsytem extends SubsystemBase {
 
     public double intakeWristTemp()
     {
-        return wristMtr.getTemperature();
+        return inputs.wristTemp;
     }
     
     public void shuffleboardIntake()
@@ -357,19 +315,22 @@ public class CatzIntakeSubsytem extends SubsystemBase {
     
     }
 
-    public void smartdashboardIntakeDebug()
-    {
-        SmartDashboard.putNumber ("wrist ang",  calcWristAngle());
-        SmartDashboard.putNumber ("GravityFF",       calculateGravityFF());
-        SmartDashboard.putNumber ("IntakeClosedLoopError", pid.getPositionError());
-        SmartDashboard.putNumber ("applied output",  wristMtr.getMotorOutputPercent() );
-        SmartDashboard.putBoolean("pid",             pidEnable);
-        SmartDashboard.putNumber ("mtr abs", wristMtr.getSelectedSensorPosition());
-    }
-
     public boolean isIntakeInPos()
     {
         return intakeInPosition;
+    }
+/*----------------------------------------------------------------------------------------------
+*
+*  Utilities - Wrist
+*
+*---------------------------------------------------------------------------------------------*/
+    public void softLimitOverideDisabled()
+    {
+        io.intakeConfigureSoftLimitOverride(false);
+    }
+    public void softLimitOverideEnabled() 
+    {
+        io.intakeConfigureSoftLimitOverride(true);
     }
 /*-------------------------------------------------------
  * Return functions for obtaining Encoder constants from intake subsystem
@@ -416,7 +377,7 @@ public class CatzIntakeSubsytem extends SubsystemBase {
         return SCORE_CONE_LOW_ENC_POS;
     }
 
-    /* 
+    
     public static CatzIntakeSubsystem getInstance()
     {
 
@@ -430,7 +391,7 @@ public class CatzIntakeSubsytem extends SubsystemBase {
         return instance;
     
     }
-    */
+    
 
 
 }

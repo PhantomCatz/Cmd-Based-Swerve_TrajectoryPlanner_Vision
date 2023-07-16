@@ -150,7 +150,7 @@ public class CatzArmSubsystem extends SubsystemBase
 
     public void setArmPwr(double pwr)
     {        
-        io.setARmPwrIO(pwr);
+        io.setArmPwrIO(pwr);
     }
 
     public double getArmEncoder()

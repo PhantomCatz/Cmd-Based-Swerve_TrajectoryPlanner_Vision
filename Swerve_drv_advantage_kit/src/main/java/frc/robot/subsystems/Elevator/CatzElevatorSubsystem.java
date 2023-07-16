@@ -31,7 +31,6 @@ public class CatzElevatorSubsystem extends SubsystemBase {
 
   private static CatzElevatorSubsystem instance;
 
-  private WPI_TalonFX elevatorMtr;
 
   private final int ELEVATOR_MC_ID = 10;
 
@@ -130,7 +129,7 @@ public class CatzElevatorSubsystem extends SubsystemBase {
 
   private Timer elevatorTime;
 
-  public boolean armRetractingAndElevatorDescent = false;
+  public boolean elevatorManualEnabled;
 
   private double targetPosition = -999.0;
   private double currentPosition = -999.0;
@@ -163,45 +162,15 @@ public class CatzElevatorSubsystem extends SubsystemBase {
     }
 
 
-    elevatorMtr = new WPI_TalonFX(ELEVATOR_MC_ID);
-
-    elevatorMtr.configFactoryDefault();
-
-    elevatorMtr.setNeutralMode(NeutralMode.Brake);
-
-    elevatorMtr.configForwardLimitSwitchSource(LimitSwitchSource.FeedbackConnector, LimitSwitchNormal.NormallyOpen);
-    elevatorMtr.configReverseLimitSwitchSource(LimitSwitchSource.FeedbackConnector, LimitSwitchNormal.NormallyOpen);
-    elevatorMtr.overrideLimitSwitchesEnable(LIMIT_SWITCH_MONITORED);
-
-    elevatorCurrentLimit = new SupplyCurrentLimitConfiguration(ENABLE_CURRENT_LIMIT, CURRENT_LIMIT_AMPS, CURRENT_LIMIT_TRIGGER_AMPS, CURRENT_LIMIT_TIMEOUT_SECONDS);
-
-    elevatorMtr.configSupplyCurrentLimit(elevatorCurrentLimit);
-
-
-    elevatorMtr.config_kP(0, ELEVATOR_KP_HIGH);
-    elevatorMtr.config_kI(0, ELEVATOR_KI_HIGH);
-    elevatorMtr.config_kD(0, ELEVATOR_KD_HIGH);
-
-
-
-    elevatorMtr.config_IntegralZone(0, 2000.0);//TBD should go away once feet foward
-
-    elevatorMtr.selectProfileSlot(0, 0);
-
-    elevatorMtr.configAllowableClosedloopError(0, CLOSELOOP_ERROR_THRESHOLD_HIGH_MID);//make this constant and make values in inches
-    
-    elevatorMtr.set(ControlMode.PercentOutput, MANUAL_CONTROL_PWR_OFF);
-
-    elevatorTime = new Timer();
-    elevatorTime.reset();
-    elevatorTime.start();
   }
 
   @Override
   public void periodic() 
   {
+    io.updateInputs(inputs);
+    checkLimitSwitches();
     // This method will be called once per scheduler run
-    currentPosition = elevatorMtr.getSelectedSensorPosition();
+    currentPosition = inputs.elevatorEncoderCnts;
     positionError = currentPosition - targetPosition;
 
     if((Math.abs(positionError) <= ELEVATOR_POS_ERROR_THRESHOLD) && targetPosition != NO_TARGET_POSITION)
@@ -224,75 +193,75 @@ public class CatzElevatorSubsystem extends SubsystemBase {
 
         mtrPower = pwr * MAX_MANUAL_SCALED_POWER;
 
-        elevatorMtr.set(ControlMode.PercentOutput, mtrPower);
+        io.elevatorManualIO(mtrPower);
     }
 
     public void elevatorHoldingManual(double holdingEncPos)
     {
-        elevatorMtr.set(ControlMode.Position, holdingEncPos);
+        io.elevatorMtrSetPosIO(holdingEncPos);
     }
 
     public void elevatorSetToLowPos()
     {
-        elevatorMtr.configAllowableClosedloopError(0, CLOSELOOP_ERROR_THRESHOLD_LOW);
+        io.configAllowableClosedloopErrorIO(0, CLOSELOOP_ERROR_THRESHOLD_LOW);
 
 
-        elevatorMtr.config_kP(0, ELEVATOR_KP_LOW);
-        elevatorMtr.config_kI(0, ELEVATOR_KI_LOW);
-        elevatorMtr.config_kD(0, ELEVATOR_KD_LOW);
-        elevatorMtr.set(ControlMode.Position, POS_ENC_CNTS_LOW);
+        io.elevatorConfig_kPIO(0, ELEVATOR_KP_LOW);
+        io.elevatorConfig_kIIO(0, ELEVATOR_KI_LOW);
+        io.elevatorConfig_kDIO(0, ELEVATOR_KD_LOW);
+        io.elevatorMtrSetPosIO(POS_ENC_CNTS_LOW);
         targetPosition = POS_ENC_CNTS_LOW;
         elevatorInPosition = false;
     }
 
     public void elevatorSetToMidPosCone()
     {
-        elevatorMtr.configAllowableClosedloopError(0, CLOSELOOP_ERROR_THRESHOLD_HIGH_MID);
+        io.configAllowableClosedloopErrorIO(0, CLOSELOOP_ERROR_THRESHOLD_HIGH_MID);
 
 
-        elevatorMtr.config_kP(0, ELEVATOR_KP_MID);
-        elevatorMtr.config_kI(0, ELEVATOR_KI_MID);
-        elevatorMtr.config_kD(0, ELEVATOR_KD_MID);
-        elevatorMtr.set(ControlMode.Position, POS_ENC_CNTS_MID_CONE, DemandType.ArbitraryFeedForward, HOLDING_FEED_FORWARD);
+        io.elevatorConfig_kPIO(0, ELEVATOR_KP_MID);
+        io.elevatorConfig_kIIO(0, ELEVATOR_KI_MID);
+        io.elevatorConfig_kDIO(0, ELEVATOR_KD_MID);
+        io.elevatorMtrSetPosIO(POS_ENC_CNTS_MID_CONE);
         targetPosition = POS_ENC_CNTS_MID_CONE;
         elevatorInPosition = false;
     }
 
     public void elevatorSetToMidPosCube()
     {
-        elevatorMtr.configAllowableClosedloopError(0, CLOSELOOP_ERROR_THRESHOLD_HIGH_MID);
+        io.configAllowableClosedloopErrorIO(0, CLOSELOOP_ERROR_THRESHOLD_HIGH_MID);
 
 
-        elevatorMtr.config_kP(0, ELEVATOR_KP_MID);
-        elevatorMtr.config_kI(0, ELEVATOR_KI_MID);
-        elevatorMtr.config_kD(0, ELEVATOR_KD_MID);
-        elevatorMtr.set(ControlMode.Position, POS_ENC_CNTS_MID_CUBE, DemandType.ArbitraryFeedForward, HOLDING_FEED_FORWARD);
+        io.elevatorConfig_kPIO(0, ELEVATOR_KP_MID);
+        io.elevatorConfig_kIIO(0, ELEVATOR_KI_MID);
+        io.elevatorConfig_kDIO(0, ELEVATOR_KD_MID);
+        io.elevatorMtrSetPosIO(POS_ENC_CNTS_MID_CUBE);
         targetPosition = POS_ENC_CNTS_MID_CUBE;
         elevatorInPosition = false;
     }
 
     public void elevatorSetToHighPos()
     {
-        elevatorMtr.configAllowableClosedloopError(0, CLOSELOOP_ERROR_THRESHOLD_HIGH_MID);
+        io.configAllowableClosedloopErrorIO(0, CLOSELOOP_ERROR_THRESHOLD_HIGH_MID);
 
 
-        elevatorMtr.config_kP(0, ELEVATOR_KP_HIGH);
-        elevatorMtr.config_kI(0, ELEVATOR_KI_HIGH);
-        elevatorMtr.config_kD(0, ELEVATOR_KD_HIGH);
-        elevatorMtr.set(ControlMode.Position, POS_ENC_CNTS_HIGH, DemandType.ArbitraryFeedForward, HOLDING_FEED_FORWARD);
+        io.elevatorConfig_kPIO(0, ELEVATOR_KP_HIGH);
+        io.elevatorConfig_kIIO(0, ELEVATOR_KI_HIGH);
+        io.elevatorConfig_kDIO(0, ELEVATOR_KD_HIGH);
+        io.elevatorMtrSetPosIO(POS_ENC_CNTS_HIGH);
         targetPosition = POS_ENC_CNTS_HIGH;
         elevatorInPosition = false;
     }
 
     public void elevatorSetToSinglePickup()
     {
-        elevatorMtr.configAllowableClosedloopError(0, CLOSELOOP_ERROR_THRESHOLD_LOW);
+        io.configAllowableClosedloopErrorIO(0, CLOSELOOP_ERROR_THRESHOLD_LOW);
 
 
-        elevatorMtr.config_kP(0, ELEVATOR_KP_LOW);
-        elevatorMtr.config_kI(0, ELEVATOR_KI_LOW);
-        elevatorMtr.config_kD(0, ELEVATOR_KD_LOW);
-        elevatorMtr.set(ControlMode.Position, 27739, DemandType.ArbitraryFeedForward, HOLDING_FEED_FORWARD);
+        io.elevatorConfig_kPIO(0, ELEVATOR_KP_LOW);
+        io.elevatorConfig_kIIO(0, ELEVATOR_KI_LOW);
+        io.elevatorConfig_kDIO(0, ELEVATOR_KD_LOW);
+        io.elevatorMtrSetPosIO(27739);
         targetPosition = 27739;
         elevatorInPosition = false;
     }
@@ -301,9 +270,9 @@ public class CatzElevatorSubsystem extends SubsystemBase {
 
     public void checkLimitSwitches()
     {
-        if(elevatorMtr.getSensorCollection().isRevLimitSwitchClosed() == SWITCH_CLOSED)
+        if(inputs.isRevLimitSwitchClosed)
         {
-            elevatorMtr.setSelectedSensorPosition(POS_ENC_CNTS_LOW);
+            io.setSelectedSensorPositionIO(POS_ENC_CNTS_LOW);
             lowSwitchState = true;
         }
         else
@@ -311,9 +280,9 @@ public class CatzElevatorSubsystem extends SubsystemBase {
             lowSwitchState = false;
         }
 
-        if(elevatorMtr.getSensorCollection().isFwdLimitSwitchClosed() == SWITCH_CLOSED)
+        if(inputs.isFwdLimitSwitchClosed)
         {
-            elevatorMtr.setSelectedSensorPosition(POS_ENC_CNTS_HIGH);
+            io.setSelectedSensorPositionIO(POS_ENC_CNTS_HIGH);
             highSwitchState = true;
         }
         else
@@ -325,7 +294,7 @@ public class CatzElevatorSubsystem extends SubsystemBase {
 
     public double getElevatorEncoder()
     {
-        return elevatorMtr.getSelectedSensorPosition();
+        return inputs.elevatorEncoderCnts;
     }
 
     public boolean isElevatorInPos()

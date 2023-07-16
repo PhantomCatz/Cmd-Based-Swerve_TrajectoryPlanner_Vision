@@ -15,7 +15,7 @@ public interface ArmIO
     
     public default void setSelectedSensorPositionIO(double encoderResetPos) {}
 
-    public default void setARmPwrIO(double pwr) {}
+    public default void setArmPwrIO(double pwr) {}
 
     
     public default void armSetFullExtendPosIO() {}

@@ -136,13 +136,88 @@ public class ElevatorIOReal implements ElevatorIO
   
     public ElevatorIOReal()
     {
+        elevatorMtr = new WPI_TalonFX(ELEVATOR_MC_ID);
 
+        elevatorMtr.configFactoryDefault();
+    
+        elevatorMtr.setNeutralMode(NeutralMode.Brake);
+    
+        elevatorMtr.configForwardLimitSwitchSource(LimitSwitchSource.FeedbackConnector, LimitSwitchNormal.NormallyOpen);
+        elevatorMtr.configReverseLimitSwitchSource(LimitSwitchSource.FeedbackConnector, LimitSwitchNormal.NormallyOpen);
+        elevatorMtr.overrideLimitSwitchesEnable(LIMIT_SWITCH_MONITORED);
+    
+        elevatorCurrentLimit = new SupplyCurrentLimitConfiguration(ENABLE_CURRENT_LIMIT, CURRENT_LIMIT_AMPS, CURRENT_LIMIT_TRIGGER_AMPS, CURRENT_LIMIT_TIMEOUT_SECONDS);
+    
+        elevatorMtr.configSupplyCurrentLimit(elevatorCurrentLimit);
+    
+    
+        elevatorMtr.config_kP(0, ELEVATOR_KP_HIGH);
+        elevatorMtr.config_kI(0, ELEVATOR_KI_HIGH);
+        elevatorMtr.config_kD(0, ELEVATOR_KD_HIGH);
+    
+    
+    
+        elevatorMtr.config_IntegralZone(0, 2000.0);//TBD should go away once feet foward
+    
+        elevatorMtr.selectProfileSlot(0, 0);
+    
+        elevatorMtr.configAllowableClosedloopError(0, CLOSELOOP_ERROR_THRESHOLD_HIGH_MID);//make this constant and make values in inches
+        
+        elevatorMtr.set(ControlMode.PercentOutput, MANUAL_CONTROL_PWR_OFF);
+    
+        elevatorTime = new Timer();
+        elevatorTime.reset();
+        elevatorTime.start();
     }
 
     @Override
     public void updateInputs(ElevatorIOInputs inputs)
     {
- 
+        inputs.elevatorEncoderCnts = elevatorMtr.getSelectedSensorPosition();
+        inputs.isRevLimitSwitchClosed = (elevatorMtr.getSensorCollection().isRevLimitSwitchClosed() == SWITCH_CLOSED);
+        inputs.isFwdLimitSwitchClosed = (elevatorMtr.getSensorCollection().isFwdLimitSwitchClosed() == SWITCH_CLOSED);
     }
+
+    @Override
+    public void elevatorManualIO(double setMtrPower) 
+    {
+        elevatorMtr.set(ControlMode.PercentOutput, setMtrPower);
+    }
+
+    @Override
+    public void elevatorConfig_kPIO(int slotID, double elevatorkP) 
+    {
+        elevatorMtr.config_kP(0, elevatorkP);
+    }
+
+    @Override
+    public void elevatorConfig_kIIO(int slotID, double elevatorkI) 
+    {
+        elevatorMtr.config_kI(0, elevatorkI);
+    }
+
+    @Override
+    public void elevatorConfig_kDIO(int slotID, double elevatorkD) 
+    {
+        elevatorMtr.config_kD(0, elevatorkD);
+    }
+
+    @Override
+    public void elevatorMtrSetPosIO( double setPositionEnc) 
+    {
+        elevatorMtr.set(ControlMode.Position, setPositionEnc,  DemandType.ArbitraryFeedForward, HOLDING_FEED_FORWARD);
+    }
+    @Override
+    public void configAllowableClosedloopErrorIO(int slotID, double closeloopErrorThreshold) 
+    {
+        elevatorMtr.configAllowableClosedloopError(slotID, closeloopErrorThreshold);
+    }
+
+    @Override
+    public void setSelectedSensorPositionIO(double setNewReadPosition) 
+    {
+        elevatorMtr.setSelectedSensorPosition(setNewReadPosition);
+    }   
+
  
 }

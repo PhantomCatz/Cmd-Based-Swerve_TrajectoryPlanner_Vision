@@ -125,19 +125,17 @@ public class CatzDriveTrainSubsystem extends SubsystemBase
 */
     }
 
-    public void cmdProcSwerve(double leftJoyX, double leftJoyY, double rightJoyX, double navXAngle, double pwrMode)
+    public void cmdProcSwerve(double leftJoyX, double leftJoyY, double rightJoyX, double pwrMode)
     {
         steerAngle = calcJoystickAngle(leftJoyX, leftJoyY);
         drivePower = calcJoystickPower(leftJoyX, leftJoyY);
         turnPower  = rightJoyX;
         
-        gyroAngle  = navXAngle;
+        gyroAngle  = getGyroAngle();
 
         
-        //System.out.println(pwrMode);
         if(pwrMode > 0.9)
         {
-           //System.out.println("---------");
             modifyDrvPwr = true;
         }
         else
@@ -151,7 +149,6 @@ public class CatzDriveTrainSubsystem extends SubsystemBase
             if(modifyDrvPwr == true)
             {
                 drivePower = drivePower * 0.5;
-                //System.out.println("MOD DRV");
             }
             
 
@@ -160,7 +157,6 @@ public class CatzDriveTrainSubsystem extends SubsystemBase
                 if(modifyDrvPwr == true)
                 {
                     turnPower = turnPower * 0.5;
-                    //System.out.println("MOD DRV");
                 }
                 translateTurn(steerAngle, drivePower, turnPower, gyroAngle);
                 }
@@ -175,7 +171,6 @@ public class CatzDriveTrainSubsystem extends SubsystemBase
             if(modifyDrvPwr == true)
             {
                 turnPower = turnPower * 0.5;
-                //System.out.println("MOD DRV");
             }
             
             rotateInPlace(turnPower);

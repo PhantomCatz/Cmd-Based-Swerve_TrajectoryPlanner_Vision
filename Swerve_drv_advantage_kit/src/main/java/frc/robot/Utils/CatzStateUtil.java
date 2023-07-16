@@ -9,7 +9,7 @@ public static MechanismState currentMechState;
     ScoreHigh,
     ScoreMid,
     ScoreLow,
-    PickupLow,
+    PickupGround,
     PickupSingle,
     PickupDouble,
     Stow
@@ -19,10 +19,36 @@ public static MechanismState currentMechState;
   public static GamePieceState currentGamePieceState;
 
   public static enum GamePieceState {
-
+    
     CONE,
     CUBE,
     NONE
-
   }  
+
+  public static void newGamePieceState(GamePieceState newGamePieceState)
+  {
+    currentGamePieceState = newGamePieceState;
+  }
+
+  
+  public static ElevatorState currentElevatorState;
+  public static enum ElevatorState {
+
+    MANUAL,
+    SET_STATE
+  }
+
+  public static ArmState currentArmState;
+  public static enum ArmState {
+
+    MANUAL,
+    SET_STATE
+  }
+
+  public static IntakeState currentIntakeState;
+  public static enum IntakeState {
+
+    MANUAL,
+    SET_STATE
+  }
 }

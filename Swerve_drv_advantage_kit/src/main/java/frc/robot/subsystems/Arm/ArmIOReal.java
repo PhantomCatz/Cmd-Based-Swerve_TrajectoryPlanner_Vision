@@ -122,7 +122,7 @@ public class ArmIOReal implements ArmIO
     }
     
     @Override
-    public void setARmPwrIO(double pwr)
+    public void setArmPwrIO(double pwr)
     {
         armMtr.set(ControlMode.PercentOutput, pwr);
     }
