@@ -8,11 +8,11 @@ public static MechanismState currentMechState;
 
     ScoreHigh,
     ScoreMid,
-    ScoreLow,
-    PickupGround,
+    SCORELOW,
+    PICKUPGROUND,
     PickupSingle,
     PickupDouble,
-    Stow
+    STOW
 
   }  
 

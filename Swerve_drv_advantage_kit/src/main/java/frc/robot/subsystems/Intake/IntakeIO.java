@@ -19,7 +19,7 @@ public interface IntakeIO {
 
     public default void intakeManualHoldingIO(double targetHoldingPwr) {}
 
-    public default void intakeSetPercentOuputIO(double setIntakeMtrPwr) {}
+    public default void wristSetPercentOuputIO(double setIntakeMtrPwr) {}
 
     public default void intakeConfigureSoftLimitOverride(boolean enabled) {}
 

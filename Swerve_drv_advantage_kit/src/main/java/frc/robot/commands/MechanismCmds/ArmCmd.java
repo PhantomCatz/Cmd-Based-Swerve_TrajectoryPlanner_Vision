@@ -4,27 +4,95 @@
 
 package frc.robot.commands.MechanismCmds;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.google.common.base.Supplier;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Utils.CatzStateUtil;
+import frc.robot.Utils.CatzStateUtil.ArmState;
+import frc.robot.Utils.CatzStateUtil.GamePieceState;
 import frc.robot.subsystems.Arm.CatzArmSubsystem;
 
 public class ArmCmd extends CommandBase {
+  CatzArmSubsystem arm;
+  CatzStateUtil.ArmState currentArmState;
+  CatzStateUtil.MechanismState currentMechState;
+  boolean armExtend;
+  boolean armRetract;
+
+  private final double EXTEND_PWR  = 0.2;
+  private final double RETRACT_PWR = -0.2;
+
+
+  private final double MANUAL_CONTROL_PWR_OFF = 0.0;
+
   /** Creates a new ArmCmd. */
-  public ArmCmd(CatzArmSubsystem arm, 
+  public ArmCmd(CatzArmSubsystem arm,
+                CatzStateUtil.ArmState currentArmState, 
                 CatzStateUtil.MechanismState currentMechState, 
-                CatzStateUtil.ArmState currentArmState, boolean armExtend, boolean armRetract) {
-    // Use addRequirements() here to declare subsystem dependencies.
+                boolean armExtend, boolean armRetract) {
+
+  this.arm =arm;
+  this.currentArmState = currentArmState;
+  this.currentMechState = currentMechState;
+  this.armExtend = armExtend;
+  this.armRetract = armRetract;
+  addRequirements(arm);
   }
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {}
+  public void initialize() 
+  {
+    if(currentArmState == ArmState.SET_STATE)
+    {
+      switch(currentMechState)
+      {
+          case STOW:
+          case ScoreMid :
+              arm.armSetRetractPos();
+              break;
+
+          case PICKUPGROUND :
+          case PickupSingle :
+          case SCORELOW :
+              arm.armSetPickupPos();
+              break;
+
+          case ScoreHigh :
+                arm.armSetFullExtendPos();
+              break;
+
+          default:
+              break;
+      }
+    }
+  }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
-  public void execute() {}
+  public void execute() 
+  {
+
+    if(currentArmState == ArmState.MANUAL)
+    {
+      if(armExtend == true)
+      {
+          arm.setArmPwr(EXTEND_PWR);
+          
+      }
+      else if(armRetract == true)
+      {
+
+          arm.setArmPwr(RETRACT_PWR);
+          
+      }
+      else if(arm.currentArmControlMode() == ControlMode.PercentOutput)
+      {
+          arm.setArmPwr(MANUAL_CONTROL_PWR_OFF);
+      }
+    }
+  }
 
   // Called once the command ends or is interrupted.
   @Override

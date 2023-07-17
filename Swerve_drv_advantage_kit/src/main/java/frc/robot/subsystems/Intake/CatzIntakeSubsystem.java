@@ -114,9 +114,6 @@ public class CatzIntakeSubsystem extends SubsystemBase {
 
 
 
-    //button overides
-    private Supplier<Boolean> softLimitOverideBumperEnabledRight;
-    private Supplier<Boolean> softLimitOverideBumperEnabledLeft;
 
   public CatzIntakeSubsystem() 
   {
@@ -142,72 +139,6 @@ public class CatzIntakeSubsystem extends SubsystemBase {
   {
     io.updateInputs(inputs);
     // This method will be called once per scheduler run
-    if(pidEnable)
-    {
-                    //----------------------------------------------------------------------------------
-                    //  Chk if at final position
-                    //----------------------------------------------------------------------------------
-                    currentPosition = inputs.wristPosEnc / WRIST_CNTS_PER_DEGREE;
-                    positionError = currentPosition - targetPositionDeg;
-
-
-                    if  ((Math.abs(positionError) <= INTAKE_POS_ERROR_THRESHOLD_DEG))
-                    {
-                        numConsectSamples++;
-                        if(numConsectSamples >= 1)
-                        {   
-                            intakeInPosition = true;
-                        }
-                    }
-                    else
-                    {
-                        numConsectSamples = 0;
-                    }
-                    
-                    
-                    if(Math.abs(positionError) >= PID_FINE_GROSS_THRESHOLD_DEG)
-                    {
-                        pid.setP(GROSS_kP);
-                        pid.setI(GROSS_kI);
-                        pid.setD(GROSS_kD);
-                    }
-                    else if(Math.abs(positionError) < PID_FINE_GROSS_THRESHOLD_DEG)
-                    {
-                        pid.setP(FINE_kP);
-                        pid.setI(FINE_kI);
-                        pid.setD(FINE_kD);
-                    }
-
-                    pidPower = pid.calculate(currentPosition, targetPositionDeg);
-                    ffPower = calculateGravityFF();
-                    targetPower = pidPower + ffPower;
-
-                    //-------------------------------------------------------------
-                    //  checking if we did not get updated position value(Sampling Issue).
-                    //  If no change in position, this give invalid target power(kD issue).
-                    //  Therefore, go with prev targetPower Value.
-                    //-------------------------------------------------------------------
-                    if(prevCurrentPosition == currentPosition)
-                    {
-                        targetPower = prevTargetPwr;
-                    }
-
-                    //----------------------------------------------------------------------------------
-                    //  If we are going to Stow Position & have passed the power cutoff angle, set
-                    //  power to 0, otherwise calculate new motor power based on position error and 
-                    //  current angle
-                    //----------------------------------------------------------------------------------
-                    if(targetPositionDeg == STOW_ENC_POS && currentPosition > STOW_CUTOFF)
-                    {
-                        targetPower = 0.0;
-                    }
-                    io.intakeSetPercentOuputIO(targetPower);
-
-                    prevCurrentPosition = currentPosition;
-                    prevTargetPwr = targetPower;
-                   
-    }
-
 
   }
 
@@ -287,6 +218,12 @@ public class CatzIntakeSubsystem extends SubsystemBase {
     {
         io.intakeManualHoldingIO(targetHoldingPwr);
     }
+
+    public void wristSetPercentOuput(double targetPwr)
+    {
+        io.wristSetPercentOuputIO(targetPwr);
+    }
+
     public double calcWristAngle()
     {
         double wristAngle = ((inputs.wristPosEnc / WRIST_CNTS_PER_DEGREE) - WRIST_ABS_ENC_OFFSET_DEG);
@@ -332,51 +269,77 @@ public class CatzIntakeSubsystem extends SubsystemBase {
     {
         io.intakeConfigureSoftLimitOverride(true);
     }
-/*-------------------------------------------------------
- * Return functions for obtaining Encoder constants from intake subsystem
- * 
- -----------------------------------------------------------*/
 
-    public double getIntakeStowPos()
+    public void intakePIDControl()
     {
-        return STOW_ENC_POS;
-    }
+        if(true)
+        {
+            //----------------------------------------------------------------------------------
+            //  Chk if at final position
+            //----------------------------------------------------------------------------------
+            currentPosition = inputs.wristPosEnc / WRIST_CNTS_PER_DEGREE;
+            positionError = currentPosition - targetPositionDeg;
 
-    public double getIntakePickupGroundCubePos()
-    {
-        return INTAKE_CUBE_ENC_POS;
-    }
 
-    public double getIntakePickupGroundConePos()
-    {
-        return INTAKE_PICKUP_CONE_ENC_POS_GROUND;
-    }
+            if  ((Math.abs(positionError) <= INTAKE_POS_ERROR_THRESHOLD_DEG))
+            {
+                numConsectSamples++;
+                if(numConsectSamples >= 1)
+                {   
+                    intakeInPosition = true;
+                }
+            }
+            else
+            {
+                numConsectSamples = 0;
+            }
+            
+            
+            if(Math.abs(positionError) >= PID_FINE_GROSS_THRESHOLD_DEG)
+            {
+                pid.setP(GROSS_kP);
+                pid.setI(GROSS_kI);
+                pid.setD(GROSS_kD);
+            }
+            else if(Math.abs(positionError) < PID_FINE_GROSS_THRESHOLD_DEG)
+            {
+                pid.setP(FINE_kP);
+                pid.setI(FINE_kI);
+                pid.setD(FINE_kD);
+            }
 
-    public double getIntakePickupSingleConePos()
-    {
-        return INTAKE_PICKUP_CONE_ENC_POS_SINGLE;
-    }
+            pidPower = pid.calculate(currentPosition, targetPositionDeg);
+            ffPower = calculateGravityFF();
+            targetPower = pidPower + ffPower;
 
-    public double getIntakeScoreCubePos()
-    {
-        return SCORE_CUBE_ENC_POS;
-    }
+            //-------------------------------------------------------------
+            //  checking if we did not get updated position value(Sampling Issue).
+            //  If no change in position, this give invalid target power(kD issue).
+            //  Therefore, go with prev targetPower Value.
+            //-------------------------------------------------------------------
+            if(prevCurrentPosition == currentPosition)
+            {
+                targetPower = prevTargetPwr;
+            }
+
+            //----------------------------------------------------------------------------------
+            //  If we are going to Stow Position & have passed the power cutoff angle, set
+            //  power to 0, otherwise calculate new motor power based on position error and 
+            //  current angle
+            //----------------------------------------------------------------------------------
+            if(targetPositionDeg == STOW_ENC_POS && currentPosition > STOW_CUTOFF)
+            {
+                targetPower = 0.0;
+            }
+            wristSetPercentOuput(targetPower);
+
+            prevCurrentPosition = currentPosition;
+            prevTargetPwr = targetPower;
+                       
+        }
     
-    public double getIntakeScoreConeHighPos()
-    {
-        return SCORE_CONE_HIGH_ENC_POS;
+    
     }
-
-    public double getIntakeScoreConeMidPos()
-    {
-        return SCORE_CONE_MID_ENC_POS;
-    }
-
-    public double getIntakeScoreConeLowPos()
-    {
-        return SCORE_CONE_LOW_ENC_POS;
-    }
-
     
     public static CatzIntakeSubsystem getInstance()
     {

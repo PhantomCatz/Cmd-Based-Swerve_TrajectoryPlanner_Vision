@@ -18,7 +18,8 @@ import frc.robot.Utils.CatzStateUtil.GamePieceState;
 import frc.robot.Utils.CatzStateUtil.MechanismState;
 import frc.robot.commands.MechanismCmds.ArmCmd;
 import frc.robot.commands.MechanismCmds.ElevatorCmd;
-import frc.robot.commands.MechanismCmds.MechStateScheduleCmd;
+import frc.robot.commands.MechanismCmds.IntakeCmd;
+import frc.robot.commands.MechanismCmds.StateOrganizerCmd;
 import frc.robot.subsystems.Arm.CatzArmSubsystem;
 import frc.robot.subsystems.Elevator.CatzElevatorSubsystem;
 import frc.robot.subsystems.Intake.CatzIntakeSubsystem;
@@ -81,34 +82,29 @@ public class RobotContainer {
   private void configureBindings() 
   {
     // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
-  //---------------------------------------Aux button mechanism cmds--------------------
-    xboxAux.y().onTrue(new MechStateScheduleCmd(elevator, arm, intake, MechanismState.ScoreHigh));
-    xboxAux.b().onTrue(new MechStateScheduleCmd(elevator, arm, intake, MechanismState.ScoreMid));
-    xboxAux.a().onTrue(new MechStateScheduleCmd(elevator, arm, intake, MechanismState.ScoreLow));
-    xboxAux.x().or(xboxDrv.rightStick()).onTrue(new MechStateScheduleCmd(elevator, arm, intake, MechanismState.Stow));
-    xboxAux.start().or(xboxDrv.leftStick()).onTrue(new MechStateScheduleCmd(elevator, arm, intake, MechanismState.PickupGround));
+  //---------------------------------------Aux button mechanism cmds-----------------------------------------------------
+    xboxAux.y().onTrue(new StateOrganizerCmd(elevator, arm, intake, MechanismState.ScoreHigh));
+    xboxAux.b().onTrue(new StateOrganizerCmd(elevator, arm, intake, MechanismState.ScoreMid));
+    xboxAux.a().onTrue(new StateOrganizerCmd(elevator, arm, intake, MechanismState.SCORELOW));
+    xboxAux.x().or(xboxDrv.rightStick()).onTrue(new StateOrganizerCmd(elevator, arm, intake, MechanismState.STOW));
+    xboxAux.start().or(xboxDrv.leftStick()).onTrue(new StateOrganizerCmd(elevator, arm, intake, MechanismState.PICKUPGROUND));
+    
   //------------------------------------------Teleop button Mechanism cmds
-    xboxDrv.rightStick().onTrue(new MechStateScheduleCmd(elevator, arm, intake, MechanismState.Stow));
-    xboxDrv.leftStick().onTrue(new MechStateScheduleCmd(elevator, arm, intake, MechanismState.PickupGround));
+    xboxDrv.rightStick().onTrue(new StateOrganizerCmd(elevator, arm, intake, MechanismState.STOW));
+    xboxDrv.leftStick().onTrue(new StateOrganizerCmd(elevator, arm, intake, MechanismState.PICKUPGROUND));
 
-  //--------------------------------------------Manual Cmds------------------------------------
-    //elevator
-    xboxAux.rightStick().onTrue(new ElevatorCmd(elevator, null, CatzStateUtil.ElevatorState.MANUAL,
-                                                () -> xboxAux.getRightY(), 
-                                                () -> xboxAux.rightStick().getAsBoolean()));
+  //--------------------------------------------Manual Cmds---------------------------------------------------------------------------
     //arm
-    xboxAux.rightTrigger().onTrue(new ArmCmd(arm, null, CatzStateUtil.ArmState.MANUAL, true, false))
+    xboxAux.rightTrigger().onTrue(new ArmCmd(arm, CatzStateUtil.ArmState.MANUAL, null, true, false))
                           .onFalse(Commands.run(
                             () -> {
                             arm.setArmPwr(0.0);
                             }));
-    xboxAux.leftTrigger().onTrue(new ArmCmd(arm, null, CatzStateUtil.ArmState.MANUAL, false, true))
+    xboxAux.leftTrigger().onTrue(new ArmCmd(arm, CatzStateUtil.ArmState.MANUAL, null, false, true))
                          .onFalse(Commands.run(
                             () -> {
                             arm.setArmPwr(0.0);
                             }));
-    //intake
-    xboxAux.leftStick().onTrue(null);
 
   //-----------------------------------commands with no subsystem----------------------------
     xboxAux.back().onTrue(Commands.run(
@@ -174,7 +170,12 @@ public class RobotContainer {
                                                                                 xboxDrv.getLeftY(), 
                                                                                 xboxDrv.getRightX(),
                                                                                 xboxDrv.getRightTriggerAxis()), driveTrain));
-              
+    intake.setDefaultCommand(new IntakeCmd(intake, CatzStateUtil.IntakeState.MANUAL, null, () -> xboxAux.getLeftX(), () -> xboxAux.leftStick().getAsBoolean()));     
+
+    elevator.setDefaultCommand( new ElevatorCmd(elevator, CatzStateUtil.ElevatorState.MANUAL, null,
+                                                () -> xboxAux.getRightY(), 
+                                                () -> xboxAux.rightStick().getAsBoolean()));
+
   }
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.

@@ -178,6 +178,11 @@ public class CatzArmSubsystem extends SubsystemBase
         io.armSetPickupPosIO();
     }
 
+    public ControlMode currentArmControlMode()
+    {
+        return inputs.currentArmControlMode;
+    }
+
     public static CatzArmSubsystem getInstance()
     {
 

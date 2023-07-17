@@ -2,6 +2,8 @@ package frc.robot.subsystems.Arm;
 
 import org.littletonrobotics.junction.AutoLog;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
+
 public interface ArmIO 
 {
     @AutoLog
@@ -9,6 +11,7 @@ public interface ArmIO
     {
         public double armMotorEncoder;
         public boolean isRevLimitSwitchClosed;
+        public ControlMode currentArmControlMode;
     }
 
     public default void updateInputs(ArmIOInputs inputs) {}

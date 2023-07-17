@@ -184,7 +184,7 @@ public class IntakeIOReal implements IntakeIO
     }
 
     @Override
-    public void intakeSetPercentOuputIO(double setIntakeMtrPwrIO) 
+    public void wristSetPercentOuputIO(double setIntakeMtrPwrIO) 
     {
         wristMtr.set(ControlMode.PercentOutput, setIntakeMtrPwrIO);
     }
