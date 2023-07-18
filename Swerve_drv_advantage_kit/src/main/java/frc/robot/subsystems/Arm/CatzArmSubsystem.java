@@ -85,7 +85,7 @@ public class CatzArmSubsystem extends SubsystemBase
   private final double NO_TARGET_POSITION = -999999.0;
 
 
-  public CatzArmSubsystem() 
+  private CatzArmSubsystem() 
   {
     switch(CatzConstants.currentMode)
     {

@@ -115,7 +115,7 @@ public class CatzIntakeSubsystem extends SubsystemBase {
 
 
 
-  public CatzIntakeSubsystem() 
+  private CatzIntakeSubsystem() 
   {
     switch(CatzConstants.currentMode)
     {

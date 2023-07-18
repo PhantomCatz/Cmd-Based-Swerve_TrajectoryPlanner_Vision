@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.Autonomous.CatzAutonomousSelection;
 import frc.robot.Utils.CatzStateUtil;
 import frc.robot.Utils.CatzStateUtil.GamePieceState;
 import frc.robot.Utils.CatzStateUtil.MechanismState;
@@ -40,6 +41,8 @@ public class RobotContainer {
       private final CatzArmSubsystem arm;
       //private final CatzRobotTracker robotTracker;
 
+      private final CatzAutonomousSelection auton = new CatzAutonomousSelection();
+
       
       private CommandXboxController xboxDrv;
       private CommandXboxController xboxAux;
@@ -64,7 +67,7 @@ public class RobotContainer {
     xboxAux = new CommandXboxController(XBOX_AUX_PORT);
 
 
-    // Configure the trigger bindings
+    // Configure the trigger bindings and default cmds
     defaultCommands();
     configureBindings();
   }
@@ -81,7 +84,6 @@ public class RobotContainer {
    */
   private void configureBindings() 
   {
-    // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
   //---------------------------------------Aux button mechanism cmds-----------------------------------------------------
     xboxAux.y().onTrue(new StateOrganizerCmd(elevator, arm, intake, MechanismState.ScoreHigh));
     xboxAux.b().onTrue(new StateOrganizerCmd(elevator, arm, intake, MechanismState.ScoreMid));
@@ -89,7 +91,7 @@ public class RobotContainer {
     xboxAux.x().or(xboxDrv.rightStick()).onTrue(new StateOrganizerCmd(elevator, arm, intake, MechanismState.STOW));
     xboxAux.start().or(xboxDrv.leftStick()).onTrue(new StateOrganizerCmd(elevator, arm, intake, MechanismState.PICKUPGROUND));
     
-  //------------------------------------------Teleop button Mechanism cmds
+  //------------------------------------------Drive button Mechanism cmds---------------------------------------
     xboxDrv.rightStick().onTrue(new StateOrganizerCmd(elevator, arm, intake, MechanismState.STOW));
     xboxDrv.leftStick().onTrue(new StateOrganizerCmd(elevator, arm, intake, MechanismState.PICKUPGROUND));
 
@@ -107,55 +109,55 @@ public class RobotContainer {
                             }));
 
   //-----------------------------------commands with no subsystem----------------------------
-    xboxAux.back().onTrue(Commands.run(
+    xboxAux.back().onTrue(Commands.runOnce(
       () -> {
       CatzStateUtil.newGamePieceState(GamePieceState.NONE);
       }));
 
-    xboxAux.povLeft().onTrue(Commands.run(
+    xboxAux.povLeft().onTrue(Commands.runOnce(
       () -> {
         CatzStateUtil.newGamePieceState(GamePieceState.CUBE);
       }));
 
-    xboxAux.povRight().onTrue(Commands.run(
+    xboxAux.povRight().onTrue(Commands.runOnce(
       () -> {
         CatzStateUtil.newGamePieceState(GamePieceState.CONE);
       }));
 
     xboxAux.leftBumper().and(xboxAux.rightBumper())  //disabling softlimits only when both bumpers are pressed
-    .onTrue(Commands.run(
+    .onTrue(Commands.runOnce(
     () -> {
       intake.softLimitOverideDisabled();
     }))
-    .onFalse(Commands.run(
+    .onFalse(Commands.runOnce(
     () -> {
       intake.softLimitOverideEnabled();
     }));
 
 
-    xboxDrv.start().onTrue(Commands.run(
+    xboxDrv.start().onTrue(Commands.runOnce(
       () -> {
         driveTrain.zeroGyro();
       }));
 
-    xboxDrv.b().onTrue(Commands.run(
+    xboxDrv.b().onTrue(Commands.runOnce(
       () -> {
         driveTrain.lockWheels();
       }));
 
     //--------------------------Intake Rollers--------------------------
-      xboxAux.rightBumper().onTrue(Commands.run(
+      xboxAux.rightBumper().onTrue(Commands.runOnce(
         () -> {
           intake.intakeRollerFunctionIN();
-        })).onFalse(Commands.run(
+        })).onFalse(Commands.runOnce(
           () -> {
           intake.rollersOff();
           }));
 
-      xboxAux.leftBumper().onTrue(Commands.run(
+      xboxAux.leftBumper().onTrue(Commands.runOnce(
         () -> {
           intake.intakeRollerFunctionOUT();
-        })).onFalse(Commands.run(
+        })).onFalse(Commands.runOnce(
           () -> {
             intake.rollersOff();
           }));
@@ -184,7 +186,7 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
-    return null;
+    return auton.autoChooser.get();
   }
   
 }

@@ -146,7 +146,7 @@ public class CatzElevatorSubsystem extends SubsystemBase {
 
 
   /** Creates a new CatzElevatorSubsystem. */
-  public CatzElevatorSubsystem() 
+  private CatzElevatorSubsystem() 
   {
     switch(CatzConstants.currentMode)
     {

@@ -27,13 +27,18 @@ public final class CatzConstants {
     /** Replaying from a log file. */
     REPLAY
   }
-  //--------------------State machine Constants---------------------------
-  public static final int GP_NONE = 0;
-  public static final int GP_CUBE = 1;
-  public static final int GP_CONE = 2;
+  //--------------------Alliance color---------------------------
+  public static enum AllianceColor {
+    BlUE_ALLIANCE,
+    RED_ALLIANCE
+  }
+  //------------------------Autonomous path Enums--------------------
 
+  public static enum AutonomousPath 
+  {
+    TEST
 
-  //--------------------
+  }
 
 
   //----------------------Catz auton Constants---------------------------
