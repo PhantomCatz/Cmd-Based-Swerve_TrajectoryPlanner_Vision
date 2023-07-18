@@ -17,6 +17,7 @@ import frc.robot.Autonomous.CatzAutonomousSelection;
 import frc.robot.Utils.CatzStateUtil;
 import frc.robot.Utils.CatzStateUtil.GamePieceState;
 import frc.robot.Utils.CatzStateUtil.MechanismState;
+import frc.robot.commands.TeleopDriveCmd;
 import frc.robot.commands.MechanismCmds.ArmCmd;
 import frc.robot.commands.MechanismCmds.ElevatorCmd;
 import frc.robot.commands.MechanismCmds.IntakeCmd;
@@ -168,10 +169,10 @@ public class RobotContainer {
   }
   private void defaultCommands() 
   { 
-    driveTrain.setDefaultCommand(new RunCommand(() -> driveTrain.cmdProcSwerve( xboxDrv.getLeftX(), 
-                                                                                xboxDrv.getLeftY(), 
-                                                                                xboxDrv.getRightX(),
-                                                                                xboxDrv.getRightTriggerAxis()), driveTrain));
+    driveTrain.setDefaultCommand(new TeleopDriveCmd(driveTrain, () -> xboxDrv.getLeftX(),
+                                                                () -> xboxDrv.getLeftY(),
+                                                                () -> xboxDrv.getRightX(),
+                                                                () -> xboxDrv.getRightTriggerAxis()));
     intake.setDefaultCommand(new IntakeCmd(intake, CatzStateUtil.IntakeState.MANUAL, null, () -> xboxAux.getLeftX(), () -> xboxAux.leftStick().getAsBoolean()));     
 
     elevator.setDefaultCommand( new ElevatorCmd(elevator, CatzStateUtil.ElevatorState.MANUAL, null,

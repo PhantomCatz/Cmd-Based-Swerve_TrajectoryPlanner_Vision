@@ -98,90 +98,10 @@ public class CatzDriveTrainSubsystem extends SubsystemBase
             module.periodic();
         }
 
-        /* 
-            // Update odometry
-    SwerveModuleState[] measuredStatesDiff = new SwerveModuleState[4];
-    for (int i = 0; i < 4; i++) {
-      measuredStatesDiff[i] = new SwerveModuleState(
-          (moduleInputs[i].drivePositionRad - lastModulePositionsRad[i])
-              * wheelRadius,
-          turnPositions[i]);
-      lastModulePositionsRad[i] = moduleInputs[i].drivePositionRad;
-    }
-    ChassisSpeeds chassisStateDiff =
-        kinematics.toChassisSpeeds(measuredStatesDiff);
-    if (gyroInputs.connected) { // Use gyro for angular change when connected
-      odometryPose =
-          odometryPose.exp(new Twist2d(chassisStateDiff.vxMetersPerSecond,
-              chassisStateDiff.vyMetersPerSecond,
-              gyroInputs.positionRad - lastGyroPosRad));
-    } else { // Fall back to using angular velocity (disconnected or sim)
-      odometryPose =
-          odometryPose.exp(new Twist2d(chassisStateDiff.vxMetersPerSecond,
-              chassisStateDiff.vyMetersPerSecond,
-              chassisStateDiff.omegaRadiansPerSecond));
-    }
-    lastGyroPosRad = gyroInputs.positionRad;
-*/
     }
 
-    public void cmdProcSwerve(double leftJoyX, double leftJoyY, double rightJoyX, double pwrMode)
-    {
-        steerAngle = calcJoystickAngle(leftJoyX, leftJoyY);
-        drivePower = calcJoystickPower(leftJoyX, leftJoyY);
-        turnPower  = rightJoyX;
-        
-        gyroAngle  = getGyroAngle();
 
-        
-        if(pwrMode > 0.9)
-        {
-            modifyDrvPwr = true;
-        }
-        else
-        {
-            modifyDrvPwr = false;
-        }
 
-        if(drivePower >= 0.1)
-        {
-            
-            if(modifyDrvPwr == true)
-            {
-                drivePower = drivePower * 0.5;
-            }
-            
-
-            if(Math.abs(turnPower) >= 0.1)
-            {
-                if(modifyDrvPwr == true)
-                {
-                    turnPower = turnPower * 0.5;
-                }
-                translateTurn(steerAngle, drivePower, turnPower, gyroAngle);
-                }
-               else
-            {
-                drive(steerAngle, drivePower, gyroAngle);
-            }
-
-        }
-        else if(Math.abs(turnPower) >= 0.1)
-        {
-            if(modifyDrvPwr == true)
-            {
-                turnPower = turnPower * 0.5;
-            }
-            
-            rotateInPlace(turnPower);
-            
-        }
-        else
-        {
-            setSteerPower(0.0);
-            setDrivePower(0.0);
-        }
-    }
 
     public void drive(double joystickAngle, double joystickPower, double gyroAngle)
     {
@@ -314,6 +234,10 @@ public class CatzDriveTrainSubsystem extends SubsystemBase
 
     public double getGyroAngle() {
         return gyroInputs.gyroAngle;
+    }
+
+    public double getRollAngle() {
+        return gyroInputs.gyroRoll;
     }
 
     public void autoDrive(double power) {

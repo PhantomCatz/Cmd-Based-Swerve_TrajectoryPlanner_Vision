@@ -21,12 +21,14 @@ import frc.robot.commands.MechanismCmds.StateOrganizerCmd;
 import frc.robot.subsystems.Arm.CatzArmSubsystem;
 import frc.robot.subsystems.Elevator.CatzElevatorSubsystem;
 import frc.robot.subsystems.Intake.CatzIntakeSubsystem;
+import frc.robot.subsystems.drivetrain.CatzDriveTrainSubsystem;
 
 public class CatzAutonomousSelection 
 {
     private final CatzElevatorSubsystem elevator = CatzElevatorSubsystem.getInstance();
     private final CatzArmSubsystem arm = CatzArmSubsystem.getInstance();
     private final CatzIntakeSubsystem intake = CatzIntakeSubsystem.getInstance();
+    private final CatzDriveTrainSubsystem driveTrain = CatzDriveTrainSubsystem.getInstance();
 
     public final LoggedDashboardChooser<Enum> chosenAllianceColor = new LoggedDashboardChooser<>("/alliance selector");
     public final LoggedDashboardChooser<Command> autoChooser = new LoggedDashboardChooser<>("/Auto Routine");
@@ -40,7 +42,7 @@ public class CatzAutonomousSelection
 
         autoChooser.addDefaultOption("Do Nothing", new InstantCommand());
 
-        autoChooser.addOption       ("TEST PATH",  new BalanceCmd());
+        autoChooser.addOption       ("TEST PATH",  TestPath());
 
         SmartDashboard.putData     ("chosenpath",(Sendable) autoChooser.get());
         
@@ -50,7 +52,7 @@ public class CatzAutonomousSelection
     {
         new SequentialCommandGroup(
             
-                new BalanceCmd(),
+                new BalanceCmd(driveTrain),
                 new StateOrganizerCmd(elevator, arm, intake, MechanismState.PICKUPGROUND),
                 new ParallelCommandGroup(
                     new StateOrganizerCmd(elevator, arm, intake, MechanismState.ScoreHigh),

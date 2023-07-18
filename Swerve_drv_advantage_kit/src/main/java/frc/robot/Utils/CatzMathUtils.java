@@ -1,6 +1,22 @@
 package frc.robot.Utils;
 
 public class CatzMathUtils {
+    public static double Clamp(double min, double in, double max)
+    {
+        if(in > max)
+        {
+            return max;
+        }
+        else if(in < min)
+        {
+            return min;
+        }
+        else
+        {
+            return in;
+        }
+    }
+    
     public static double closestAngle(double startAngle, double targetAngle)
     {
         // get direction
@@ -31,4 +47,5 @@ public class CatzMathUtils {
         double wheelMPS = (wheelRPM * circumference) / 60;
         return wheelMPS;
     }
+
 }

@@ -8,6 +8,7 @@ public interface GyroIO
     public static class GyroIOInputs {
     public double gyroAngle;
     public double gyroYaw;
+    public double gyroRoll;
   }
 
   public default void updateInputs(GyroIOInputs inputs) {}

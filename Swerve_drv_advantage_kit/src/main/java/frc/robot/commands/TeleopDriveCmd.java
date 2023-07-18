@@ -4,18 +4,36 @@
 
 package frc.robot.commands;
 
+import com.google.common.base.Supplier;
+
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.drivetrain.CatzDriveTrainSubsystem;
 
 public class TeleopDriveCmd extends CommandBase {
 
   private CatzDriveTrainSubsystem driveTrain;
+  Supplier<Double> supplierLeftJoyX;
+  Supplier<Double> supplierLeftJoyY;
+  Supplier<Double> supplierRightJoyX;
+  Supplier<Double> supplierPwrMode;
+
+  private double steerAngle;
+  private double drivePower;
+  private double turnPower;
+  private double gyroAngle;
+  private boolean modifyDrvPwr;
   /** Creates a new TeleopDriveCmd. */
-  public TeleopDriveCmd(CatzDriveTrainSubsystem driveTrain) 
+  public TeleopDriveCmd(CatzDriveTrainSubsystem driveTrain, Supplier<Double> supplierLeftJoyX,
+                                                            Supplier<Double> supplierLeftJoyY,
+                                                            Supplier<Double> supplierRightJoyX,
+                                                            Supplier<Double> supplierPwrMode) 
   {
-
-
     this.driveTrain = driveTrain;
+    this.supplierLeftJoyX = supplierLeftJoyX;
+    this.supplierLeftJoyY = supplierLeftJoyY;
+    this.supplierRightJoyX = supplierRightJoyX;
+    this.supplierPwrMode = supplierPwrMode;  
+
     addRequirements(driveTrain);
   }
 
@@ -27,7 +45,65 @@ public class TeleopDriveCmd extends CommandBase {
   @Override
   public void execute() 
   {
+        double leftJoyX = supplierLeftJoyX.get();
+        double leftJoyY = supplierLeftJoyY.get();
+        double rightJoyX = supplierRightJoyX.get();
+        double pwrMode = supplierPwrMode.get();
 
+        steerAngle = driveTrain.calcJoystickAngle(leftJoyX, leftJoyY);
+        drivePower = driveTrain.calcJoystickPower(leftJoyX, leftJoyY);
+        turnPower  = rightJoyX;
+        
+        gyroAngle  = driveTrain.getGyroAngle();
+
+        
+        if(pwrMode > 0.9)
+        {
+            modifyDrvPwr = true;
+        }
+        else
+        {
+            modifyDrvPwr = false;
+        }
+
+        if(drivePower >= 0.1)
+        {
+            
+            if(modifyDrvPwr == true)
+            {
+                drivePower = drivePower * 0.5;
+            }
+            
+
+            if(Math.abs(turnPower) >= 0.1)
+            {
+                if(modifyDrvPwr == true)
+                {
+                    turnPower = turnPower * 0.5;
+                }
+                driveTrain.translateTurn(steerAngle, drivePower, turnPower, gyroAngle);
+                }
+               else
+            {
+                driveTrain.drive(steerAngle, drivePower, gyroAngle);
+            }
+
+        }
+        else if(Math.abs(turnPower) >= 0.1)
+        {
+            if(modifyDrvPwr == true)
+            {
+                turnPower = turnPower * 0.5;
+            }
+            
+            driveTrain.rotateInPlace(turnPower);
+            
+        }
+        else
+        {
+            driveTrain.setSteerPower(0.0);
+            driveTrain.setDrivePower(0.0);
+        }
   }
 
   // Called once the command ends or is interrupted.
