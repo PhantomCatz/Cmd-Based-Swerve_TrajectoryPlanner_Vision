@@ -6,12 +6,12 @@ public static MechanismState currentMechState;
 
   public static enum MechanismState {
 
-    ScoreHigh,
-    ScoreMid,
-    SCORELOW,
-    PICKUPGROUND,
-    PickupSingle,
-    PickupDouble,
+    SCORE_HIGH,
+    SCORE_MID,
+    SCORE_LOW,
+    PICKUP_GROUND,
+    PICKUP_SINGLE,
+    PICKUP_DOUBLE,
     STOW
 
   }  

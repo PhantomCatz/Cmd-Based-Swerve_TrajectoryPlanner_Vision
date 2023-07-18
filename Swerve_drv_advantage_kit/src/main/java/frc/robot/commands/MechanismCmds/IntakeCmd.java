@@ -27,8 +27,10 @@ public class IntakeCmd extends CommandBase {
 
 
   private boolean  pidEnable = false;
+  private boolean intakeInPosition = false;
 
   private double   targetPower = 0.0;
+  private double   targetPosDegCmd;
   /** Creates a new IntakeCmd. */
   public IntakeCmd(CatzIntakeSubsystem intake,
                    CatzStateUtil.IntakeState currentIntakeState,
@@ -51,61 +53,61 @@ public class IntakeCmd extends CommandBase {
       switch(currentMechanismState)
       {
           case  STOW:
-              intake.targetPositionDeg = intake.STOW_ENC_POS;
+            targetPosDegCmd = intake.STOW_ENC_POS;
               break;
               
-          case PICKUPGROUND :
+          case PICKUP_GROUND :
             if(CatzStateUtil.currentGamePieceState == GamePieceState.CUBE)
               {
-                intake.targetPositionDeg = intake.INTAKE_CUBE_ENC_POS;
+                targetPosDegCmd = intake.INTAKE_CUBE_ENC_POS;
               }
             else
               {
-                intake.targetPositionDeg = intake.INTAKE_PICKUP_CONE_ENC_POS_GROUND;
+                targetPosDegCmd = intake.INTAKE_PICKUP_CONE_ENC_POS_GROUND;
               }
               break;
 
-          case PickupSingle :
+          case PICKUP_SINGLE :
             if(CatzStateUtil.currentGamePieceState == GamePieceState.CUBE)
               {
 
               }
             else
               {
-                intake.targetPositionDeg = intake.INTAKE_PICKUP_CONE_ENC_POS_SINGLE;
+                targetPosDegCmd = intake.INTAKE_PICKUP_CONE_ENC_POS_SINGLE;
               }
               break;
               
-          case SCORELOW :
+          case SCORE_LOW :
             if(CatzStateUtil.currentGamePieceState == GamePieceState.CUBE)
               {
-                intake.targetPositionDeg = intake.SCORE_CUBE_ENC_POS;
+                targetPosDegCmd = intake.SCORE_CUBE_ENC_POS;
               }
             else
               {
-                intake.targetPositionDeg = intake.SCORE_CONE_LOW_ENC_POS;
+                targetPosDegCmd = intake.SCORE_CONE_LOW_ENC_POS;
               }
               break;
 
-          case ScoreMid :
+          case SCORE_MID :
             if(CatzStateUtil.currentGamePieceState == GamePieceState.CUBE)
               {
-                  intake.targetPositionDeg = intake.SCORE_CUBE_ENC_POS;
+                targetPosDegCmd = intake.SCORE_CUBE_ENC_POS;
               }
             else
               {
-                intake.targetPositionDeg = intake.SCORE_CONE_MID_ENC_POS;
+                targetPosDegCmd = intake.SCORE_CONE_MID_ENC_POS;
               }
               break;
               
-          case ScoreHigh :
+          case SCORE_HIGH :
             if(CatzStateUtil.currentGamePieceState == GamePieceState.CUBE)
               {
-                intake.targetPositionDeg = intake.SCORE_CUBE_ENC_POS;
+                targetPosDegCmd = intake.SCORE_CUBE_ENC_POS;
               }
             else
               {
-                intake.targetPositionDeg = intake.SCORE_CONE_HIGH_ENC_POS; 
+                targetPosDegCmd = intake.SCORE_CONE_HIGH_ENC_POS; 
               }
               break;
 
@@ -136,11 +138,11 @@ public class IntakeCmd extends CommandBase {
 
             if(wristPwr > 0)
             {
-                intake.targetPositionDeg = Math.min((intake.targetPositionDeg + wristPwr * MANUAL_HOLD_STEP_SIZE), SOFT_LIMIT_FORWARD);
+              targetPosDegCmd = Math.min((intake.targetPositionDeg + wristPwr * MANUAL_HOLD_STEP_SIZE), SOFT_LIMIT_FORWARD);
             }
             else
             {
-              intake.targetPositionDeg = Math.max((intake.targetPositionDeg + wristPwr * MANUAL_HOLD_STEP_SIZE), SOFT_LIMIT_REVERSE);
+              targetPosDegCmd = Math.max((intake.targetPositionDeg + wristPwr * MANUAL_HOLD_STEP_SIZE), SOFT_LIMIT_REVERSE);
             }
             intake.prevCurrentPosition = -intake.prevCurrentPosition; //intialize for first time through thread loop, that checks stale position values
         }
@@ -162,7 +164,7 @@ public class IntakeCmd extends CommandBase {
 
     if(pidEnable)
     {
-      intake.intakePIDControl();
+      intake.intakePIDLoopFunction(targetPosDegCmd);
     }
   }
 }
@@ -173,8 +175,26 @@ public class IntakeCmd extends CommandBase {
 
   // Returns true when the command should end.
   @Override
-  public boolean isFinished() {
-    return false;
+  public boolean isFinished() 
+  {
+    if(currentIntakeState == IntakeState.MANUAL)
+    {
+      return false;
+    }
+    else if(currentIntakeState == IntakeState.SET_STATE)
+      if(intakeInPosition)
+      {
+        return true;
+      }
+      else
+      {
+        return false;
+      }
+
+    else
+    {
+      return false;
+    }
   }
 }
 

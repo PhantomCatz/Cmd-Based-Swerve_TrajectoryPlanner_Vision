@@ -17,11 +17,11 @@ import frc.robot.Autonomous.CatzAutonomousSelection;
 import frc.robot.Utils.CatzStateUtil;
 import frc.robot.Utils.CatzStateUtil.GamePieceState;
 import frc.robot.Utils.CatzStateUtil.MechanismState;
+import frc.robot.commands.SetStateCmd;
 import frc.robot.commands.TeleopDriveCmd;
 import frc.robot.commands.MechanismCmds.ArmCmd;
 import frc.robot.commands.MechanismCmds.ElevatorCmd;
 import frc.robot.commands.MechanismCmds.IntakeCmd;
-import frc.robot.commands.MechanismCmds.StateOrganizerCmd;
 import frc.robot.subsystems.Arm.CatzArmSubsystem;
 import frc.robot.subsystems.Elevator.CatzElevatorSubsystem;
 import frc.robot.subsystems.Intake.CatzIntakeSubsystem;
@@ -86,15 +86,15 @@ public class RobotContainer {
   private void configureBindings() 
   {
   //---------------------------------------Aux button mechanism cmds-----------------------------------------------------
-    xboxAux.y().onTrue(new StateOrganizerCmd(elevator, arm, intake, MechanismState.ScoreHigh));
-    xboxAux.b().onTrue(new StateOrganizerCmd(elevator, arm, intake, MechanismState.ScoreMid));
-    xboxAux.a().onTrue(new StateOrganizerCmd(elevator, arm, intake, MechanismState.SCORELOW));
-    xboxAux.x().or(xboxDrv.rightStick()).onTrue(new StateOrganizerCmd(elevator, arm, intake, MechanismState.STOW));
-    xboxAux.start().or(xboxDrv.leftStick()).onTrue(new StateOrganizerCmd(elevator, arm, intake, MechanismState.PICKUPGROUND));
+    xboxAux.y().onTrue(new SetStateCmd(elevator, arm, intake, MechanismState.SCORE_HIGH));
+    xboxAux.b().onTrue(new SetStateCmd(elevator, arm, intake, MechanismState.SCORE_MID));
+    xboxAux.a().onTrue(new SetStateCmd(elevator, arm, intake, MechanismState.SCORE_LOW));
+    xboxAux.x().or(xboxDrv.rightStick()).onTrue(new SetStateCmd(elevator, arm, intake, MechanismState.STOW));
+    xboxAux.start().or(xboxDrv.leftStick()).onTrue(new SetStateCmd(elevator, arm, intake, MechanismState.PICKUP_GROUND));
     
   //------------------------------------------Drive button Mechanism cmds---------------------------------------
-    xboxDrv.rightStick().onTrue(new StateOrganizerCmd(elevator, arm, intake, MechanismState.STOW));
-    xboxDrv.leftStick().onTrue(new StateOrganizerCmd(elevator, arm, intake, MechanismState.PICKUPGROUND));
+    xboxDrv.rightStick().onTrue(new SetStateCmd(elevator, arm, intake, MechanismState.STOW));
+    xboxDrv.leftStick().onTrue(new SetStateCmd(elevator, arm, intake, MechanismState.PICKUP_GROUND));
 
   //--------------------------------------------Manual Cmds---------------------------------------------------------------------------
     //arm
@@ -147,20 +147,20 @@ public class RobotContainer {
       }));
 
     //--------------------------Intake Rollers--------------------------
-      xboxAux.rightBumper().onTrue(Commands.runOnce(
+      xboxAux.rightBumper().onTrue(Commands.run(
         () -> {
           intake.intakeRollerFunctionIN();
         })).onFalse(Commands.runOnce(
           () -> {
-          intake.rollersOff();
+          intake.intakeRollersOff();
           }));
 
-      xboxAux.leftBumper().onTrue(Commands.runOnce(
+      xboxAux.leftBumper().onTrue(Commands.run(
         () -> {
           intake.intakeRollerFunctionOUT();
         })).onFalse(Commands.runOnce(
           () -> {
-            intake.rollersOff();
+            intake.intakeRollersOff();
           }));
 
 
@@ -175,7 +175,7 @@ public class RobotContainer {
                                                                 () -> xboxDrv.getRightTriggerAxis()));
     intake.setDefaultCommand(new IntakeCmd(intake, CatzStateUtil.IntakeState.MANUAL, null, () -> xboxAux.getLeftX(), () -> xboxAux.leftStick().getAsBoolean()));     
 
-    elevator.setDefaultCommand( new ElevatorCmd(elevator, CatzStateUtil.ElevatorState.MANUAL, null,
+    elevator.setDefaultCommand(new ElevatorCmd(elevator, CatzStateUtil.ElevatorState.MANUAL, null,
                                                 () -> xboxAux.getRightY(), 
                                                 () -> xboxAux.rightStick().getAsBoolean()));
 

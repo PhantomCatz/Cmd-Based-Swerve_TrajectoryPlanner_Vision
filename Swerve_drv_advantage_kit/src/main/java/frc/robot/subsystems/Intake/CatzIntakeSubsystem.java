@@ -183,27 +183,27 @@ public class CatzIntakeSubsystem extends SubsystemBase {
         }
     }
     
-    public void rollersOff()
+    public void intakeRollersOff()
     {
         io.rollersOffIO();
     }
 
-    public void rollersInCube()
+    private void rollersInCube()
     {
         io.rollersOnIO(ROLLERS_PWR_CUBE_IN);
     }
 
-    public void rollersOutCube()
+    private void rollersOutCube()
     {
         io.rollersOnIO(ROLLERS_PWR_CUBE_OUT);
     }
 
-    public void rollersInCone()
+    private void rollersInCone()
     {
         io.rollersOnIO(ROLLERS_PWR_CONE_IN);
     }
 
-    public void rollersOutCone()
+    private void rollersOutCone()
     {
         io.rollersOnIO(ROLLERS_PWR_CONE_OUT);
     }
@@ -256,11 +256,7 @@ public class CatzIntakeSubsystem extends SubsystemBase {
     {
         return intakeInPosition;
     }
-/*----------------------------------------------------------------------------------------------
-*
-*  Utilities - Wrist
-*
-*---------------------------------------------------------------------------------------------*/
+
     public void softLimitOverideDisabled()
     {
         io.intakeConfigureSoftLimitOverride(false);
@@ -270,73 +266,73 @@ public class CatzIntakeSubsystem extends SubsystemBase {
         io.intakeConfigureSoftLimitOverride(true);
     }
 
-    public void intakePIDControl()
+    public void intakePIDLoopFunction(double targetPositionDegCmd)
     {
-        if(true)
+        targetPositionDeg = targetPositionDegCmd;
+    
+        //----------------------------------------------------------------------------------
+        //  Chk if at final position
+        //----------------------------------------------------------------------------------
+        currentPosition = inputs.wristPosEnc / WRIST_CNTS_PER_DEGREE;
+        positionError = currentPosition - targetPositionDeg;
+
+
+        if  ((Math.abs(positionError) <= INTAKE_POS_ERROR_THRESHOLD_DEG))
         {
-            //----------------------------------------------------------------------------------
-            //  Chk if at final position
-            //----------------------------------------------------------------------------------
-            currentPosition = inputs.wristPosEnc / WRIST_CNTS_PER_DEGREE;
-            positionError = currentPosition - targetPositionDeg;
-
-
-            if  ((Math.abs(positionError) <= INTAKE_POS_ERROR_THRESHOLD_DEG))
-            {
-                numConsectSamples++;
-                if(numConsectSamples >= 1)
-                {   
-                    intakeInPosition = true;
-                }
+            numConsectSamples++;
+            if(numConsectSamples >= 1)
+            {   
+                intakeInPosition = true;
             }
-            else
-            {
-                numConsectSamples = 0;
-            }
-            
-            
-            if(Math.abs(positionError) >= PID_FINE_GROSS_THRESHOLD_DEG)
-            {
-                pid.setP(GROSS_kP);
-                pid.setI(GROSS_kI);
-                pid.setD(GROSS_kD);
-            }
-            else if(Math.abs(positionError) < PID_FINE_GROSS_THRESHOLD_DEG)
-            {
-                pid.setP(FINE_kP);
-                pid.setI(FINE_kI);
-                pid.setD(FINE_kD);
-            }
-
-            pidPower = pid.calculate(currentPosition, targetPositionDeg);
-            ffPower = calculateGravityFF();
-            targetPower = pidPower + ffPower;
-
-            //-------------------------------------------------------------
-            //  checking if we did not get updated position value(Sampling Issue).
-            //  If no change in position, this give invalid target power(kD issue).
-            //  Therefore, go with prev targetPower Value.
-            //-------------------------------------------------------------------
-            if(prevCurrentPosition == currentPosition)
-            {
-                targetPower = prevTargetPwr;
-            }
-
-            //----------------------------------------------------------------------------------
-            //  If we are going to Stow Position & have passed the power cutoff angle, set
-            //  power to 0, otherwise calculate new motor power based on position error and 
-            //  current angle
-            //----------------------------------------------------------------------------------
-            if(targetPositionDeg == STOW_ENC_POS && currentPosition > STOW_CUTOFF)
-            {
-                targetPower = 0.0;
-            }
-            wristSetPercentOuput(targetPower);
-
-            prevCurrentPosition = currentPosition;
-            prevTargetPwr = targetPower;
-                       
         }
+        else
+        {
+            numConsectSamples = 0;
+        }
+        
+        
+        if(Math.abs(positionError) >= PID_FINE_GROSS_THRESHOLD_DEG)
+        {
+            pid.setP(GROSS_kP);
+            pid.setI(GROSS_kI);
+            pid.setD(GROSS_kD);
+        }
+        else if(Math.abs(positionError) < PID_FINE_GROSS_THRESHOLD_DEG)
+        {
+            pid.setP(FINE_kP);
+            pid.setI(FINE_kI);
+            pid.setD(FINE_kD);
+        }
+
+        pidPower = pid.calculate(currentPosition, targetPositionDeg);
+        ffPower = calculateGravityFF();
+        targetPower = pidPower + ffPower;
+
+        //-------------------------------------------------------------
+        //  checking if we did not get updated position value(Sampling Issue).
+        //  If no change in position, this give invalid target power(kD issue).
+        //  Therefore, go with prev targetPower Value.
+        //-------------------------------------------------------------------
+        if(prevCurrentPosition == currentPosition)
+        {
+            targetPower = prevTargetPwr;
+        }
+
+        //----------------------------------------------------------------------------------
+        //  If we are going to Stow Position & have passed the power cutoff angle, set
+        //  power to 0, otherwise calculate new motor power based on position error and 
+        //  current angle
+        //----------------------------------------------------------------------------------
+        if(targetPositionDeg == STOW_ENC_POS && currentPosition > STOW_CUTOFF)
+        {
+            targetPower = 0.0;
+        }
+        wristSetPercentOuput(targetPower);
+
+        prevCurrentPosition = currentPosition;
+        prevTargetPwr = targetPower;
+                       
+        
     
     
     }

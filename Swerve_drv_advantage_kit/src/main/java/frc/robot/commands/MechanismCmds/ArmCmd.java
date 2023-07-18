@@ -49,17 +49,17 @@ public class ArmCmd extends CommandBase {
       switch(currentMechState)
       {
           case STOW:
-          case ScoreMid :
+          case SCORE_MID :
               arm.armSetRetractPos();
               break;
 
-          case PICKUPGROUND :
-          case PickupSingle :
-          case SCORELOW :
+          case PICKUP_GROUND :
+          case PICKUP_SINGLE :
+          case SCORE_LOW :
               arm.armSetPickupPos();
               break;
 
-          case ScoreHigh :
+          case SCORE_HIGH :
                 arm.armSetFullExtendPos();
               break;
 

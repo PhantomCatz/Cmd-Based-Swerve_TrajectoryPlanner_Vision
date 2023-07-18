@@ -2,21 +2,24 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.commands.MechanismCmds;
+package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.Utils.CatzStateUtil;
+import frc.robot.commands.MechanismCmds.ArmCmd;
+import frc.robot.commands.MechanismCmds.ElevatorCmd;
+import frc.robot.commands.MechanismCmds.IntakeCmd;
 import frc.robot.subsystems.Arm.CatzArmSubsystem;
 import frc.robot.subsystems.Elevator.CatzElevatorSubsystem;
 import frc.robot.subsystems.Intake.CatzIntakeSubsystem;
 
-public class StateOrganizerCmd extends InstantCommand 
+public class SetStateCmd extends InstantCommand 
 {
   CatzElevatorSubsystem elevator;
   CatzArmSubsystem arm;
   CatzIntakeSubsystem intake;
   CatzStateUtil.MechanismState currentMechState;
-  public StateOrganizerCmd(CatzElevatorSubsystem elevator, 
+  public SetStateCmd(CatzElevatorSubsystem elevator, 
                               CatzArmSubsystem arm, 
                               CatzIntakeSubsystem intake, 
                               CatzStateUtil.MechanismState currentMechState) 

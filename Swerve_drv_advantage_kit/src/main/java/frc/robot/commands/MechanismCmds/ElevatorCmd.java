@@ -6,6 +6,8 @@ package frc.robot.commands.MechanismCmds;
 
 import java.util.function.Supplier;
 
+import javax.lang.model.util.ElementScanner14;
+
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Utils.CatzStateUtil;
 import frc.robot.Utils.CatzStateUtil.ElevatorState;
@@ -48,12 +50,12 @@ public class ElevatorCmd extends CommandBase {
       switch(currentMechanismState)
       {
           case STOW:
-          case PICKUPGROUND :
-          case SCORELOW :
+          case PICKUP_GROUND :
+          case SCORE_LOW :
               elevator.elevatorSetToLowPos();
               break;
 
-          case PickupSingle :
+          case PICKUP_SINGLE :
             if(CatzStateUtil.currentGamePieceState == GamePieceState.CUBE)
               {
 
@@ -63,7 +65,7 @@ public class ElevatorCmd extends CommandBase {
                 elevator.elevatorSetToSinglePickup();
               }
               break;
-          case ScoreMid :
+          case SCORE_MID :
             if(CatzStateUtil.currentGamePieceState == GamePieceState.CUBE)
               {
                 elevator.elevatorSetToMidPosCube();
@@ -74,7 +76,7 @@ public class ElevatorCmd extends CommandBase {
               }
               break;
               
-          case ScoreHigh :
+          case SCORE_HIGH :
                 elevator.elevatorSetToHighPos();
               break;
 
@@ -130,7 +132,25 @@ public class ElevatorCmd extends CommandBase {
 
   // Returns true when the command should end.
   @Override
-  public boolean isFinished() {
-    return false;
+  public boolean isFinished() 
+  {
+    if(currentElevatorState == ElevatorState.MANUAL)
+    {
+      return false;
+    }
+    else if(currentElevatorState == ElevatorState.SET_STATE)
+      if(elevator.isElevatorInPos())
+      {
+        return true;
+      }
+      else
+      {
+        return false;
+      }
+
+    else
+    {
+      return false;
+    }
   }
 }
