@@ -1,7 +1,9 @@
 {
   "NTProvider": {
     "types": {
-      "/FMSInfo": "FMSInfo"
+      "/FMSInfo": "FMSInfo",
+      "/SmartDashboard//Auto Routine": "String Chooser",
+      "/SmartDashboard//alliance selector": "String Chooser"
     }
   },
   "NetworkTables": {
@@ -10,5 +12,17 @@
         "open": true
       }
     }
+  },
+  "NetworkTables Info": {
+    "Connections": {
+      "open": true
+    },
+    "Server": {
+      "Subscribers": {
+        "open": true
+      },
+      "open": true
+    },
+    "visible": true
   }
 }

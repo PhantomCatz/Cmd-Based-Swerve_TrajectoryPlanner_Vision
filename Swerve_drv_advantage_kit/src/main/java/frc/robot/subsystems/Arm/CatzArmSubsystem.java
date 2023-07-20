@@ -178,7 +178,7 @@ public class CatzArmSubsystem extends SubsystemBase
         io.armSetPickupPosIO();
     }
 
-    public ControlMode currentArmControlMode()
+    public boolean isArmControlModePercentOutput()
     {
         return inputs.currentArmControlMode;
     }

@@ -46,24 +46,18 @@ public class CatzAutonomousSelection
 
         autoChooser.addDefaultOption("Do Nothing", new InstantCommand());
 
-        autoChooser.addOption       ("TEST PATH",  TestPath());
+        autoChooser.addOption       ("TEST PATH",  testPath());
         autoChooser.addOption       ("Parallel Score Cube", parallelScoreCube());
 
 
         
     }
 
-    public Command TestPath()
+    public Command testPath()
     {
-        Commands.deadline(null, null);
-        Commands.either(null, null, null);
-        Commands.parallel(null);
-        Commands.race(null);
-        Commands.startEnd(null, null, null);
-        Commands.waitUntil(null);
         return null;
     }
-    
+
     public Command parallelScoreCube()
     {
         new SequentialCommandGroup(
@@ -92,6 +86,7 @@ public class CatzAutonomousSelection
                 );
             return null;
     }
+    
 
 
 

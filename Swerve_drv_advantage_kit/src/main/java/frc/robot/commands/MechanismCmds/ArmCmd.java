@@ -92,7 +92,7 @@ public class ArmCmd extends CommandBase {
           arm.setArmPwr(RETRACT_PWR);
           
       }
-      else if(arm.currentArmControlMode() == ControlMode.PercentOutput)
+      else if(arm.isArmControlModePercentOutput())
       {
           arm.setArmPwr(MANUAL_CONTROL_PWR_OFF);
       }

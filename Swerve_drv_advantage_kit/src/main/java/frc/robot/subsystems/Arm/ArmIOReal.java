@@ -114,7 +114,7 @@ public class ArmIOReal implements ArmIO
     {
         inputs.armMotorEncoder        = armMtr.getSelectedSensorPosition();
         inputs.isRevLimitSwitchClosed = (armMtr.getSensorCollection().isRevLimitSwitchClosed() == SWITCH_CLOSED);
-        inputs.currentArmControlMode  = armMtr.getControlMode();
+        inputs.currentArmControlMode  = (ControlMode.PercentOutput == armMtr.getControlMode());
     }
     @Override
     public void setSelectedSensorPositionIO(double encoderResetPos) 
