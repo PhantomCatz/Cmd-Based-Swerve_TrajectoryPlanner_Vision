@@ -49,6 +49,7 @@ public class IntakeCmd extends CommandBase {
     if(currentIntakeState == IntakeState.SET_STATE)
     {
       pidEnableCmd = true;
+      intake.intakeInPosition = false;
       switch(currentMechanismState)
       {
           case  STOW:

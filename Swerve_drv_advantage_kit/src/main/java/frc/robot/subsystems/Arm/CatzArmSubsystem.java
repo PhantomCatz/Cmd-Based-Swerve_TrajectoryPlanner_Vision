@@ -78,7 +78,7 @@ public class CatzArmSubsystem extends SubsystemBase
   private double positionError = -999.0; 
   private double elevatorPosition = -999.0;
 
-  private boolean armInPosition = false;
+  public boolean armInPosition = false;
   private int numConsectSamples = 0;
 
   private final double ARM_POS_ERROR_THRESHOLD = 2700.0; //0.5 inches    previously 500 enc counts
@@ -108,10 +108,6 @@ public class CatzArmSubsystem extends SubsystemBase
     Logger.getInstance().processInputs("Arm", inputs);
 
     // This method will be called once per scheduler run
-    if(highExtendProcess == true) 
-    {
-
-    }
 
     currentPosition = inputs.armMotorEncoder;
     positionError = currentPosition - targetPosition;

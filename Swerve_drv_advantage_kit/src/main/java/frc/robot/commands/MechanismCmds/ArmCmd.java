@@ -10,7 +10,6 @@ import com.google.common.base.Supplier;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Utils.CatzStateUtil;
 import frc.robot.Utils.CatzStateUtil.ArmState;
-import frc.robot.Utils.CatzStateUtil.GamePieceState;
 import frc.robot.subsystems.Arm.CatzArmSubsystem;
 import frc.robot.subsystems.Elevator.CatzElevatorSubsystem;
 
@@ -49,6 +48,7 @@ public class ArmCmd extends CommandBase {
   public void initialize() 
   {
     armAscent = false;
+    arm.armInPosition = false;
     if(currentArmState == ArmState.SET_STATE)
     {
       switch(currentMechState)
@@ -84,13 +84,10 @@ public class ArmCmd extends CommandBase {
       if(armExtend == true)
       {
           arm.setArmPwr(EXTEND_PWR);
-          
       }
       else if(armRetract == true)
       {
-
           arm.setArmPwr(RETRACT_PWR);
-          
       }
       else if(arm.isArmControlModePercentOutput())
       {

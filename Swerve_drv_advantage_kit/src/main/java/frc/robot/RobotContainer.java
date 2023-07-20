@@ -94,22 +94,17 @@ public class RobotContainer {
    */
   private void configureBindings() 
   {
-  //---------------------------------------Aux button mechanism cmds-----------------------------------------------------------------
+  //---------------------------------------Button mechanism cmds-----------------------------------------------------------------
     xboxAux.y().onTrue(new SetStateCmd(MechanismState.SCORE_HIGH));
     xboxAux.b().onTrue(new SetStateCmd(MechanismState.SCORE_MID));
     xboxAux.a().onTrue(new SetStateCmd(MechanismState.SCORE_LOW));
-    
     xboxAux.x().or(xboxDrv.rightStick())
     .onTrue(new SetStateCmd(MechanismState.STOW));
     xboxAux.start().or(xboxDrv.leftStick())
     .onTrue(new SetStateCmd(MechanismState.PICKUP_GROUND));
-    
-  //------------------------------------------Drive button Mechanism cmds------------------------------------------------------------
+
     xboxDrv.rightStick().onTrue(new SetStateCmd(MechanismState.STOW));
     xboxDrv.leftStick().onTrue(new SetStateCmd(MechanismState.PICKUP_GROUND));
-
-
-    
 
   //--------------------------------------------Manual Cmds---------------------------------------------------------------------------
     //arm

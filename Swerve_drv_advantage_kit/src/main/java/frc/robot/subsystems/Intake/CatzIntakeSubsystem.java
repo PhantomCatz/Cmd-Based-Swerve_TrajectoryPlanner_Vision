@@ -94,7 +94,7 @@ public class CatzIntakeSubsystem extends SubsystemBase {
     private double positionError = -999.0; 
     public double prevCurrentPosition = -999.0;
 
-    private boolean intakeInPosition = false;
+    public boolean intakeInPosition = false;
 
     private final double INTAKE_POS_ERROR_THRESHOLD_DEG = 5.0;
     private final double PID_FINE_GROSS_THRESHOLD_DEG = 17.0;
@@ -131,6 +131,8 @@ public class CatzIntakeSubsystem extends SubsystemBase {
   {
     io.updateInputs(inputs);
     Logger.getInstance().processInputs("Intake", inputs);
+
+
 
   }
 

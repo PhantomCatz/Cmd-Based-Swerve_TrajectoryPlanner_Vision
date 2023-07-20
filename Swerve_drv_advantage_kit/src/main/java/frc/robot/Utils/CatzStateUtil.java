@@ -10,7 +10,7 @@ package frc.robot.Utils;
 
 public class CatzStateUtil 
 {
-public static MechanismState currentMechState;
+public static MechanismState currentMechState = null;
 
   public static enum MechanismState {
 
@@ -24,7 +24,7 @@ public static MechanismState currentMechState;
 
   }  
 
-  public static GamePieceState currentGamePieceState;
+  public static GamePieceState currentGamePieceState = null;
 
   public static enum GamePieceState {
     
@@ -39,21 +39,21 @@ public static MechanismState currentMechState;
   }
 
   
-  public static ElevatorState currentElevatorState;
+  public static ElevatorState currentElevatorState = null;
   public static enum ElevatorState {
 
     MANUAL,
     SET_STATE
   }
 
-  public static ArmState currentArmState;
+  public static ArmState currentArmState = null;
   public static enum ArmState {
 
     MANUAL,
     SET_STATE
   }
 
-  public static IntakeState currentIntakeState;
+  public static IntakeState currentIntakeState = null;
   public static enum IntakeState {
 
     MANUAL,

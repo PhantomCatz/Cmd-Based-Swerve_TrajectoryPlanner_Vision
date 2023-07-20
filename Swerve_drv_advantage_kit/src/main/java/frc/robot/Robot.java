@@ -17,6 +17,8 @@ import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
+import edu.wpi.first.wpilibj.PowerDistribution;
+import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
@@ -67,6 +69,7 @@ public class Robot extends LoggedRobot {
       case REAL:
         logger.addDataReceiver(new WPILOGWriter("/media/sda1/"));
         logger.addDataReceiver(new NT4Publisher());
+       // new PowerDistribution(1, ModuleType.kRev);
         break;
 
       // Running a physics simulator, log to local folder
