@@ -13,7 +13,7 @@ import frc.robot.Utils.CatzStateUtil.IntakeState;
 import frc.robot.subsystems.Intake.CatzIntakeSubsystem;
 
 public class IntakeCmd extends CommandBase {
-  CatzIntakeSubsystem intake;
+  CatzIntakeSubsystem intake = CatzIntakeSubsystem.getInstance();
   CatzStateUtil.IntakeState currentIntakeState;
   CatzStateUtil.MechanismState currentMechanismState;
   Supplier<Double> supplierWristPwr;
@@ -26,17 +26,16 @@ public class IntakeCmd extends CommandBase {
 
 
 
-  private boolean  pidEnable = false;
+  private boolean  pidEnableCmd = false;
   private boolean intakeInPosition = false;
 
-  private double   targetPower = 0.0;
+  private double   targetPowerCmd = 0.0;
   private double   targetPosDegCmd;
   /** Creates a new IntakeCmd. */
-  public IntakeCmd(CatzIntakeSubsystem intake,
-                   CatzStateUtil.IntakeState currentIntakeState,
+  public IntakeCmd(CatzStateUtil.IntakeState currentIntakeState,
                    CatzStateUtil.MechanismState currentMechState,
                    Supplier<Double> wristPwr, Supplier<Boolean> supplierManualMode) {
-    this.intake = intake;
+
     this.currentMechanismState = currentMechState;
     this.supplierWristPwr = wristPwr;
     this.supplierManualMode = supplierManualMode;
@@ -49,7 +48,7 @@ public class IntakeCmd extends CommandBase {
   {
     if(currentIntakeState == IntakeState.SET_STATE)
     {
-      pidEnable = true;
+      pidEnableCmd = true;
       switch(currentMechanismState)
       {
           case  STOW:
@@ -115,6 +114,7 @@ public class IntakeCmd extends CommandBase {
               //TBD
               break;
       }
+      intake.setTargetPositionDegState(targetPosDegCmd);
     }
 }
 
@@ -122,51 +122,42 @@ public class IntakeCmd extends CommandBase {
   @Override
   public void execute() 
   {
-    boolean manualMode = supplierManualMode.get();
-    double wristPwr =     supplierWristPwr.get();
+    boolean manualModeCmd = supplierManualMode.get();
+    double wristPwrCmd   = supplierWristPwr.get();
     if(currentIntakeState == IntakeState.MANUAL)
     {
-      if(manualMode)
+      if(manualModeCmd)
       {                
-        pidEnable = false;
+        pidEnableCmd = false;
       }
 
-    if(Math.abs(wristPwr) >= 0.1)//if we are apply wrist power manually
+    if(Math.abs(wristPwrCmd) >= 0.1)//if we are apply wrist power manually
     {
-        if (pidEnable == true)//check if in manual holding state
+        if (pidEnableCmd == true)//check if in manual holding state
         {
-
-            if(wristPwr > 0)
-            {
-              targetPosDegCmd = Math.min((intake.targetPositionDeg + wristPwr * MANUAL_HOLD_STEP_SIZE), SOFT_LIMIT_FORWARD);
-            }
-            else
-            {
-              targetPosDegCmd = Math.max((intake.targetPositionDeg + wristPwr * MANUAL_HOLD_STEP_SIZE), SOFT_LIMIT_REVERSE);
-            }
-            intake.prevCurrentPosition = -intake.prevCurrentPosition; //intialize for first time through thread loop, that checks stale position values
+          intake.manualHoldingFunction(wristPwrCmd);
         }
         else //in full manual mode
         {
-            targetPower = wristPwr * WRIST_MAX_PWR;    
-            intake.wristSetPercentOuput(targetPower);
+            targetPowerCmd = wristPwrCmd * WRIST_MAX_PWR;    
+            intake.wristSetPercentOuput(targetPowerCmd);
         }
     }
     else //Manual power is OFF
     {
-        if(pidEnable == false)//if we are still in manual mode and want to hold intake in place
+        if(pidEnableCmd == false)//if we are still in manual mode and want to hold intake in place
         {
-            targetPower = 0.0;
-            intake.wristSetPercentOuput(targetPower);
+            targetPowerCmd = 0.0;
+            intake.wristSetPercentOuput(targetPowerCmd);
         }
     }
-
-
-    if(pidEnable)
-    {
-      intake.intakePIDLoopFunction(targetPosDegCmd);
-    }
   }
+
+    if(pidEnableCmd)
+    {
+      intake.intakePIDLoopFunction();
+    }
+  
 }
 
   // Called once the command ends or is interrupted.

@@ -19,12 +19,6 @@ public class IntakeIOReal implements IntakeIO
 
     private final int ROLLERS_MC_ID  = 30;
 
-    private final double ROLLERS_PWR_CUBE_IN = -0.8;   
-    private final double ROLLERS_PWR_CONE_IN =  1.0; //TBD decide pwrs for all cube cone scoring rollers
-
-    private final double ROLLERS_PWR_CUBE_OUT =  1.0;   
-    private final double ROLLERS_PWR_CONE_OUT = -0.5;
-
     private SupplyCurrentLimitConfiguration rollerCurrentLimit;
 
     private final int     CURRENT_LIMIT_AMPS_ROLLER            = 40;    
@@ -84,16 +78,6 @@ public class IntakeIOReal implements IntakeIO
 
     private final double SOFT_LIMIT_FORWARD = 0.0; //4876  + WRIST_ABS_ENC_OFFSET;  //3887
     private final double SOFT_LIMIT_REVERSE = -8900.0; //-798.0 + WRIST_ABS_ENC_OFFSET; //-1787     //TBD
-
-    private final double GROSS_kP = 0.002472;//0.00009; 
-    private final double GROSS_kI = 0.0;//000040;
-    private final double GROSS_kD = 0.000291;//0.000007;
-
-    private final double FINE_kP = 0.005234;//0.00009; 
-    private final double FINE_kI = 0.0;//000008;
-    private final double FINE_kD = 0.000291;//0.000007;
-    
-    private final double MAX_GRAVITY_FF = 0.055; //0.09
 
     
     public Boolean  pidEnable = false;

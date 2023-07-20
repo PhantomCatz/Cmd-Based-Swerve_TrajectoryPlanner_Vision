@@ -9,31 +9,33 @@ import frc.robot.Utils.CatzStateUtil;
 import frc.robot.commands.MechanismCmds.ArmCmd;
 import frc.robot.commands.MechanismCmds.ElevatorCmd;
 import frc.robot.commands.MechanismCmds.IntakeCmd;
-import frc.robot.subsystems.Arm.CatzArmSubsystem;
-import frc.robot.subsystems.Elevator.CatzElevatorSubsystem;
-import frc.robot.subsystems.Intake.CatzIntakeSubsystem;
 
 public class SetStateCmd extends InstantCommand 
 {
-  CatzElevatorSubsystem elevator;
-  CatzArmSubsystem arm;
-  CatzIntakeSubsystem intake;
   CatzStateUtil.MechanismState currentMechState;
-  public SetStateCmd(CatzElevatorSubsystem elevator, 
-                              CatzArmSubsystem arm, 
-                              CatzIntakeSubsystem intake, 
-                              CatzStateUtil.MechanismState currentMechState) 
+
+  public SetStateCmd(CatzStateUtil.MechanismState currentMechState) 
   {
     this.currentMechState = currentMechState;
-
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() 
   {
-    new ElevatorCmd(elevator, CatzStateUtil.ElevatorState.SET_STATE, currentMechState, null, null);
-    new ArmCmd(arm, CatzStateUtil.ArmState.SET_STATE, currentMechState, false, false);
-    new IntakeCmd(intake, CatzStateUtil.IntakeState.SET_STATE, currentMechState, null, null);
+    new ElevatorCmd(CatzStateUtil.ElevatorState.SET_STATE, 
+                    currentMechState,
+            null,
+             null);
+
+    new ArmCmd(CatzStateUtil.ArmState.SET_STATE,
+               currentMechState,
+               false,
+              false);
+
+    new IntakeCmd(CatzStateUtil.IntakeState.SET_STATE, 
+                  currentMechState,
+                    null,
+          null);
   }
 }

@@ -6,19 +6,11 @@ package frc.robot.subsystems.Elevator;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.CatzConstants;
-import frc.robot.Robot;
 //import frc.robot.Robot.mechMode;
 
-import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.DemandType;
-import com.ctre.phoenix.motorcontrol.LimitSwitchNormal;
-import com.ctre.phoenix.motorcontrol.LimitSwitchSource;
-import com.ctre.phoenix.motorcontrol.NeutralMode;
-import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
+import org.littletonrobotics.junction.Logger;
 
-import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import edu.wpi.first.wpilibj.Timer;
 
 
@@ -72,15 +64,7 @@ public class CatzElevatorSubsystem extends SubsystemBase {
 
   
 
-
-  //current limiting
-  private SupplyCurrentLimitConfiguration elevatorCurrentLimit;
-  private final int     CURRENT_LIMIT_AMPS            = 55;
-  private final int     CURRENT_LIMIT_TRIGGER_AMPS    = 55;
-  private final double  CURRENT_LIMIT_TIMEOUT_SECONDS = 0.5;
-  private final boolean ENABLE_CURRENT_LIMIT          = true;
-
-
+ //limit switch
 
   private final int SWITCH_CLOSED = 1;
 
@@ -168,6 +152,8 @@ public class CatzElevatorSubsystem extends SubsystemBase {
   public void periodic() 
   {
     io.updateInputs(inputs);
+    Logger.getInstance().processInputs("Elevator", inputs);
+    
     checkLimitSwitches();
     // This method will be called once per scheduler run
     currentPosition = inputs.elevatorEncoderCnts;
@@ -265,9 +251,14 @@ public class CatzElevatorSubsystem extends SubsystemBase {
         targetPosition = 27739;
         elevatorInPosition = false;
     }
+
     
 
-
+    /*----------------------------------------------------------------------------------------------
+    *
+    *  Utilities - 
+    *
+    *---------------------------------------------------------------------------------------------*/
     public void checkLimitSwitches()
     {
         if(inputs.isRevLimitSwitchClosed)

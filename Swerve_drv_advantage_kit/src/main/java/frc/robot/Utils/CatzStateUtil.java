@@ -1,3 +1,11 @@
+/***
+ * CatzStateUtil
+ * @version 1.0
+ * @author Kynam Lenghiem
+ * 
+ * This class is where state machine enums are defined to give commands instructions
+ * on what state to move to.
+ **/
 package frc.robot.Utils;
 
 public class CatzStateUtil 

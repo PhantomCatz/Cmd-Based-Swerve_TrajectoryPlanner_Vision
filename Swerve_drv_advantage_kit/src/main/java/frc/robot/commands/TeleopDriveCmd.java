@@ -1,6 +1,3 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
 
 package frc.robot.commands;
 
@@ -11,7 +8,7 @@ import frc.robot.subsystems.drivetrain.CatzDriveTrainSubsystem;
 
 public class TeleopDriveCmd extends CommandBase {
 
-  private CatzDriveTrainSubsystem driveTrain;
+  private CatzDriveTrainSubsystem driveTrain = CatzDriveTrainSubsystem.getInstance();
   Supplier<Double> supplierLeftJoyX;
   Supplier<Double> supplierLeftJoyY;
   Supplier<Double> supplierRightJoyX;
@@ -22,13 +19,14 @@ public class TeleopDriveCmd extends CommandBase {
   private double turnPower;
   private double gyroAngle;
   private boolean modifyDrvPwr;
+
+  
   /** Creates a new TeleopDriveCmd. */
-  public TeleopDriveCmd(CatzDriveTrainSubsystem driveTrain, Supplier<Double> supplierLeftJoyX,
-                                                            Supplier<Double> supplierLeftJoyY,
-                                                            Supplier<Double> supplierRightJoyX,
-                                                            Supplier<Double> supplierPwrMode) 
+  public TeleopDriveCmd(Supplier<Double> supplierLeftJoyX,
+                        Supplier<Double> supplierLeftJoyY,
+                        Supplier<Double> supplierRightJoyX,
+                        Supplier<Double> supplierPwrMode) 
   {
-    this.driveTrain = driveTrain;
     this.supplierLeftJoyX = supplierLeftJoyX;
     this.supplierLeftJoyY = supplierLeftJoyY;
     this.supplierRightJoyX = supplierRightJoyX;

@@ -1,16 +1,21 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
+/***
+ * RobotContainer
+ * @version 1.0
+ * @author Kynam Lenghiem
+ * 
+ * This class is how the command scheduler(robot.java replacment) is configured
+ * Configures:
+ * -xbox controller triggers
+ * -default commands
+ * -instanciated mechanisms using singleton implementation
+ * -sets up autonomous from CatzAtutonomouschooser
+ ***/
 
 package frc.robot;
 
 
-import com.kauailabs.navx.frc.AHRS;
-
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.RunCommand;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Autonomous.CatzAutonomousSelection;
@@ -35,16 +40,16 @@ import frc.robot.subsystems.drivetrain.CatzDriveTrainSubsystem;
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 public class RobotContainer {
-  // The robot's subsystems and commands are defined here...
       private final CatzDriveTrainSubsystem driveTrain;
       private final CatzElevatorSubsystem elevator;
       private final CatzIntakeSubsystem intake;
       private final CatzArmSubsystem arm;
-      //private final CatzRobotTracker robotTracker;
+      //private final CatzRobotTracker robotTracker; //TBD need to test and modify swerve drive code for this
 
       private final CatzAutonomousSelection auton = new CatzAutonomousSelection();
 
-      
+
+      //xbox controller
       private CommandXboxController xboxDrv;
       private CommandXboxController xboxAux;
    
@@ -55,10 +60,14 @@ public class RobotContainer {
       
    
 
-  /** The container for the robot. Contains subsystems, OI devices, and commands. */
+  /** The container for the robot. Contains subsystems, OI devices, and commands. 
+   *    -since multiple classes are referencing these mechansims, 
+   *         mechanisms are instantiated inside mechanism class(singleton)
+  */
   public RobotContainer() 
   {
-    driveTrain = CatzDriveTrainSubsystem.getInstance();
+
+    driveTrain = CatzDriveTrainSubsystem.getInstance(); 
     elevator = CatzElevatorSubsystem.getInstance();
     arm = CatzArmSubsystem.getInstance();
     intake = CatzIntakeSubsystem.getInstance();
@@ -85,75 +94,87 @@ public class RobotContainer {
    */
   private void configureBindings() 
   {
-  //---------------------------------------Aux button mechanism cmds-----------------------------------------------------
-    xboxAux.y().onTrue(new SetStateCmd(elevator, arm, intake, MechanismState.SCORE_HIGH));
-    xboxAux.b().onTrue(new SetStateCmd(elevator, arm, intake, MechanismState.SCORE_MID));
-    xboxAux.a().onTrue(new SetStateCmd(elevator, arm, intake, MechanismState.SCORE_LOW));
-    xboxAux.x().or(xboxDrv.rightStick()).onTrue(new SetStateCmd(elevator, arm, intake, MechanismState.STOW));
-    xboxAux.start().or(xboxDrv.leftStick()).onTrue(new SetStateCmd(elevator, arm, intake, MechanismState.PICKUP_GROUND));
+  //---------------------------------------Aux button mechanism cmds-----------------------------------------------------------------
+    xboxAux.y().onTrue(new SetStateCmd(MechanismState.SCORE_HIGH));
+    xboxAux.b().onTrue(new SetStateCmd(MechanismState.SCORE_MID));
+    xboxAux.a().onTrue(new SetStateCmd(MechanismState.SCORE_LOW));
     
-  //------------------------------------------Drive button Mechanism cmds---------------------------------------
-    xboxDrv.rightStick().onTrue(new SetStateCmd(elevator, arm, intake, MechanismState.STOW));
-    xboxDrv.leftStick().onTrue(new SetStateCmd(elevator, arm, intake, MechanismState.PICKUP_GROUND));
+    xboxAux.x().or(xboxDrv.rightStick())
+    .onTrue(new SetStateCmd(MechanismState.STOW));
+    xboxAux.start().or(xboxDrv.leftStick())
+    .onTrue(new SetStateCmd(MechanismState.PICKUP_GROUND));
+    
+  //------------------------------------------Drive button Mechanism cmds------------------------------------------------------------
+    xboxDrv.rightStick().onTrue(new SetStateCmd(MechanismState.STOW));
+    xboxDrv.leftStick().onTrue(new SetStateCmd(MechanismState.PICKUP_GROUND));
+
+
+    
 
   //--------------------------------------------Manual Cmds---------------------------------------------------------------------------
     //arm
-    xboxAux.rightTrigger().onTrue(new ArmCmd(arm, CatzStateUtil.ArmState.MANUAL, null, true, false))
-                          .onFalse(Commands.run(
-                            () -> {
-                            arm.setArmPwr(0.0);
-                            }));
-    xboxAux.leftTrigger().onTrue(new ArmCmd(arm, CatzStateUtil.ArmState.MANUAL, null, false, true))
-                         .onFalse(Commands.run(
-                            () -> {
-                            arm.setArmPwr(0.0);
-                            }));
+    xboxAux.rightTrigger()
+    .onTrue(new ArmCmd(CatzStateUtil.ArmState.MANUAL,
+       null,
+              true,
+            false))
+    .onFalse(Commands.run(
+            () -> arm.setArmPwr(0.0)
+                         ));
 
-  //-----------------------------------commands with no subsystem----------------------------
-    xboxAux.back().onTrue(Commands.runOnce(
-      () -> {
-      CatzStateUtil.newGamePieceState(GamePieceState.NONE);
-      }));
+    xboxAux.leftTrigger()
+    .onTrue(new ArmCmd(CatzStateUtil.ArmState.MANUAL,
+      null,
+            false,
+            true))
+    .onFalse(Commands.run(
+            () -> arm.setArmPwr(0.0)
+                         ));
 
-    xboxAux.povLeft().onTrue(Commands.runOnce(
-      () -> {
-        CatzStateUtil.newGamePieceState(GamePieceState.CUBE);
-      }));
+    //intake
+    xboxAux.leftStick()
+    .onTrue(new IntakeCmd(CatzStateUtil.IntakeState.MANUAL,
+        null, 
+        () -> xboxAux.getLeftX(), 
+        () -> xboxAux.leftStick().getAsBoolean()));     
 
-    xboxAux.povRight().onTrue(Commands.runOnce(
-      () -> {
-        CatzStateUtil.newGamePieceState(GamePieceState.CONE);
-      }));
+    //elevator
+    xboxAux.rightStick().onTrue(new ElevatorCmd(CatzStateUtil.ElevatorState.MANUAL,
+          null,
+        () -> xboxAux.getRightY(), 
+        () -> xboxAux.rightStick().getAsBoolean()));
 
-    xboxAux.leftBumper().and(xboxAux.rightBumper())  //disabling softlimits only when both bumpers are pressed
+
+
+  //-----------------------------------commands with no subsystem--------------------------------------------------------------------
+    xboxAux.back()
     .onTrue(Commands.runOnce(
-    () -> {
-      intake.softLimitOverideDisabled();
-    }))
-    .onFalse(Commands.runOnce(
-    () -> {
-      intake.softLimitOverideEnabled();
-    }));
+                () -> CatzStateUtil.newGamePieceState(GamePieceState.NONE)
+                            ));
+
+    xboxAux.povLeft()
+    .onTrue(Commands.runOnce(
+                () -> CatzStateUtil.newGamePieceState(GamePieceState.CUBE)
+                            ));
+
+    xboxAux.povRight()
+    .onTrue(Commands.runOnce(
+                () -> CatzStateUtil.newGamePieceState(GamePieceState.CONE)
+                                ));
+
+     //disabling softlimits only when both bumpers are pressed
+    xboxAux.leftBumper().and(xboxAux.rightBumper()) 
+    .onTrue(Commands.runOnce(() -> intake.softLimitOverideDisabled()))
+    .onFalse(Commands.runOnce(() -> intake.softLimitOverideEnabled()));
 
 
-    xboxDrv.start().onTrue(Commands.runOnce(
-      () -> {
-        driveTrain.zeroGyro();
-      }));
+    xboxDrv.start().onTrue(Commands.runOnce(() -> driveTrain.zeroGyro()));
 
-    xboxDrv.b().onTrue(Commands.runOnce(
-      () -> {
-        driveTrain.lockWheels();
-      }));
+    xboxDrv.b().onTrue(Commands.runOnce(() -> driveTrain.lockWheels()));
 
     //--------------------------Intake Rollers--------------------------
-      xboxAux.rightBumper().onTrue(Commands.run(
-        () -> {
-          intake.intakeRollerFunctionIN();
-        })).onFalse(Commands.runOnce(
-          () -> {
-          intake.intakeRollersOff();
-          }));
+      xboxAux.rightBumper().onTrue(Commands.run(() -> intake.intakeRollerFunctionIN()))
+                           .onFalse(Commands.runOnce(() -> intake.intakeRollersOff()));
 
       xboxAux.leftBumper().onTrue(Commands.run(
         () -> {
@@ -163,21 +184,15 @@ public class RobotContainer {
             intake.intakeRollersOff();
           }));
 
-
-
-
   }
+  //mechanisms with default commands revert back to these cmds if no other cmd requiring the subsystem is active
+  //
   private void defaultCommands() 
   { 
-    driveTrain.setDefaultCommand(new TeleopDriveCmd(driveTrain, () -> xboxDrv.getLeftX(),
-                                                                () -> xboxDrv.getLeftY(),
-                                                                () -> xboxDrv.getRightX(),
-                                                                () -> xboxDrv.getRightTriggerAxis()));
-    intake.setDefaultCommand(new IntakeCmd(intake, CatzStateUtil.IntakeState.MANUAL, null, () -> xboxAux.getLeftX(), () -> xboxAux.leftStick().getAsBoolean()));     
-
-    elevator.setDefaultCommand(new ElevatorCmd(elevator, CatzStateUtil.ElevatorState.MANUAL, null,
-                                                () -> xboxAux.getRightY(), 
-                                                () -> xboxAux.rightStick().getAsBoolean()));
+    driveTrain.setDefaultCommand(new TeleopDriveCmd(() -> xboxDrv.getLeftX(),
+                                                    () -> xboxDrv.getLeftY(),
+                                                    () -> xboxDrv.getRightX(),
+                                                    () -> xboxDrv.getRightTriggerAxis()));
 
   }
   /**

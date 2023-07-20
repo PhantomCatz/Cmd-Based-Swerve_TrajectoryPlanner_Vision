@@ -55,19 +55,26 @@ public class CatzAutonomousSelection
 
     public Command TestPath()
     {
+        Commands.deadline(null, null);
+        Commands.either(null, null, null);
+        Commands.parallel(null);
+        Commands.race(null);
+        Commands.startEnd(null, null, null);
+        Commands.waitUntil(null);
         return null;
     }
-
+    
     public Command parallelScoreCube()
     {
         new SequentialCommandGroup(
                 Commands.runOnce(() -> {CatzStateUtil.newGamePieceState(GamePieceState.CUBE);}),
-                new SetStateCmd(elevator, arm, intake, MechanismState.SCORE_LOW),
+                new SetStateCmd(MechanismState.SCORE_HIGH),
+
                 new ParallelCommandGroup(
                     new DriveToPoseCmd(), 
                     new SequentialCommandGroup(
-                                            new SetStateCmd(elevator, arm, intake, MechanismState.STOW),
-                                            new SetStateCmd(elevator, arm, intake, MechanismState.PICKUP_GROUND),
+                                            new SetStateCmd(MechanismState.STOW),
+                                            new SetStateCmd(MechanismState.PICKUP_GROUND),
                                             Commands.run(() -> {intake.intakeRollerFunctionIN();}, intake))
                                         ),
                 Commands.runOnce(() -> {Timer.delay(0.5);}),
@@ -75,13 +82,13 @@ public class CatzAutonomousSelection
                     Commands.run(() -> {intake.intakeRollersOff();}, intake),
                     new DriveToPoseCmd(), 
                     new SequentialCommandGroup(
-                                            new SetStateCmd(elevator, arm, intake, MechanismState.STOW),
-                                            new SetStateCmd(elevator, arm, intake, MechanismState.SCORE_HIGH))
+                                            new SetStateCmd(MechanismState.STOW),
+                                            new SetStateCmd(MechanismState.SCORE_HIGH))
                                                 ),
                 Commands.run(() -> {intake.intakeRollerFunctionOUT();}, intake),
                 Commands.runOnce(() -> {Timer.delay(1);}),
                 Commands.run(() -> {intake.intakeRollersOff();}, intake),
-                new SetStateCmd(elevator, arm, intake, MechanismState.STOW)
+                new SetStateCmd(MechanismState.STOW)
                 );
             return null;
     }

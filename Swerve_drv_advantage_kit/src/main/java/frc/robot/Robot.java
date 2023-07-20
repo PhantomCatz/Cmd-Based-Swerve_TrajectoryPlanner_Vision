@@ -1,6 +1,12 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
+/***
+ * Robot.java
+ * @version 1.0
+ * @author Kynam Lenghiem
+ * 
+ * Robot.java now only serves to run the command scheduler every 20 ms in robot periodic
+ * -This single loop runs all periodic functions gaurnteeing the accuracy of loops when
+ * replaying in simulator.
+ ***/
 
 package frc.robot;
 
@@ -11,17 +17,8 @@ import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
-import com.dacubeking.AutoBuilder.robot.robotinterface.AutonomousContainer;
-import com.dacubeking.AutoBuilder.robot.robotinterface.CommandTranslator;
-import com.kauailabs.navx.frc.AHRS;
-
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.subsystems.drivetrain.CatzDriveTrainSubsystem;
-import frc.robot.subsystems.vision.CatzRobotTracker;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -34,7 +31,6 @@ public class Robot extends LoggedRobot {
 
   private RobotContainer m_robotContainer;
 
-  public static final Timer autonTimer = new Timer();
 
 
   /**
@@ -73,9 +69,9 @@ public class Robot extends LoggedRobot {
         logger.addDataReceiver(new NT4Publisher());
         break;
 
-      // Running a physics simulator, log to local folder
+      // Running a physics simulator, log to local folder(changed to usb)
       case SIM:
-        logger.addDataReceiver(new WPILOGWriter("/robotics code projects/Swerve_drv_advantage_kit"));
+        logger.addDataReceiver(new WPILOGWriter("/media/sda1/"));
         logger.addDataReceiver(new NT4Publisher());
         break;
 
@@ -87,8 +83,6 @@ public class Robot extends LoggedRobot {
         logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim")));
         break;
     }
-
-
     // Start AdvantageKit logger
     logger.start();
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our

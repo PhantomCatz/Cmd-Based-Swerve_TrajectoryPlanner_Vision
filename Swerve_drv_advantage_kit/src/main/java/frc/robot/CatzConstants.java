@@ -1,6 +1,11 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
+/***
+ * CatzConstants
+ * @version 1.0
+ * @author Kynam Lenghiem
+ * 
+ * This class is where reusable constants are defined
+ * -TBD should all constants move here?
+ ***/
 
 package frc.robot;
 
@@ -40,7 +45,7 @@ public final class CatzConstants {
 
   }
 
-
+ //Saving for finished trajectory planner
   //----------------------Catz auton Constants---------------------------
   private static final double MODULE_DISTANCE_FROM_CENTER = 0.2984;
 

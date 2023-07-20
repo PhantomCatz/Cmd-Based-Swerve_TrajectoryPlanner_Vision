@@ -6,19 +6,11 @@ package frc.robot.subsystems.Intake;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-import java.util.function.Supplier;
-
-import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.NeutralMode;
-import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
+import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.CatzConstants;
 import frc.robot.Utils.CatzStateUtil;
-import frc.robot.Utils.CatzStateUtil.GamePieceState;
 
 
 
@@ -89,11 +81,11 @@ public class CatzIntakeSubsystem extends SubsystemBase {
     private final double MAX_GRAVITY_FF = 0.055; //0.09
 
     
-    private PIDController pid;
+    private PIDController intakePID;
     
     public Boolean  pidEnable = false;
 
-    public double   targetPositionDeg = STOW_ENC_POS;
+    private double   targetPositionDeg = STOW_ENC_POS;
 
     private double   targetPower = 0.0;
     private double   prevTargetPwr = 0.0;
@@ -131,14 +123,14 @@ public class CatzIntakeSubsystem extends SubsystemBase {
     }
 
 
-        pid = new PIDController(GROSS_kP, GROSS_kI, GROSS_kD);
+        intakePID = new PIDController(GROSS_kP, GROSS_kI, GROSS_kD);
   }
 
   @Override
   public void periodic() 
   {
     io.updateInputs(inputs);
-    // This method will be called once per scheduler run
+    Logger.getInstance().processInputs("Intake", inputs);
 
   }
 
@@ -149,16 +141,94 @@ public class CatzIntakeSubsystem extends SubsystemBase {
     *---------------------------------------------------------------------------------------------*/
     public void resetPID(){
       pidEnable = false;
-      pid.reset();
-  }
+      intakePID.reset();
+    }
 
-  public void enablePID(boolean set){
-      pidEnable = set;
-  }
+    public void enablePID(boolean set){
+        pidEnable = set;
+    }
 
-  public boolean getPIDEnabled(){
-      return pidEnable;
-  }
+    public boolean getPIDEnabled(){
+        return pidEnable;
+    }
+    public void intakePIDLoopFunction()
+    {
+        //----------------------------------------------------------------------------------
+        //  Chk if at final position
+        //----------------------------------------------------------------------------------
+        currentPosition = inputs.wristPosEnc / WRIST_CNTS_PER_DEGREE;
+        positionError = currentPosition - targetPositionDeg;
+
+
+        if  ((Math.abs(positionError) <= INTAKE_POS_ERROR_THRESHOLD_DEG))
+        {
+            numConsectSamples++;
+            if(numConsectSamples >= 1)
+            {   
+                intakeInPosition = true;
+            }
+        }
+        else
+        {
+            numConsectSamples = 0;
+        }
+        
+        
+        if(Math.abs(positionError) >= PID_FINE_GROSS_THRESHOLD_DEG)
+        {
+            intakePID.setP(GROSS_kP);
+            intakePID.setI(GROSS_kI);
+            intakePID.setD(GROSS_kD);
+        }
+        else if(Math.abs(positionError) < PID_FINE_GROSS_THRESHOLD_DEG)
+        {
+            intakePID.setP(FINE_kP);
+            intakePID.setI(FINE_kI);
+            intakePID.setD(FINE_kD);
+        }
+
+        pidPower = intakePID.calculate(currentPosition, targetPositionDeg);
+        ffPower = calculateGravityFF();
+        targetPower = pidPower + ffPower;
+
+        //-------------------------------------------------------------
+        //  checking if we did not get updated position value(Sampling Issue).
+        //  If no change in position, this give invalid target power(kD issue).
+        //  Therefore, go with prev targetPower Value.
+        //-------------------------------------------------------------------
+        if(prevCurrentPosition == currentPosition)
+        {
+            targetPower = prevTargetPwr;
+        }
+
+        //----------------------------------------------------------------------------------
+        //  If we are going to Stow Position & have passed the power cutoff angle, set
+        //  power to 0, otherwise calculate new motor power based on position error and 
+        //  current angle
+        //----------------------------------------------------------------------------------
+        if(targetPositionDeg == STOW_ENC_POS && currentPosition > STOW_CUTOFF)
+        {
+            targetPower = 0.0;
+        }
+        wristSetPercentOuput(targetPower);
+
+        prevCurrentPosition = currentPosition;
+        prevTargetPwr = targetPower;
+    }
+
+    public void manualHoldingFunction(double wristPwr)
+    {
+        if(wristPwr > 0)
+        {
+          targetPositionDeg = Math.min((targetPositionDeg + wristPwr * MANUAL_HOLD_STEP_SIZE), SOFT_LIMIT_FORWARD);
+        }
+        else
+        {
+          targetPositionDeg = Math.max((targetPositionDeg + wristPwr * MANUAL_HOLD_STEP_SIZE), SOFT_LIMIT_REVERSE);
+        }
+        prevCurrentPosition = -prevCurrentPosition; //intialize for first time through thread loop, that checks stale position values
+    }
+
     /*----------------------------------------------------------------------------------------------
     *
     *  Utilities - Rollers
@@ -242,6 +312,11 @@ public class CatzIntakeSubsystem extends SubsystemBase {
         return MAX_GRAVITY_FF * cosineScalar;
     }
 
+    public void setTargetPositionDegState(double stateSetTargetPositionDeg)
+    {
+        targetPositionDeg = stateSetTargetPositionDeg;
+    }
+
     public double intakeWristTemp()
     {
         return inputs.wristTemp;
@@ -264,77 +339,6 @@ public class CatzIntakeSubsystem extends SubsystemBase {
     public void softLimitOverideEnabled() 
     {
         io.intakeConfigureSoftLimitOverride(true);
-    }
-
-    public void intakePIDLoopFunction(double targetPositionDegCmd)
-    {
-        targetPositionDeg = targetPositionDegCmd;
-    
-        //----------------------------------------------------------------------------------
-        //  Chk if at final position
-        //----------------------------------------------------------------------------------
-        currentPosition = inputs.wristPosEnc / WRIST_CNTS_PER_DEGREE;
-        positionError = currentPosition - targetPositionDeg;
-
-
-        if  ((Math.abs(positionError) <= INTAKE_POS_ERROR_THRESHOLD_DEG))
-        {
-            numConsectSamples++;
-            if(numConsectSamples >= 1)
-            {   
-                intakeInPosition = true;
-            }
-        }
-        else
-        {
-            numConsectSamples = 0;
-        }
-        
-        
-        if(Math.abs(positionError) >= PID_FINE_GROSS_THRESHOLD_DEG)
-        {
-            pid.setP(GROSS_kP);
-            pid.setI(GROSS_kI);
-            pid.setD(GROSS_kD);
-        }
-        else if(Math.abs(positionError) < PID_FINE_GROSS_THRESHOLD_DEG)
-        {
-            pid.setP(FINE_kP);
-            pid.setI(FINE_kI);
-            pid.setD(FINE_kD);
-        }
-
-        pidPower = pid.calculate(currentPosition, targetPositionDeg);
-        ffPower = calculateGravityFF();
-        targetPower = pidPower + ffPower;
-
-        //-------------------------------------------------------------
-        //  checking if we did not get updated position value(Sampling Issue).
-        //  If no change in position, this give invalid target power(kD issue).
-        //  Therefore, go with prev targetPower Value.
-        //-------------------------------------------------------------------
-        if(prevCurrentPosition == currentPosition)
-        {
-            targetPower = prevTargetPwr;
-        }
-
-        //----------------------------------------------------------------------------------
-        //  If we are going to Stow Position & have passed the power cutoff angle, set
-        //  power to 0, otherwise calculate new motor power based on position error and 
-        //  current angle
-        //----------------------------------------------------------------------------------
-        if(targetPositionDeg == STOW_ENC_POS && currentPosition > STOW_CUTOFF)
-        {
-            targetPower = 0.0;
-        }
-        wristSetPercentOuput(targetPower);
-
-        prevCurrentPosition = currentPosition;
-        prevTargetPwr = targetPower;
-                       
-        
-    
-    
     }
     
     public static CatzIntakeSubsystem getInstance()

@@ -12,27 +12,31 @@ import frc.robot.Utils.CatzStateUtil;
 import frc.robot.Utils.CatzStateUtil.ArmState;
 import frc.robot.Utils.CatzStateUtil.GamePieceState;
 import frc.robot.subsystems.Arm.CatzArmSubsystem;
+import frc.robot.subsystems.Elevator.CatzElevatorSubsystem;
+
 
 public class ArmCmd extends CommandBase {
-  CatzArmSubsystem arm;
-  CatzStateUtil.ArmState currentArmState;
-  CatzStateUtil.MechanismState currentMechState;
-  boolean armExtend;
-  boolean armRetract;
+  private CatzArmSubsystem arm = CatzArmSubsystem.getInstance();
+  private CatzElevatorSubsystem elevator = CatzElevatorSubsystem.getInstance();
+  private CatzStateUtil.ArmState currentArmState;
+  private CatzStateUtil.MechanismState currentMechState;
+  private boolean armExtend;
+  private boolean armRetract;
+
+  private boolean armAscent;
 
   private final double EXTEND_PWR  = 0.2;
   private final double RETRACT_PWR = -0.2;
 
 
   private final double MANUAL_CONTROL_PWR_OFF = 0.0;
+  private final double HIGH_EXTEND_THRESHOLD_ELEVATOR = 73000.0;
 
   /** Creates a new ArmCmd. */
-  public ArmCmd(CatzArmSubsystem arm,
-                CatzStateUtil.ArmState currentArmState, 
+  public ArmCmd(CatzStateUtil.ArmState currentArmState, 
                 CatzStateUtil.MechanismState currentMechState, 
                 boolean armExtend, boolean armRetract) {
 
-  this.arm =arm;
   this.currentArmState = currentArmState;
   this.currentMechState = currentMechState;
   this.armExtend = armExtend;
@@ -44,6 +48,7 @@ public class ArmCmd extends CommandBase {
   @Override
   public void initialize() 
   {
+    armAscent = false;
     if(currentArmState == ArmState.SET_STATE)
     {
       switch(currentMechState)
@@ -60,7 +65,7 @@ public class ArmCmd extends CommandBase {
               break;
 
           case SCORE_HIGH :
-                arm.armSetFullExtendPos();
+                armAscent = true;
               break;
 
           default:
@@ -91,6 +96,11 @@ public class ArmCmd extends CommandBase {
       {
           arm.setArmPwr(MANUAL_CONTROL_PWR_OFF);
       }
+    }
+
+    if((armAscent == true) && elevator.getElevatorEncoder() >= HIGH_EXTEND_THRESHOLD_ELEVATOR)
+    {
+      arm.armSetFullExtendPos();
     }
   }
 

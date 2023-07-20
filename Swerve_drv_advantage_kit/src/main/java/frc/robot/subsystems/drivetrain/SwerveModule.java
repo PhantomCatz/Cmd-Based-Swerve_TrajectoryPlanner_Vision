@@ -83,9 +83,6 @@ public class SwerveModule
     {
         io.updateInputs(inputs);
         Logger.getInstance().processInputs("Drive/Module " + Integer.toString(index), inputs);
-
-        //edit outputs all output collection should be declared here.
-        Logger.getInstance().recordOutput("motor value test", inputs.driveMtrPercentOutput);
     }
 
     public void setWheelAngle(double target, double gyroAngle)
