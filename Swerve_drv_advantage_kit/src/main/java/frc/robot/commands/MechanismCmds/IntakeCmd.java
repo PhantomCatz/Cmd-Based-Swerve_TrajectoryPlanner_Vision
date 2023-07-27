@@ -7,6 +7,7 @@ package frc.robot.commands.MechanismCmds;
 import java.util.function.Supplier;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.CatzConstants;
 import frc.robot.Utils.CatzStateUtil;
 import frc.robot.Utils.CatzStateUtil.GamePieceState;
 import frc.robot.Utils.CatzStateUtil.IntakeState;
@@ -27,10 +28,13 @@ public class IntakeCmd extends CommandBase {
 
 
   private boolean  pidEnableCmd = false;
-  private boolean intakeInPosition = false;
 
   private double   targetPowerCmd = 0.0;
   private double   targetPosDegCmd;
+
+
+
+  private int numConsectSamples = 0;
   /** Creates a new IntakeCmd. */
   public IntakeCmd(CatzStateUtil.IntakeState currentIntakeState,
                    CatzStateUtil.MechanismState currentMechState,
@@ -49,21 +53,21 @@ public class IntakeCmd extends CommandBase {
     if(currentIntakeState == IntakeState.SET_STATE)
     {
       pidEnableCmd = true;
-      intake.intakeInPosition = false;
+      intake.setisIntakeInPos(false);
       switch(currentMechanismState)
       {
           case  STOW:
-            targetPosDegCmd = intake.STOW_ENC_POS;
+            targetPosDegCmd = CatzConstants.STOW_ENC_POS;
               break;
               
           case PICKUP_GROUND :
             if(CatzStateUtil.currentGamePieceState == GamePieceState.CUBE)
               {
-                targetPosDegCmd = intake.INTAKE_CUBE_ENC_POS;
+                targetPosDegCmd = CatzConstants.INTAKE_CUBE_ENC_POS;
               }
             else
               {
-                targetPosDegCmd = intake.INTAKE_PICKUP_CONE_ENC_POS_GROUND;
+                targetPosDegCmd = CatzConstants.INTAKE_PICKUP_CONE_ENC_POS_GROUND;
               }
               break;
 
@@ -74,40 +78,40 @@ public class IntakeCmd extends CommandBase {
               }
             else
               {
-                targetPosDegCmd = intake.INTAKE_PICKUP_CONE_ENC_POS_SINGLE;
+                targetPosDegCmd = CatzConstants.INTAKE_PICKUP_CONE_ENC_POS_SINGLE;
               }
               break;
               
           case SCORE_LOW :
             if(CatzStateUtil.currentGamePieceState == GamePieceState.CUBE)
               {
-                targetPosDegCmd = intake.SCORE_CUBE_ENC_POS;
+                targetPosDegCmd = CatzConstants.SCORE_CUBE_ENC_POS;
               }
             else
               {
-                targetPosDegCmd = intake.SCORE_CONE_LOW_ENC_POS;
+                targetPosDegCmd = CatzConstants.SCORE_CONE_LOW_ENC_POS;
               }
               break;
 
           case SCORE_MID :
             if(CatzStateUtil.currentGamePieceState == GamePieceState.CUBE)
               {
-                targetPosDegCmd = intake.SCORE_CUBE_ENC_POS;
+                targetPosDegCmd = CatzConstants.SCORE_CUBE_ENC_POS;
               }
             else
               {
-                targetPosDegCmd = intake.SCORE_CONE_MID_ENC_POS;
+                targetPosDegCmd = CatzConstants.SCORE_CONE_MID_ENC_POS;
               }
               break;
               
           case SCORE_HIGH :
             if(CatzStateUtil.currentGamePieceState == GamePieceState.CUBE)
               {
-                targetPosDegCmd = intake.SCORE_CUBE_ENC_POS;
+                targetPosDegCmd = CatzConstants.SCORE_CUBE_ENC_POS;
               }
             else
               {
-                targetPosDegCmd = intake.SCORE_CONE_HIGH_ENC_POS; 
+                targetPosDegCmd = CatzConstants.SCORE_CONE_HIGH_ENC_POS; 
               }
               break;
 
@@ -132,57 +136,52 @@ public class IntakeCmd extends CommandBase {
         pidEnableCmd = false;
       }
 
-    if(Math.abs(wristPwrCmd) >= 0.1)//if we are apply wrist power manually
-    {
-        if (pidEnableCmd == true)//check if in manual holding state
-        {
-          intake.manualHoldingFunction(wristPwrCmd);
-        }
-        else //in full manual mode
-        {
-            targetPowerCmd = wristPwrCmd * WRIST_MAX_PWR;    
-            intake.wristSetPercentOuput(targetPowerCmd);
-        }
-    }
-    else //Manual power is OFF
-    {
-        if(pidEnableCmd == false)//if we are still in manual mode and want to hold intake in place
-        {
-            targetPowerCmd = 0.0;
-            intake.wristSetPercentOuput(targetPowerCmd);
-        }
-    }
-  }
+      if(Math.abs(wristPwrCmd) >= 0.1)//if we are apply wrist power manually
+      {
+          if (pidEnableCmd == true)//check if in manual holding state
+          {
+            intake.manualHoldingFunction(wristPwrCmd);
+          }
+          else //in full manual mode
+          {
+              targetPowerCmd = wristPwrCmd * WRIST_MAX_PWR;    
+              intake.wristSetPercentOuput(targetPowerCmd);
+          }
+      }
+      else //Manual power is OFF
+      {
+          if(pidEnableCmd == false)//if we are still in manual mode and want to hold intake in place
+          {
+              targetPowerCmd = 0.0;
+              intake.wristSetPercentOuput(targetPowerCmd);
+          }
+      }
+   }
 
     if(pidEnableCmd)
     {
       intake.intakePIDLoopFunction();
     }
+
+
   
 }
 
   // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean interrupted) {}
+  public void end(boolean interrupted) 
+  {
+    currentIntakeState = CatzStateUtil.IntakeState.FINISHED;
+  }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() 
   {
-    if(currentIntakeState == IntakeState.MANUAL)
+    if(currentIntakeState == IntakeState.SET_STATE && intake.isIntakeInPos())
     {
-      return false;
+      return true;
     }
-    else if(currentIntakeState == IntakeState.SET_STATE)
-      if(intakeInPosition)
-      {
-        return true;
-      }
-      else
-      {
-        return false;
-      }
-
     else
     {
       return false;

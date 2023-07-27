@@ -49,8 +49,6 @@ public class CatzAutonomousSelection
         autoChooser.addOption       ("TEST PATH",  testPath());
         autoChooser.addOption       ("Parallel Score Cube", parallelScoreCube());
 
-
-        
     }
 
     public Command testPath()
@@ -69,19 +67,19 @@ public class CatzAutonomousSelection
                     new SequentialCommandGroup(
                                             new SetStateCmd(MechanismState.STOW),
                                             new SetStateCmd(MechanismState.PICKUP_GROUND),
-                                            Commands.run(() -> {intake.intakeRollerFunctionIN();}, intake))
+                                            Commands.run(() -> intake.intakeRollerFunctionIN(), intake))
                                         ),
-                Commands.runOnce(() -> {Timer.delay(0.5);}),
+                Commands.runOnce(() -> Timer.delay(0.5)),
                 new ParallelCommandGroup(
-                    Commands.run(() -> {intake.intakeRollersOff();}, intake),
+                    Commands.run(() -> intake.intakeRollersOff(), intake),
                     new DriveToPoseCmd(), 
                     new SequentialCommandGroup(
                                             new SetStateCmd(MechanismState.STOW),
                                             new SetStateCmd(MechanismState.SCORE_HIGH))
                                                 ),
-                Commands.run(() -> {intake.intakeRollerFunctionOUT();}, intake),
+                Commands.run(() -> intake.intakeRollerFunctionOUT(), intake),
                 Commands.runOnce(() -> {Timer.delay(1);}),
-                Commands.run(() -> {intake.intakeRollersOff();}, intake),
+                Commands.run(() -> intake.intakeRollersOff(), intake),
                 new SetStateCmd(MechanismState.STOW)
                 );
             return null;

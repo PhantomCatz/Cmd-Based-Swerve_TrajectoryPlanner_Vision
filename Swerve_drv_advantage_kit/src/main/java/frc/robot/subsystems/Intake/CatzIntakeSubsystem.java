@@ -35,57 +35,12 @@ public class CatzIntakeSubsystem extends SubsystemBase {
 
     
 
-    //----------------------------------------------------------------------------------------------
-    //  Wrist encoder & Position Values
-    //----------------------------------------------------------------------------------------------
-    private final int    WRIST_ENC_CAN_ID = 13; 
-
-
-    private final double ENC_TO_INTAKE_GEAR_RATIO =  46.0/18.0;
-    private final double WRIST_CNTS_PER_DEGREE    = 46.459; //(4096.0 * ENC_TO_INTAKE_GEAR_RATIO) / 360.0;
-
-
-    private final double MANUAL_HOLD_STEP_SIZE = 1.5;       
-
-    //TBD - ADD comment for ref point
-    //Reference Point = wrist would be slight above "Parallel to the ground"
-    public final double CENTER_OF_MASS_OFFSET_DEG     = 177.0; 
-    public final double WRIST_ABS_ENC_OFFSET_DEG = 0.0; //Set to make stow pos equal to 0
-    public final double WRIST_ABS_ENC_OFFSET = WRIST_ABS_ENC_OFFSET_DEG * WRIST_CNTS_PER_DEGREE;//-989.0; //Negative value means abs enc 0 is above intake angle 0   
-    
-    public final double STOW_ENC_POS               =  0.0 + WRIST_ABS_ENC_OFFSET_DEG;//4872.0 + WRIST_ABS_ENC_OFFSET; //3883
-    private final double STOW_CUTOFF                =  -7.232 + WRIST_ABS_ENC_OFFSET_DEG;// + WRIST_ABS_ENC_OFFSET; //3670
-
-    public final double INTAKE_CUBE_ENC_POS        =  -147.000 + WRIST_ABS_ENC_OFFSET_DEG;//1324.0 + WRIST_ABS_ENC_OFFSET;    //-335
-    public final double INTAKE_PICKUP_CONE_ENC_POS_GROUND =  -184.524 + WRIST_ABS_ENC_OFFSET_DEG;//-306.0  + WRIST_ABS_ENC_OFFSET;  //-1295  
-    public final double INTAKE_PICKUP_CONE_ENC_POS_SINGLE =  -116.400 + WRIST_ABS_ENC_OFFSET_DEG;//2089.0 + WRIST_ABS_ENC_OFFSET;  //1100
-
-    public final double SCORE_CUBE_ENC_POS         =  -104.000 + WRIST_ABS_ENC_OFFSET_DEG;//1859.0 + WRIST_ABS_ENC_OFFSET;  //870     // Applies to low-mid-high
-
-    public final double SCORE_CONE_HIGH_ENC_POS    =  -153.000 + WRIST_ABS_ENC_OFFSET_DEG;//289.0 + WRIST_ABS_ENC_OFFSET;  //-700
-    public final double SCORE_CONE_MID_ENC_POS     = INTAKE_PICKUP_CONE_ENC_POS_GROUND; //TBD verify if its the same as high
-    public final double SCORE_CONE_LOW_ENC_POS     = INTAKE_PICKUP_CONE_ENC_POS_GROUND; //TBD
-
-
-    private final double SOFT_LIMIT_FORWARD = 0.0; //4876  + WRIST_ABS_ENC_OFFSET;  //3887
-    private final double SOFT_LIMIT_REVERSE = -8900.0; //-798.0 + WRIST_ABS_ENC_OFFSET; //-1787     //TBD
-
-    private final double GROSS_kP = 0.002472;//0.00009; 
-    private final double GROSS_kI = 0.0;//000040;
-    private final double GROSS_kD = 0.000291;//0.000007;
-
-    private final double FINE_kP = 0.005234;//0.00009; 
-    private final double FINE_kI = 0.0;//000008;
-    private final double FINE_kD = 0.000291;//0.000007;
-    
-    private final double MAX_GRAVITY_FF = 0.055; //0.09
-
     
     private PIDController intakePID;
     
-    public Boolean  pidEnable = false;
+    private boolean  pidEnable = false;
 
-    private double   targetPositionDeg = STOW_ENC_POS;
+    private double   targetPositionDeg = CatzConstants.STOW_ENC_POS;
 
     private double   targetPower = 0.0;
     private double   prevTargetPwr = 0.0;
@@ -94,7 +49,7 @@ public class CatzIntakeSubsystem extends SubsystemBase {
     private double positionError = -999.0; 
     public double prevCurrentPosition = -999.0;
 
-    public boolean intakeInPosition = false;
+    private boolean intakeInPosition = false;
 
     private final double INTAKE_POS_ERROR_THRESHOLD_DEG = 5.0;
     private final double PID_FINE_GROSS_THRESHOLD_DEG = 17.0;
@@ -123,7 +78,7 @@ public class CatzIntakeSubsystem extends SubsystemBase {
     }
 
 
-        intakePID = new PIDController(GROSS_kP, GROSS_kI, GROSS_kD);
+        intakePID = new PIDController(CatzConstants.GROSS_kP, CatzConstants.GROSS_kI, CatzConstants.GROSS_kD);
   }
 
   @Override
@@ -141,7 +96,7 @@ public class CatzIntakeSubsystem extends SubsystemBase {
     *  Utilities - PID 
     *
     *---------------------------------------------------------------------------------------------*/
-    public void resetPID(){
+    public void resetPID(){ //TBD do we still need this?
       pidEnable = false;
       intakePID.reset();
     }
@@ -158,7 +113,7 @@ public class CatzIntakeSubsystem extends SubsystemBase {
         //----------------------------------------------------------------------------------
         //  Chk if at final position
         //----------------------------------------------------------------------------------
-        currentPosition = inputs.wristPosEnc / WRIST_CNTS_PER_DEGREE;
+        currentPosition = inputs.wristPosEnc / CatzConstants.WRIST_CNTS_PER_DEGREE;
         positionError = currentPosition - targetPositionDeg;
 
 
@@ -178,15 +133,15 @@ public class CatzIntakeSubsystem extends SubsystemBase {
         
         if(Math.abs(positionError) >= PID_FINE_GROSS_THRESHOLD_DEG)
         {
-            intakePID.setP(GROSS_kP);
-            intakePID.setI(GROSS_kI);
-            intakePID.setD(GROSS_kD);
+            intakePID.setP(CatzConstants.GROSS_kP);
+            intakePID.setI(CatzConstants.GROSS_kI);
+            intakePID.setD(CatzConstants.GROSS_kD);
         }
         else if(Math.abs(positionError) < PID_FINE_GROSS_THRESHOLD_DEG)
         {
-            intakePID.setP(FINE_kP);
-            intakePID.setI(FINE_kI);
-            intakePID.setD(FINE_kD);
+            intakePID.setP(CatzConstants.FINE_kP);
+            intakePID.setI(CatzConstants.FINE_kI);
+            intakePID.setD(CatzConstants.FINE_kD);
         }
 
         pidPower = intakePID.calculate(currentPosition, targetPositionDeg);
@@ -208,7 +163,7 @@ public class CatzIntakeSubsystem extends SubsystemBase {
         //  power to 0, otherwise calculate new motor power based on position error and 
         //  current angle
         //----------------------------------------------------------------------------------
-        if(targetPositionDeg == STOW_ENC_POS && currentPosition > STOW_CUTOFF)
+        if(targetPositionDeg == CatzConstants.STOW_ENC_POS && currentPosition > CatzConstants.STOW_CUTOFF)
         {
             targetPower = 0.0;
         }
@@ -222,11 +177,11 @@ public class CatzIntakeSubsystem extends SubsystemBase {
     {
         if(wristPwr > 0)
         {
-          targetPositionDeg = Math.min((targetPositionDeg + wristPwr * MANUAL_HOLD_STEP_SIZE), SOFT_LIMIT_FORWARD);
+          targetPositionDeg = Math.min((targetPositionDeg + wristPwr * CatzConstants.INTAKE_MANUAL_HOLD_STEP_SIZE), CatzConstants.SOFT_LIMIT_FORWARD);
         }
         else
         {
-          targetPositionDeg = Math.max((targetPositionDeg + wristPwr * MANUAL_HOLD_STEP_SIZE), SOFT_LIMIT_REVERSE);
+          targetPositionDeg = Math.max((targetPositionDeg + wristPwr * CatzConstants.INTAKE_MANUAL_HOLD_STEP_SIZE), CatzConstants.SOFT_LIMIT_REVERSE);
         }
         prevCurrentPosition = -prevCurrentPosition; //intialize for first time through thread loop, that checks stale position values
     }
@@ -298,7 +253,7 @@ public class CatzIntakeSubsystem extends SubsystemBase {
 
     public double calcWristAngle()
     {
-        double wristAngle = ((inputs.wristPosEnc / WRIST_CNTS_PER_DEGREE) - WRIST_ABS_ENC_OFFSET_DEG);
+        double wristAngle = ((inputs.wristPosEnc / CatzConstants.WRIST_CNTS_PER_DEGREE) - CatzConstants.WRIST_ABS_ENC_OFFSET_DEG);
         return wristAngle;
     }
 
@@ -308,10 +263,10 @@ public class CatzIntakeSubsystem extends SubsystemBase {
     
     public double calculateGravityFF()
     {
-        double radians = Math.toRadians(calcWristAngle() - CENTER_OF_MASS_OFFSET_DEG);
+        double radians = Math.toRadians(calcWristAngle() - CatzConstants.CENTER_OF_MASS_OFFSET_DEG);
         double cosineScalar = Math.cos(radians);
         
-        return MAX_GRAVITY_FF * cosineScalar;
+        return CatzConstants.MAX_GRAVITY_FF * cosineScalar;
     }
 
     public void setTargetPositionDegState(double stateSetTargetPositionDeg)
@@ -332,6 +287,16 @@ public class CatzIntakeSubsystem extends SubsystemBase {
     public boolean isIntakeInPos()
     {
         return intakeInPosition;
+    }
+
+    public void setisIntakeInPos(boolean isEnabled)
+    {
+        intakeInPosition = isEnabled;
+    }
+
+    public void setPIDenable(boolean isEnabled)
+    {
+        pidEnable = isEnabled;
     }
 
     public void softLimitOverideDisabled()

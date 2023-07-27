@@ -99,9 +99,9 @@ public class RobotContainer {
     xboxAux.b().onTrue(new SetStateCmd(MechanismState.SCORE_MID));
     xboxAux.a().onTrue(new SetStateCmd(MechanismState.SCORE_LOW));
     xboxAux.x().or(xboxDrv.rightStick())
-    .onTrue(new SetStateCmd(MechanismState.STOW));
+      .onTrue(new SetStateCmd(MechanismState.STOW));
     xboxAux.start().or(xboxDrv.leftStick())
-    .onTrue(new SetStateCmd(MechanismState.PICKUP_GROUND));
+      .onTrue(new SetStateCmd(MechanismState.PICKUP_GROUND));
 
     xboxDrv.rightStick().onTrue(new SetStateCmd(MechanismState.STOW));
     xboxDrv.leftStick().onTrue(new SetStateCmd(MechanismState.PICKUP_GROUND));
@@ -144,17 +144,17 @@ public class RobotContainer {
   //-----------------------------------commands with no subsystem--------------------------------------------------------------------
     xboxAux.back()
     .onTrue(Commands.runOnce(
-                () -> CatzStateUtil.newGamePieceState(GamePieceState.NONE)
+        () -> CatzStateUtil.newGamePieceState(GamePieceState.NONE)
                             ));
 
     xboxAux.povLeft()
     .onTrue(Commands.runOnce(
-                () -> CatzStateUtil.newGamePieceState(GamePieceState.CUBE)
+        () -> CatzStateUtil.newGamePieceState(GamePieceState.CUBE)
                             ));
 
     xboxAux.povRight()
     .onTrue(Commands.runOnce(
-                () -> CatzStateUtil.newGamePieceState(GamePieceState.CONE)
+       () -> CatzStateUtil.newGamePieceState(GamePieceState.CONE)
                                 ));
 
      //disabling softlimits only when both bumpers are pressed

@@ -4,16 +4,12 @@ import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.revrobotics.CANSparkMax;
 
-import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.DutyCycleEncoder;
+import frc.robot.CatzConstants;
 import frc.robot.Robot;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.LimitSwitchNormal;
 import com.ctre.phoenix.motorcontrol.LimitSwitchSource;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
-import com.revrobotics.CANSparkMax.IdleMode;
-import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-import edu.wpi.first.math.controller.PIDController;
 
 public class ArmIOReal implements ArmIO
 {
@@ -33,34 +29,11 @@ public class ArmIOReal implements ArmIO
     private final double  CURRENT_LIMIT_TIMEOUT_SECONDS = 0.5;
     private final boolean ENABLE_CURRENT_LIMIT          = true;
   
-    //gear ratio
-    private final double VERSA_RATIO  = 7.0/1.0;
-  
-    private final double PUILEY_1      = 24.0;
-    private final double PUILEY_2      = 18.0;
-    private final double PUILEY_RATIO  = PUILEY_1 / PUILEY_2;
-      
-    private final double FINAL_RATIO   = VERSA_RATIO * PUILEY_RATIO;
-    private final double FINAL_CIRCUMFERENCE = 3.54; 
-  
-  
+
     private final boolean LIMIT_SWITCH_IGNORED = false;
     private final boolean LIMIT_SWITCH_MONITORED = true;
+
   
-    private final double CNTS_OVER_REV = 2048.0 / 1.0;
-  
-    private final double CNTS_PER_INCH_CONVERSION_FACTOR = CNTS_OVER_REV/FINAL_CIRCUMFERENCE;
-  
-    private final double POS_ENC_INCH_RETRACT = 0.0;
-    private final double POS_ENC_INCH_EXTEND = 8.157;
-    private final double POS_ENC_INCH_PICKUP = 4.157;
-  
-    private final double POS_ENC_CNTS_RETRACT  = 0.0+154;//POS_ENC_INCH_RETRACT * CNTS_PER_INCH_CONVERSION_FACTOR;
-    private final double POS_ENC_CNTS_EXTEND  = 44000.0+154;//POS_ENC_INCH_EXTEND * CNTS_PER_INCH_CONVERSION_FACTOR;
-    private final double POS_ENC_CNTS_PICKUP = 22000.0+154;//POS_ENC_INCH_PICKUP * CNTS_PER_INCH_CONVERSION_FACTOR;
-  
-  
-    private boolean extendSwitchState = false;
   
     private int SWITCH_CLOSED = 1;
   
@@ -72,18 +45,6 @@ public class ArmIOReal implements ArmIO
   
     private final double MANUAL_CONTROL_PWR_OFF = 0.0;
   
-    private boolean highExtendProcess = false;
-  
-    private double targetPosition = -999.0;
-    private double currentPosition = -999.0;
-    private double positionError = -999.0; 
-    private double elevatorPosition = -999.0;
-  
-    private boolean armInPosition = false;
-    private int numConsectSamples = 0;
-  
-    private final double ARM_POS_ERROR_THRESHOLD = 2700.0; //0.5 inches    previously 500 enc counts
-    private final double NO_TARGET_POSITION = -999999.0;
   
     public ArmIOReal()
     {
@@ -131,19 +92,19 @@ public class ArmIOReal implements ArmIO
     @Override
     public void armSetFullExtendPosIO()
     {
-        armMtr.set(ControlMode.Position, POS_ENC_CNTS_EXTEND);
+        armMtr.set(ControlMode.Position, CatzConstants.POS_ENC_CNTS_EXTEND);
     }
 
     @Override
     public void armSetRetractPosIO()
     {
-        armMtr.set(ControlMode.Position, POS_ENC_CNTS_RETRACT);
+        armMtr.set(ControlMode.Position, CatzConstants.POS_ENC_CNTS_RETRACT);
     }
 
     @Override
     public void armSetPickupPosIO()
     {
-        armMtr.set(ControlMode.Position, POS_ENC_CNTS_PICKUP);
+        armMtr.set(ControlMode.Position, CatzConstants.POS_ENC_CNTS_PICKUP);
     }
 
 

@@ -31,6 +31,7 @@ public static MechanismState currentMechState = null;
     CONE,
     CUBE,
     NONE
+    
   }  
 
   public static void newGamePieceState(GamePieceState newGamePieceState)
@@ -43,20 +44,23 @@ public static MechanismState currentMechState = null;
   public static enum ElevatorState {
 
     MANUAL,
-    SET_STATE
+    SET_STATE,
+    FINISHED
   }
 
   public static ArmState currentArmState = null;
   public static enum ArmState {
 
     MANUAL,
-    SET_STATE
+    SET_STATE,
+    FINISHED
   }
 
   public static IntakeState currentIntakeState = null;
   public static enum IntakeState {
 
     MANUAL,
-    SET_STATE
+    SET_STATE,
+    FINISHED
   }
 }

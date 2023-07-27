@@ -10,6 +10,7 @@ import com.google.common.base.Supplier;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Utils.CatzStateUtil;
 import frc.robot.Utils.CatzStateUtil.ArmState;
+import frc.robot.Utils.CatzStateUtil.ElevatorState;
 import frc.robot.subsystems.Arm.CatzArmSubsystem;
 import frc.robot.subsystems.Elevator.CatzElevatorSubsystem;
 
@@ -31,6 +32,18 @@ public class ArmCmd extends CommandBase {
   private final double MANUAL_CONTROL_PWR_OFF = 0.0;
   private final double HIGH_EXTEND_THRESHOLD_ELEVATOR = 73000.0;
 
+  private double targetPosition = -999.0;
+  private double currentPosition = -999.0;
+  private double positionError = -999.0;
+
+  private final double ARM_POS_ERROR_THRESHOLD = 2700.0; //0.5 inches    previously 500 enc counts
+
+  private final double NO_TARGET_POSITION = -999999.0;
+
+  private boolean armInPosition = false;
+
+  private int numConsectSamples = 0;
+
   /** Creates a new ArmCmd. */
   public ArmCmd(CatzStateUtil.ArmState currentArmState, 
                 CatzStateUtil.MechanismState currentMechState, 
@@ -48,7 +61,7 @@ public class ArmCmd extends CommandBase {
   public void initialize() 
   {
     armAscent = false;
-    arm.armInPosition = false;
+    armInPosition = false;
     if(currentArmState == ArmState.SET_STATE)
     {
       switch(currentMechState)
@@ -95,19 +108,47 @@ public class ArmCmd extends CommandBase {
       }
     }
 
-    if((armAscent == true) && elevator.getElevatorEncoder() >= HIGH_EXTEND_THRESHOLD_ELEVATOR)
+    if((armAscent == true) && 
+       (elevator.getElevatorEncoder() >= HIGH_EXTEND_THRESHOLD_ELEVATOR))
     {
       arm.armSetFullExtendPos();
+    }
+
+    currentPosition = arm.getArmEncoder();
+    positionError = currentPosition - targetPosition;
+    if  ((Math.abs(positionError) <= ARM_POS_ERROR_THRESHOLD) && targetPosition != NO_TARGET_POSITION) 
+    {
+
+        targetPosition = NO_TARGET_POSITION;
+        numConsectSamples++;
+            if(numConsectSamples >= 10) {   
+                armInPosition = true;
+            }
+    }
+    else 
+    {
+        numConsectSamples = 0;
     }
   }
 
   // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean interrupted) {}
+  public void end(boolean interrupted) 
+  {
+    currentArmState = CatzStateUtil.ArmState.FINISHED;
+  }
 
   // Returns true when the command should end.
   @Override
-  public boolean isFinished() {
-    return false;
+  public boolean isFinished() 
+  {
+    if(armInPosition == true && currentArmState == ArmState.SET_STATE)
+    {
+      return true;
+    }
+    else
+    {
+      return false;
+    }
   }
 }

@@ -92,8 +92,6 @@ public class BalanceCmd extends CommandBase {
     
     prevBalanceAngle = balanceAngle;
     prevTime = time;
-          
-    
 }
 
   // Called once the command ends or is interrupted.
