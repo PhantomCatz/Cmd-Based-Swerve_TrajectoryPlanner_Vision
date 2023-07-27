@@ -52,11 +52,6 @@ dependencies {
     implementation wpi.java.deps.wpilib()
     implementation wpi.java.vendor.java()
 
-    // THESE THREE ARE VERY IMPORTANT
-    implementation 'com.google.guava:guava:31.1-jre'
-    implementation files('libs/auto.jar')
-    implementation 'org.msgpack:jackson-dataformat-msgpack:0.9.3'
-    // THESE THREE ARE VERY IMPORTANT
 
 
     roborioDebug wpi.java.deps.wpilibJniDebug(wpi.platforms.roborio)
