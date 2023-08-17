@@ -16,28 +16,16 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.CatzConstants;
-import frc.robot.CatzConstants.AutonomousPath;
-import frc.robot.Utils.CatzStateUtil;
-import frc.robot.Utils.CatzStateUtil.GamePieceState;
-import frc.robot.Utils.CatzStateUtil.MechanismState;
-import frc.robot.commands.SetStateCmd;
-import frc.robot.subsystems.Arm.CatzArmSubsystem;
-import frc.robot.subsystems.Elevator.CatzElevatorSubsystem;
-import frc.robot.subsystems.Intake.CatzIntakeSubsystem;
-import frc.robot.subsystems.drivetrain.CatzDriveTrainSubsystem;
+
 
 
 public class CatzAutonomousSelection 
 {
-    private final CatzElevatorSubsystem elevator = CatzElevatorSubsystem.getInstance();
-    private final CatzArmSubsystem arm = CatzArmSubsystem.getInstance();
-    private final CatzIntakeSubsystem intake = CatzIntakeSubsystem.getInstance();
-    private final CatzDriveTrainSubsystem driveTrain = CatzDriveTrainSubsystem.getInstance();
 
     public final LoggedDashboardChooser<Enum> chosenAllianceColor = new LoggedDashboardChooser<>("/alliance selector");
     public final LoggedDashboardChooser<Command> autoChooser = new LoggedDashboardChooser<>("/Auto Routine");
 
-
+    public CatzAutonomousPaths autonPaths = new CatzAutonomousPaths();
     public CatzAutonomousSelection()
     {
         chosenAllianceColor.addDefaultOption("Blue Alliance", CatzConstants.AllianceColor.BlUE_ALLIANCE);
@@ -46,44 +34,17 @@ public class CatzAutonomousSelection
 
         autoChooser.addDefaultOption("Do Nothing", new InstantCommand());
 
-        autoChooser.addOption       ("TEST PATH",  testPath());
-        autoChooser.addOption       ("Parallel Score Cube", parallelScoreCube());
+        autoChooser.addOption       ("TEST PATH",  CatzAutonomousPaths.testPath());
+        autoChooser.addOption       ("Parallel Score Cube", CatzAutonomousPaths.parallelScoreCube());
+        autoChooser.addOption       ("RightScore1HighConeBalance", CatzAutonomousPaths.RightScore1HighConeBalance());
 
     }
 
-    public Command testPath()
-    {
-        return null;
-    }
 
-    public Command parallelScoreCube()
-    {
-        new SequentialCommandGroup(
-                Commands.runOnce(() -> {CatzStateUtil.newGamePieceState(GamePieceState.CUBE);}),
-                new SetStateCmd(MechanismState.SCORE_HIGH),
 
-                new ParallelCommandGroup(
-                    new DriveToPoseCmd(), 
-                    new SequentialCommandGroup(
-                                            new SetStateCmd(MechanismState.STOW),
-                                            new SetStateCmd(MechanismState.PICKUP_GROUND),
-                                            Commands.run(() -> intake.intakeRollerFunctionIN(), intake))
-                                        ),
-                Commands.runOnce(() -> Timer.delay(0.5)),
-                new ParallelCommandGroup(
-                    Commands.run(() -> intake.intakeRollersOff(), intake),
-                    new DriveToPoseCmd(), 
-                    new SequentialCommandGroup(
-                                            new SetStateCmd(MechanismState.STOW),
-                                            new SetStateCmd(MechanismState.SCORE_HIGH))
-                                                ),
-                Commands.run(() -> intake.intakeRollerFunctionOUT(), intake),
-                Commands.runOnce(() -> {Timer.delay(1);}),
-                Commands.run(() -> intake.intakeRollersOff(), intake),
-                new SetStateCmd(MechanismState.STOW)
-                );
-            return null;
-    }
+
+
+    
     
 
 

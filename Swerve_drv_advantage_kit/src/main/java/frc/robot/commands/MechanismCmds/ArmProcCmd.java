@@ -4,22 +4,21 @@
 
 package frc.robot.commands.MechanismCmds;
 
-import com.ctre.phoenix.motorcontrol.ControlMode;
 
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.CatzConstants;
 import frc.robot.Utils.CatzStateUtil;
 import frc.robot.Utils.CatzStateUtil.ArmState;
-import frc.robot.Utils.CatzStateUtil.ElevatorState;
 import frc.robot.subsystems.Arm.CatzArmSubsystem;
 import frc.robot.subsystems.Elevator.CatzElevatorSubsystem;
 
 
-public class ArmCmd extends CommandBase {
+public class ArmProcCmd extends CommandBase {
   private CatzArmSubsystem arm = CatzArmSubsystem.getInstance();
   private CatzElevatorSubsystem elevator = CatzElevatorSubsystem.getInstance();
   private CatzStateUtil.ArmState currentArmState;
-  private CatzStateUtil.MechanismState currentMechState;
+  private CatzStateUtil.SetMechanismState currentMechState;
   private boolean armExtend;
   private boolean armRetract;
 
@@ -45,8 +44,8 @@ public class ArmCmd extends CommandBase {
   private int numConsectSamples = 0;
 
   /** Creates a new ArmCmd. */
-  public ArmCmd(CatzStateUtil.ArmState currentArmState, 
-                CatzStateUtil.MechanismState currentMechState, 
+  public ArmProcCmd(CatzStateUtil.ArmState currentArmState, 
+                CatzStateUtil.SetMechanismState currentMechState, 
                 boolean armExtend, boolean armRetract) {
 
   this.currentArmState = currentArmState;
@@ -69,16 +68,19 @@ public class ArmCmd extends CommandBase {
           case STOW:
           case SCORE_MID :
               arm.armSetRetractPos();
+              targetPosition = CatzConstants.POS_ENC_CNTS_EXTEND;
               break;
 
           case PICKUP_GROUND :
           case PICKUP_SINGLE :
           case SCORE_LOW :
               arm.armSetPickupPos();
+              targetPosition = CatzConstants.POS_ENC_CNTS_PICKUP;
               break;
 
           case SCORE_HIGH :
                 armAscent = true;
+                targetPosition = CatzConstants.POS_ENC_CNTS_RETRACT;
               break;
 
           default:
@@ -108,8 +110,7 @@ public class ArmCmd extends CommandBase {
       }
     }
 
-    if((armAscent == true) && 
-       (elevator.getElevatorEncoder() >= HIGH_EXTEND_THRESHOLD_ELEVATOR))
+    if((armAscent == true) && (elevator.getElevatorEncoder() >= HIGH_EXTEND_THRESHOLD_ELEVATOR))
     {
       arm.armSetFullExtendPos();
     }
@@ -118,10 +119,10 @@ public class ArmCmd extends CommandBase {
     positionError = currentPosition - targetPosition;
     if  ((Math.abs(positionError) <= ARM_POS_ERROR_THRESHOLD) && targetPosition != NO_TARGET_POSITION) 
     {
-
         targetPosition = NO_TARGET_POSITION;
         numConsectSamples++;
-            if(numConsectSamples >= 10) {   
+            if(numConsectSamples >= 10) 
+            {   
                 armInPosition = true;
             }
     }

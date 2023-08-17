@@ -9,7 +9,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.CatzConstants;
 import frc.robot.Robot;
-import frc.robot.subsystems.vision.CatzRobotTracker;
+
 
 public class CatzDriveTrainSubsystem extends SubsystemBase
 {
@@ -65,10 +65,10 @@ public class CatzDriveTrainSubsystem extends SubsystemBase
         switch(CatzConstants.currentMode)
         {
         case REAL:
-        gyroIO = new GyroIONavX();
+            gyroIO = new GyroIONavX();
         break;
         default:
-        gyroIO = new GyroIOSim();
+            gyroIO = new GyroIOSim();
         break;
         }
         
@@ -97,11 +97,10 @@ public class CatzDriveTrainSubsystem extends SubsystemBase
         {
             module.periodic();
         }
+        gyroIO.updateInputs(gyroInputs);
+        Logger.getInstance().processInputs("Drive/ ", gyroInputs);
 
     }
-
-
-
 
     public void drive(double joystickAngle, double joystickPower, double gyroAngle)
     {
@@ -181,6 +180,7 @@ public class CatzDriveTrainSubsystem extends SubsystemBase
         LT_BACK_MODULE.setDrivePower(translatePower);
         RT_FRNT_MODULE.setDrivePower(translatePower);
         RT_BACK_MODULE.setDrivePower(translatePower);
+        Logger.getInstance().recordOutput("Drive/translatePwr", translatePower);
     }
 
     public void setSteerPower(double pwr) {

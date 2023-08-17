@@ -113,14 +113,13 @@ public class SwerveModule
 
     public void setSteerPower(double pwr)
     {
-        switch (CatzConstants.currentMode)
+        if(CatzConstants.currentMode == CatzConstants.Mode.SIM)
         {
-        case REAL:  io.setSteerPwrIO(pwr); 
-            break;
-        case SIM:   io.setSteerSimPwrIO(pwr);
-            break;
-        default:    io.setSteerPwrIO(pwr);
-            break;
+           io.setSteerSimPwrIO(pwr);
+        }
+        else
+        {       
+            io.setSteerPwrIO(pwr);
         }
     }
 
@@ -130,16 +129,14 @@ public class SwerveModule
         {
             pwr = -pwr;
         }
-        switch (CatzConstants.currentMode)
+        if(CatzConstants.currentMode == CatzConstants.Mode.SIM)
         {
-        case REAL:  io.setDrivePwrPercentIO(-pwr); 
-            break;
-        case SIM:   io.setDriveSimPwrIO(-pwr);
-            break;
-        default:    io.setDrivePwrPercentIO(-pwr);
-            break;
+           io.setDriveSimPwrIO(pwr);
         }
-
+        else
+        {       
+            io.setDrivePwrPercentIO(pwr);
+        }
     }
 
     public double getDrvDistanceRaw()

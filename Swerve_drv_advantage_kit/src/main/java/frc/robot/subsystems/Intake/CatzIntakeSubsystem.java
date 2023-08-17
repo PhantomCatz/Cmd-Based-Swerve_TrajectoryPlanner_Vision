@@ -60,7 +60,7 @@ public class CatzIntakeSubsystem extends SubsystemBase {
     private int numConsectSamples = 0;
 
 
-
+    private boolean intakeCmdLoopActive;
 
   private CatzIntakeSubsystem() 
   {
@@ -79,6 +79,7 @@ public class CatzIntakeSubsystem extends SubsystemBase {
 
 
         intakePID = new PIDController(CatzConstants.GROSS_kP, CatzConstants.GROSS_kI, CatzConstants.GROSS_kD);
+        
   }
 
   @Override
@@ -86,9 +87,6 @@ public class CatzIntakeSubsystem extends SubsystemBase {
   {
     io.updateInputs(inputs);
     Logger.getInstance().processInputs("Intake", inputs);
-
-
-
   }
 
     /*----------------------------------------------------------------------------------------------
@@ -108,70 +106,16 @@ public class CatzIntakeSubsystem extends SubsystemBase {
     public boolean getPIDEnabled(){
         return pidEnable;
     }
-    public void intakePIDLoopFunction()
+
+    public void setIntakeCmdLoopActive(boolean set)
     {
-        //----------------------------------------------------------------------------------
-        //  Chk if at final position
-        //----------------------------------------------------------------------------------
-        currentPosition = inputs.wristPosEnc / CatzConstants.WRIST_CNTS_PER_DEGREE;
-        positionError = currentPosition - targetPositionDeg;
-
-
-        if  ((Math.abs(positionError) <= INTAKE_POS_ERROR_THRESHOLD_DEG))
-        {
-            numConsectSamples++;
-            if(numConsectSamples >= 1)
-            {   
-                intakeInPosition = true;
-            }
-        }
-        else
-        {
-            numConsectSamples = 0;
-        }
-        
-        
-        if(Math.abs(positionError) >= PID_FINE_GROSS_THRESHOLD_DEG)
-        {
-            intakePID.setP(CatzConstants.GROSS_kP);
-            intakePID.setI(CatzConstants.GROSS_kI);
-            intakePID.setD(CatzConstants.GROSS_kD);
-        }
-        else if(Math.abs(positionError) < PID_FINE_GROSS_THRESHOLD_DEG)
-        {
-            intakePID.setP(CatzConstants.FINE_kP);
-            intakePID.setI(CatzConstants.FINE_kI);
-            intakePID.setD(CatzConstants.FINE_kD);
-        }
-
-        pidPower = intakePID.calculate(currentPosition, targetPositionDeg);
-        ffPower = calculateGravityFF();
-        targetPower = pidPower + ffPower;
-
-        //-------------------------------------------------------------
-        //  checking if we did not get updated position value(Sampling Issue).
-        //  If no change in position, this give invalid target power(kD issue).
-        //  Therefore, go with prev targetPower Value.
-        //-------------------------------------------------------------------
-        if(prevCurrentPosition == currentPosition)
-        {
-            targetPower = prevTargetPwr;
-        }
-
-        //----------------------------------------------------------------------------------
-        //  If we are going to Stow Position & have passed the power cutoff angle, set
-        //  power to 0, otherwise calculate new motor power based on position error and 
-        //  current angle
-        //----------------------------------------------------------------------------------
-        if(targetPositionDeg == CatzConstants.STOW_ENC_POS && currentPosition > CatzConstants.STOW_CUTOFF)
-        {
-            targetPower = 0.0;
-        }
-        wristSetPercentOuput(targetPower);
-
-        prevCurrentPosition = currentPosition;
-        prevTargetPwr = targetPower;
+        intakeCmdLoopActive = set;
     }
+    public boolean getIntakeCmdLoopActive()
+    {
+        return intakeCmdLoopActive;
+    }
+
 
     public void manualHoldingFunction(double wristPwr)
     {
@@ -253,7 +197,7 @@ public class CatzIntakeSubsystem extends SubsystemBase {
 
     public double calcWristAngle()
     {
-        double wristAngle = ((inputs.wristPosEnc / CatzConstants.WRIST_CNTS_PER_DEGREE) - CatzConstants.WRIST_ABS_ENC_OFFSET_DEG);
+        double wristAngle = ((inputs.wristPosEnc / CatzConstants.INTAKE_WRIST_CNTS_PER_DEGREE) - CatzConstants.INTAKE_WRIST_ABS_ENC_OFFSET_DEG);
         return wristAngle;
     }
 
@@ -263,7 +207,7 @@ public class CatzIntakeSubsystem extends SubsystemBase {
     
     public double calculateGravityFF()
     {
-        double radians = Math.toRadians(calcWristAngle() - CatzConstants.CENTER_OF_MASS_OFFSET_DEG);
+        double radians = Math.toRadians(calcWristAngle() - CatzConstants.INTAKE_CENTER_OF_MASS_OFFSET_DEG);
         double cosineScalar = Math.cos(radians);
         
         return CatzConstants.MAX_GRAVITY_FF * cosineScalar;
@@ -294,7 +238,7 @@ public class CatzIntakeSubsystem extends SubsystemBase {
         intakeInPosition = isEnabled;
     }
 
-    public void setPIDenable(boolean isEnabled)
+    public void setPIDEnable(boolean isEnabled)
     {
         pidEnable = isEnabled;
     }
@@ -319,7 +263,83 @@ public class CatzIntakeSubsystem extends SubsystemBase {
         }
 
         return instance;
-    
+    }
+
+    /*----------------------------------------------------------------------------------------------
+    *
+    *  startIntakeThread()
+    *
+    *---------------------------------------------------------------------------------------------*/
+    public void IntakePIDLoop()
+    {
+                  if(pidEnable)
+                  {
+                    //----------------------------------------------------------------------------------
+                    //  Chk if at final position
+                    //----------------------------------------------------------------------------------
+                    currentPosition = inputs.wristPosEnc / CatzConstants.INTAKE_WRIST_CNTS_PER_DEGREE;
+                    positionError = currentPosition - targetPositionDeg;
+
+
+                    if  ((Math.abs(positionError) <= INTAKE_POS_ERROR_THRESHOLD_DEG))
+                    {
+                        numConsectSamples++;
+                        if(numConsectSamples >= 1)
+                        {   
+                            intakeInPosition = true;
+                            CatzStateUtil.currentIntakeState = CatzStateUtil.IntakeState.FINISHED;
+                        }
+                    }
+                    else
+                    {
+                        numConsectSamples = 0;
+                    }
+                    
+                    
+                    if(Math.abs(positionError) >= PID_FINE_GROSS_THRESHOLD_DEG)
+                    {
+                        intakePID.setP(CatzConstants.GROSS_kP);
+                        intakePID.setI(CatzConstants.GROSS_kI);
+                        intakePID.setD(CatzConstants.GROSS_kD);
+                    }
+                    else if(Math.abs(positionError) < PID_FINE_GROSS_THRESHOLD_DEG)
+                    {
+                        intakePID.setP(CatzConstants.FINE_kP);
+                        intakePID.setI(CatzConstants.FINE_kI);
+                        intakePID.setD(CatzConstants.FINE_kD);
+                    }
+
+                    pidPower = intakePID.calculate(currentPosition, targetPositionDeg);
+                    ffPower = calculateGravityFF();
+                    targetPower = pidPower + ffPower;
+
+                    //-------------------------------------------------------------
+                    //  checking if we did not get updated position value(Sampling Issue).
+                    //  If no change in position, this give invalid target power(kD issue).
+                    //  Therefore, go with prev targetPower Value.
+                    //-------------------------------------------------------------------
+                    if(prevCurrentPosition == currentPosition)
+                    {
+                        targetPower = prevTargetPwr;
+                    }
+
+                    //----------------------------------------------------------------------------------
+                    //  If we are going to Stow Position & have passed the power cutoff angle, set
+                    //  power to 0, otherwise calculate new motor power based on position error and 
+                    //  current angle
+                    //----------------------------------------------------------------------------------
+                    if(targetPositionDeg == CatzConstants.STOW_ENC_POS && currentPosition > CatzConstants.STOW_CUTOFF)
+                    {
+                        targetPower = 0.0;
+                    }
+                    wristSetPercentOuput(targetPower);
+
+                    prevCurrentPosition = currentPosition;
+                    prevTargetPwr = targetPower;
+
+                    intakeCmdLoopActive = false;
+                    Logger.getInstance().recordOutput("targetpwr", targetPower);
+                }
     }
     
 

@@ -7,16 +7,17 @@ package frc.robot.commands.MechanismCmds;
 import java.util.function.Supplier;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.CatzConstants;
 import frc.robot.Utils.CatzStateUtil;
 import frc.robot.Utils.CatzStateUtil.GamePieceState;
 import frc.robot.Utils.CatzStateUtil.IntakeState;
 import frc.robot.subsystems.Intake.CatzIntakeSubsystem;
 
-public class IntakeCmd extends CommandBase {
+public class IntakeProcCmd extends CommandBase {
   CatzIntakeSubsystem intake = CatzIntakeSubsystem.getInstance();
   CatzStateUtil.IntakeState currentIntakeState;
-  CatzStateUtil.MechanismState currentMechanismState;
+  CatzStateUtil.SetMechanismState currentMechanismState;
   Supplier<Double> supplierWristPwr;
   Supplier<Boolean> supplierManualMode;
 
@@ -27,8 +28,6 @@ public class IntakeCmd extends CommandBase {
 
 
 
-  private boolean  pidEnableCmd = false;
-
   private double   targetPowerCmd = 0.0;
   private double   targetPosDegCmd;
 
@@ -36,8 +35,8 @@ public class IntakeCmd extends CommandBase {
 
   private int numConsectSamples = 0;
   /** Creates a new IntakeCmd. */
-  public IntakeCmd(CatzStateUtil.IntakeState currentIntakeState,
-                   CatzStateUtil.MechanismState currentMechState,
+  public IntakeProcCmd(CatzStateUtil.IntakeState currentIntakeState,
+                   CatzStateUtil.SetMechanismState currentMechState,
                    Supplier<Double> wristPwr, Supplier<Boolean> supplierManualMode) {
 
     this.currentMechanismState = currentMechState;
@@ -52,8 +51,8 @@ public class IntakeCmd extends CommandBase {
   {
     if(currentIntakeState == IntakeState.SET_STATE)
     {
-      pidEnableCmd = true;
-      intake.setisIntakeInPos(false);
+      intake.setPIDEnable(true);
+
       switch(currentMechanismState)
       {
           case  STOW:
@@ -123,69 +122,63 @@ public class IntakeCmd extends CommandBase {
     }
 }
 
-  // Called every time the scheduler runs while the command is scheduled.
-  @Override
-  public void execute() 
+
+@Override
+public void execute() {
+
+  boolean fullManualModeCmd = supplierManualMode.get();
+  double wristPwrCmd   = supplierWristPwr.get();
+
+  if(currentIntakeState == IntakeState.MANUAL)
   {
-    boolean manualModeCmd = supplierManualMode.get();
-    double wristPwrCmd   = supplierWristPwr.get();
-    if(currentIntakeState == IntakeState.MANUAL)
-    {
-      if(manualModeCmd)
-      {                
-        pidEnableCmd = false;
-      }
-
-      if(Math.abs(wristPwrCmd) >= 0.1)//if we are apply wrist power manually
-      {
-          if (pidEnableCmd == true)//check if in manual holding state
-          {
-            intake.manualHoldingFunction(wristPwrCmd);
-          }
-          else //in full manual mode
-          {
-              targetPowerCmd = wristPwrCmd * WRIST_MAX_PWR;    
-              intake.wristSetPercentOuput(targetPowerCmd);
-          }
-      }
-      else //Manual power is OFF
-      {
-          if(pidEnableCmd == false)//if we are still in manual mode and want to hold intake in place
-          {
-              targetPowerCmd = 0.0;
-              intake.wristSetPercentOuput(targetPowerCmd);
-          }
-      }
-   }
-
-    if(pidEnableCmd)
-    {
-      intake.intakePIDLoopFunction();
+    if(fullManualModeCmd)
+    {              
+      intake.setPIDEnable(false);  
     }
 
+    if(Math.abs(wristPwrCmd) >= 0.1)//if we are apply wrist power manually
+    {
+        if (intake.getPIDEnabled() == true)//check if in manual holding state
+        {
+          intake.manualHoldingFunction(wristPwrCmd);
+        }
+        else //in full manual mode
+        {
+            targetPowerCmd = wristPwrCmd * WRIST_MAX_PWR;    
+            intake.wristSetPercentOuput(targetPowerCmd);
+        }
+    }
+    else //Manual power is OFF
+    {
+        if(intake.getPIDEnabled() == false)//if we are still in manual mode and want to hold intake in place
+        {
+            targetPowerCmd = 0.0;
+            intake.wristSetPercentOuput(targetPowerCmd);
+        }
+    }
+ }
 
-  
+ intake.IntakePIDLoop();
+
 }
 
-  // Called once the command ends or is interrupted.
-  @Override
-  public void end(boolean interrupted) 
+@Override
+public void end(boolean interrupted) 
+{
+    
+}
+@Override
+public boolean isFinished() 
+{
+  if(currentIntakeState == IntakeState.SET_STATE && intake.isIntakeInPos())
   {
-    currentIntakeState = CatzStateUtil.IntakeState.FINISHED;
+    return true;
   }
+  else
+  {
+    return false;
+  }
+}
 
-  // Returns true when the command should end.
-  @Override
-  public boolean isFinished() 
-  {
-    if(currentIntakeState == IntakeState.SET_STATE && intake.isIntakeInPos())
-    {
-      return true;
-    }
-    else
-    {
-      return false;
-    }
-  }
 }
 

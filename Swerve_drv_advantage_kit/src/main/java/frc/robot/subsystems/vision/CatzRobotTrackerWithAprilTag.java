@@ -102,8 +102,10 @@ public class CatzRobotTrackerWithAprilTag {
 
     public static CatzRobotTrackerWithAprilTag getInstance()
     {
-        if(instance == null) instance = new CatzRobotTrackerWithAprilTag(THREAD_PERIOD_MS, THREAD_PERIOD_MS, THREAD_PERIOD_MS, THREAD_PERIOD_MS, THREAD_PERIOD_MS, THREAD_PERIOD_MS, THREAD_PERIOD_MS, THREAD_PERIOD_MS, THREAD_PERIOD_MS, THREAD_PERIOD_MS, THREAD_PERIOD_MS);
-
+        if(instance == null) 
+        {
+            instance = new CatzRobotTrackerWithAprilTag(THREAD_PERIOD_MS, THREAD_PERIOD_MS, THREAD_PERIOD_MS, THREAD_PERIOD_MS, THREAD_PERIOD_MS, THREAD_PERIOD_MS, THREAD_PERIOD_MS, THREAD_PERIOD_MS, THREAD_PERIOD_MS, THREAD_PERIOD_MS, THREAD_PERIOD_MS);
+        }
         return instance;
     }
 

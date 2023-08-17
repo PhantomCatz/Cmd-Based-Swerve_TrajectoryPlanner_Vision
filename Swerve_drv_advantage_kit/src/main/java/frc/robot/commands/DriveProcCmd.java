@@ -8,13 +8,13 @@ import java.util.function.Supplier;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.drivetrain.CatzDriveTrainSubsystem;
 
-public class TeleopDriveCmd extends CommandBase {
+public class DriveProcCmd extends CommandBase {
 
   private CatzDriveTrainSubsystem driveTrain = CatzDriveTrainSubsystem.getInstance();
   Supplier<Double> supplierLeftJoyX;
   Supplier<Double> supplierLeftJoyY;
   Supplier<Double> supplierRightJoyX;
-  Supplier<Double> supplierPwrMode;
+  Supplier<Boolean> supplierPwrMode;
 
   private double steerAngle;
   private double drivePower;
@@ -24,10 +24,10 @@ public class TeleopDriveCmd extends CommandBase {
 
   
   /** Creates a new TeleopDriveCmd. */
-  public TeleopDriveCmd(Supplier<Double> supplierLeftJoyX,
-                        Supplier<Double> supplierLeftJoyY,
-                        Supplier<Double> supplierRightJoyX,
-                        Supplier<Double> supplierPwrMode) 
+  public DriveProcCmd(Supplier<Double> supplierLeftJoyX,
+                    Supplier<Double> supplierLeftJoyY,
+                    Supplier<Double> supplierRightJoyX,
+                    Supplier<Boolean> supplierPwrMode) 
   {
     this.supplierLeftJoyX = supplierLeftJoyX;
     this.supplierLeftJoyY = supplierLeftJoyY;
@@ -48,7 +48,8 @@ public class TeleopDriveCmd extends CommandBase {
         double leftJoyX = supplierLeftJoyX.get();
         double leftJoyY = supplierLeftJoyY.get();
         double rightJoyX = supplierRightJoyX.get();
-        double pwrMode = supplierPwrMode.get();
+
+        modifyDrvPwr = supplierPwrMode.get();
 
         steerAngle = driveTrain.calcJoystickAngle(leftJoyX, leftJoyY);
         drivePower = driveTrain.calcJoystickPower(leftJoyX, leftJoyY);
@@ -57,14 +58,6 @@ public class TeleopDriveCmd extends CommandBase {
         gyroAngle  = driveTrain.getGyroAngle();
 
         
-        if(pwrMode > 0.9)
-        {
-            modifyDrvPwr = true;
-        }
-        else
-        {
-            modifyDrvPwr = false;
-        }
 
         if(drivePower >= 0.1)
         {
@@ -82,8 +75,8 @@ public class TeleopDriveCmd extends CommandBase {
                     turnPower = turnPower * 0.5;
                 }
                 driveTrain.translateTurn(steerAngle, drivePower, turnPower, gyroAngle);
-                }
-               else
+            }
+            else
             {
                 driveTrain.drive(steerAngle, drivePower, gyroAngle);
             }

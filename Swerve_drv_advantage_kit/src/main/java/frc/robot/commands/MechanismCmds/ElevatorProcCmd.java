@@ -16,10 +16,10 @@ import frc.robot.Utils.CatzStateUtil.GamePieceState;
 import frc.robot.subsystems.Arm.CatzArmSubsystem;
 import frc.robot.subsystems.Elevator.CatzElevatorSubsystem;
 
-public class ElevatorCmd extends CommandBase {
+public class ElevatorProcCmd extends CommandBase {
   CatzElevatorSubsystem elevator = CatzElevatorSubsystem.getInstance();
   CatzArmSubsystem arm = CatzArmSubsystem.getInstance();
-  CatzStateUtil.MechanismState currentMechanismState;
+  CatzStateUtil.SetMechanismState currentMechanismState;
   CatzStateUtil.ElevatorState currentElevatorState;
   Supplier<Double> supplierElevatorPwr;
   Supplier<Boolean> supplierManualMode;
@@ -28,7 +28,7 @@ public class ElevatorCmd extends CommandBase {
   private final double MANUAL_HOLD_STEP_SIZE = 10000.0; //5000.0;
   private final double ARM_ENCODER_THRESHOLD = 35000.0;
 
-  private double targetPositionEnc;
+  private double manualHoldTargetPos;
   private boolean elevatorDescent;
   private double targetPosition = -999.0;
   private double currentPosition = -999.0;
@@ -42,9 +42,10 @@ public class ElevatorCmd extends CommandBase {
 
   private int numConsectSamples = 0;
   /** Creates a new ElevatorCmd. */
-  public ElevatorCmd(CatzStateUtil.ElevatorState currentElevatorState, 
-                     CatzStateUtil.MechanismState currentMechState,
-                     Supplier<Double> supplierElevatorPwr, Supplier<Boolean> supplierManualMode) 
+  public ElevatorProcCmd(CatzStateUtil.ElevatorState currentElevatorState, 
+                        CatzStateUtil.SetMechanismState currentMechState,
+                        Supplier<Double> supplierElevatorPwr, 
+                        Supplier<Boolean> supplierManualMode) 
   {
     this.currentElevatorState = currentElevatorState;
     this.currentMechanismState = currentMechState;
@@ -59,6 +60,7 @@ public class ElevatorCmd extends CommandBase {
   public void initialize() 
   {
     elevatorDescent = false;
+    elevatorInPosition = false;
 
     if(currentElevatorState == ElevatorState.SET_STATE)
     {
@@ -69,38 +71,37 @@ public class ElevatorCmd extends CommandBase {
           case SCORE_LOW :
 
               elevatorDescent = true;
-              targetPosition = CatzConstants.POS_ENC_CNTS_LOW;
+              targetPosition = CatzConstants.ELEVATOR_POS_ENC_CNTS_LOW;
               break;
 
           case PICKUP_SINGLE :
             if(CatzStateUtil.currentGamePieceState == GamePieceState.CUBE)
               {
                 elevatorDescent = true;
-                targetPosition = CatzConstants.POS_ENC_CNTS_LOW;
+                targetPosition = CatzConstants.ELEVATOR_POS_ENC_CNTS_LOW;
               }
             else
               {
                 elevator.elevatorSetToSinglePickup();
-                targetPosition = CatzConstants.POS_ENC_CNTS_HIGH;
-                
+                targetPosition = CatzConstants.ELEVATOR_POS_ENC_CNTS_HIGH;
               }
               break;
           case SCORE_MID :
             if(CatzStateUtil.currentGamePieceState == GamePieceState.CUBE)
               {
                 elevator.elevatorSetToMidPosCube();
-                targetPosition = CatzConstants.POS_ENC_CNTS_MID_CUBE;
+                targetPosition = CatzConstants.ELEVATOR_POS_ENC_CNTS_MID_CUBE;
               }
             else
               {
                 elevator.elevatorSetToMidPosCone();
-                targetPosition = CatzConstants.POS_ENC_CNTS_MID_CONE;
+                targetPosition = CatzConstants.ELEVATOR_POS_ENC_CNTS_MID_CONE;
               }
               break;
               
           case SCORE_HIGH :
                 elevator.elevatorSetToHighPos();
-                targetPosition = CatzConstants.POS_ENC_CNTS_HIGH;
+                targetPosition = CatzConstants.ELEVATOR_POS_ENC_CNTS_HIGH;
               break;
 
           default:
@@ -115,11 +116,10 @@ public class ElevatorCmd extends CommandBase {
   public void execute() 
   {
     boolean isElevatorInManualMode = supplierManualMode.get();
-    double elevatorPwr = supplierElevatorPwr.get();
+    double  elevatorPwr = supplierElevatorPwr.get();
     
     if(currentElevatorState == ElevatorState.MANUAL)
     {
-      
       if(Math.abs(elevatorPwr) >= MANUAL_CONTROL_DEADBAND)
       {
           if(isElevatorInManualMode) // Full manual
@@ -128,9 +128,9 @@ public class ElevatorCmd extends CommandBase {
           }
           else // Hold Position
           {
-              targetPositionEnc = elevator.getElevatorEncoder();
-              targetPositionEnc = targetPositionEnc + (elevatorPwr * MANUAL_HOLD_STEP_SIZE);
-              elevator.elevatorHoldingManual(targetPositionEnc);
+              manualHoldTargetPos = elevator.getElevatorEncoder();
+              manualHoldTargetPos = manualHoldTargetPos + (elevatorPwr * MANUAL_HOLD_STEP_SIZE);
+              elevator.elevatorHoldingManual(manualHoldTargetPos);
           }
       }
       else

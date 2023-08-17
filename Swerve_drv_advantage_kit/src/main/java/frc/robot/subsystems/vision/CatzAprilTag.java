@@ -3,7 +3,7 @@ package frc.robot.subsystems.vision;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.*;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 
 public class CatzAprilTag {
 
