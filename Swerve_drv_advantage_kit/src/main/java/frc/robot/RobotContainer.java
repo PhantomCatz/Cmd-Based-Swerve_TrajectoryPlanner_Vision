@@ -29,7 +29,6 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
  import frc.robot.commands.MechanismCmds.ArmProcCmd;
  import frc.robot.commands.MechanismCmds.ElevatorProcCmd;
  import frc.robot.commands.MechanismCmds.IntakeProcCmd;
-import frc.robot.commands.MechanismCmds.DefaultIntakeCmd;
 import frc.robot.commands.MechanismCmds.SetStateCmdGroup;
 import frc.robot.subsystems.Arm.CatzArmSubsystem;
  import frc.robot.subsystems.Elevator.CatzElevatorSubsystem;
@@ -185,7 +184,7 @@ import frc.robot.subsystems.Arm.CatzArmSubsystem;
    //
    private void defaultCommands() 
    { 
-    intake.setDefaultCommand(new DefaultIntakeCmd());
+    intake.setDefaultCommand(Commands.run(()-> intake.IntakePIDLoop(), intake));
     
     /*  driveTrain.setDefaultCommand(new TeleopDriveCmd(() -> xboxDrv.getLeftX(),
                                                      () -> xboxDrv.getLeftY(),

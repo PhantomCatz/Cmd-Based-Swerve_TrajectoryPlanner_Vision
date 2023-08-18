@@ -4,17 +4,20 @@
 
 package frc.robot.commands.MechanismCmds;
 
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import frc.robot.Utils.CatzStateUtil;
 import frc.robot.Utils.CatzStateUtil.ArmState;
 import frc.robot.Utils.CatzStateUtil.ElevatorState;
 import frc.robot.Utils.CatzStateUtil.IntakeState;
+import frc.robot.subsystems.Elevator.CatzElevatorSubsystem;
 
 
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
 // information, see:
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
 public class SetStateCmdGroup extends ParallelCommandGroup {
+  CatzElevatorSubsystem elevator = CatzElevatorSubsystem.getInstance();
   /** Creates a new SetStateCommand. */
   public SetStateCmdGroup(CatzStateUtil.SetMechanismState currentMechanismState) 
   {

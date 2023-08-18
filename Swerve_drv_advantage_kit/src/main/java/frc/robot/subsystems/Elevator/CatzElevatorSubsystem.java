@@ -4,10 +4,22 @@
 
 package frc.robot.subsystems.Elevator;
 
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
+import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.CatzConstants;
 //import frc.robot.Robot.mechMode;
+import frc.robot.Utils.CatzStateUtil;
+import frc.robot.Utils.CatzStateUtil.ElevatorState;
+import frc.robot.Utils.CatzStateUtil.GamePieceState;
+import frc.robot.subsystems.Arm.CatzArmSubsystem;
+
+import java.util.Set;
+import java.util.function.BooleanSupplier;
+import java.util.function.Supplier;
 
 import org.littletonrobotics.junction.Logger;
 
@@ -35,6 +47,24 @@ public class CatzElevatorSubsystem extends SubsystemBase {
   private final boolean LIMIT_SWITCH_IGNORED   = false;
   private final boolean LIMIT_SWITCH_MONITORED = true;  // limit switches will shut off the motor
 
+
+  private final double MANUAL_CONTROL_DEADBAND = 0.1;
+  private final double MANUAL_HOLD_STEP_SIZE = 10000.0; //5000.0;
+  private final double ARM_ENCODER_THRESHOLD = 35000.0;
+
+  private double manualHoldTargetPos;
+  private boolean elevatorDescent;
+  private double targetPosition = -999.0;
+  private double currentPosition = -999.0;
+  private double positionError = -999.0;
+
+  private final double ELEVATOR_POS_ERROR_THRESHOLD = 1000.0; //0.424 inches
+
+  private final double NO_TARGET_POSITION = -999999.0;
+
+  private boolean elevatorInPosition = false;
+
+  private int numConsectSamples = 0;
 
   /** Creates a new CatzElevatorSubsystem. */
   private CatzElevatorSubsystem() 
@@ -65,10 +95,6 @@ public class CatzElevatorSubsystem extends SubsystemBase {
     // This method will be called once per scheduler run
   }
 
-  public CommandBase ElevatorCmd()
-  {
-    return this.runOnce(null);
-  } 
 
     public void elevatorManual(double pwr)
     {
