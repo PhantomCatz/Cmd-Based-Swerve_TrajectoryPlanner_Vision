@@ -38,29 +38,4 @@ public static SetMechanismState currentMechState = null;
   {
     currentGamePieceState = newGamePieceState;
   }
-
-  
-  public static ElevatorState currentElevatorState = null;
-  public static enum ElevatorState {
-
-    MANUAL,
-    SET_STATE,
-    FINISHED
-  }
-
-  public static ArmState currentArmState = null;
-  public static enum ArmState {
-
-    MANUAL,
-    SET_STATE,
-    FINISHED
-  }
-
-  public static IntakeState currentIntakeState = null;
-  public static enum IntakeState {
-
-    MANUAL,
-    SET_STATE,
-    FINISHED
-  }
 }

@@ -2,14 +2,13 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.commands.MechanismCmds;
+package frc.robot.commands.SetStateCmds;
 
 
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.CatzConstants;
 import frc.robot.Utils.CatzStateUtil;
-import frc.robot.Utils.CatzStateUtil.ArmState;
 import frc.robot.subsystems.Arm.CatzArmSubsystem;
 import frc.robot.subsystems.Elevator.CatzElevatorSubsystem;
 
@@ -17,18 +16,11 @@ import frc.robot.subsystems.Elevator.CatzElevatorSubsystem;
 public class ArmProcCmd extends CommandBase {
   private CatzArmSubsystem arm = CatzArmSubsystem.getInstance();
   private CatzElevatorSubsystem elevator = CatzElevatorSubsystem.getInstance();
-  private CatzStateUtil.ArmState currentArmState;
   private CatzStateUtil.SetMechanismState currentMechState;
-  private boolean armExtend;
-  private boolean armRetract;
 
   private boolean armAscent;
 
-  private final double EXTEND_PWR  = 0.2;
-  private final double RETRACT_PWR = -0.2;
 
-
-  private final double MANUAL_CONTROL_PWR_OFF = 0.0;
   private final double HIGH_EXTEND_THRESHOLD_ELEVATOR = 73000.0;
 
   private double targetPosition = -999.0;
@@ -44,14 +36,9 @@ public class ArmProcCmd extends CommandBase {
   private int numConsectSamples = 0;
 
   /** Creates a new ArmCmd. */
-  public ArmProcCmd(CatzStateUtil.ArmState currentArmState, 
-                CatzStateUtil.SetMechanismState currentMechState, 
-                boolean armExtend, boolean armRetract) {
+  public ArmProcCmd(CatzStateUtil.SetMechanismState currentMechState) {
 
-  this.currentArmState = currentArmState;
   this.currentMechState = currentMechState;
-  this.armExtend = armExtend;
-  this.armRetract = armRetract;
   addRequirements(arm);
   }
 
@@ -61,8 +48,6 @@ public class ArmProcCmd extends CommandBase {
   {
     armAscent = false;
     armInPosition = false;
-    if(currentArmState == ArmState.SET_STATE)
-    {
       switch(currentMechState)
       {
           case STOW:
@@ -86,30 +71,12 @@ public class ArmProcCmd extends CommandBase {
           default:
               break;
       }
-    }
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() 
   {
-
-    if(currentArmState == ArmState.MANUAL)
-    {
-      if(armExtend == true)
-      {
-          arm.setArmPwr(EXTEND_PWR);
-      }
-      else if(armRetract == true)
-      {
-          arm.setArmPwr(RETRACT_PWR);
-      }
-      else if(arm.isArmControlModePercentOutput())
-      {
-          arm.setArmPwr(MANUAL_CONTROL_PWR_OFF);
-      }
-    }
-
     if((armAscent == true) && (elevator.getElevatorEncoder() >= HIGH_EXTEND_THRESHOLD_ELEVATOR))
     {
       arm.armSetFullExtendPos();
@@ -135,15 +102,13 @@ public class ArmProcCmd extends CommandBase {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) 
-  {
-    currentArmState = CatzStateUtil.ArmState.FINISHED;
-  }
+  {}
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() 
   {
-    if(armInPosition == true && currentArmState == ArmState.SET_STATE)
+    if(armInPosition == true)
     {
       return true;
     }

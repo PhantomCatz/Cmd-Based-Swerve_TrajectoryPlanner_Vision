@@ -86,6 +86,7 @@ public class CatzIntakeSubsystem extends SubsystemBase {
   public void periodic() 
   {
     io.updateInputs(inputs);
+    inputs.wristTargetPwr = targetPower;
     Logger.getInstance().processInputs("Intake", inputs);
   }
 
@@ -213,7 +214,7 @@ public class CatzIntakeSubsystem extends SubsystemBase {
         return CatzConstants.MAX_GRAVITY_FF * cosineScalar;
     }
 
-    public void setTargetPositionDegState(double stateSetTargetPositionDeg)
+    public void setTargetPositionDeg(double stateSetTargetPositionDeg)
     {
         targetPositionDeg = stateSetTargetPositionDeg;
     }
@@ -287,7 +288,6 @@ public class CatzIntakeSubsystem extends SubsystemBase {
                         if(numConsectSamples >= 1)
                         {   
                             intakeInPosition = true;
-                            CatzStateUtil.currentIntakeState = CatzStateUtil.IntakeState.FINISHED;
                         }
                     }
                     else
@@ -338,9 +338,9 @@ public class CatzIntakeSubsystem extends SubsystemBase {
                     prevTargetPwr = targetPower;
 
                     intakeCmdLoopActive = false;
-                    Logger.getInstance().recordOutput("targetpwr", targetPower);
                 }
     }
+
     
 
 
