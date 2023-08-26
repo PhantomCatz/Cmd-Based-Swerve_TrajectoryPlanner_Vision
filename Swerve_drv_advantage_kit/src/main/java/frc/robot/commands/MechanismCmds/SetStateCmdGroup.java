@@ -21,6 +21,7 @@ public class SetStateCmdGroup extends ParallelCommandGroup {
   /** Creates a new SetStateCommand. */
   public SetStateCmdGroup(CatzStateUtil.SetMechanismState currentMechanismState) 
   {
+    addCommands(Commands.runOnce(() -> System.out.println("epic")));
     addCommands(new ElevatorProcCmd(ElevatorState.SET_STATE, currentMechanismState, null, null));
     addCommands(new ArmProcCmd(ArmState.SET_STATE, currentMechanismState, false, false));
     addCommands(new IntakeProcCmd(IntakeState.SET_STATE, currentMechanismState, null, null));

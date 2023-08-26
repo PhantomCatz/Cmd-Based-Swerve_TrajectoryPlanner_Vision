@@ -43,7 +43,7 @@ import frc.robot.subsystems.Arm.CatzArmSubsystem;
   * subsystems, commands, and trigger mappings) should be declared here.
   */
  public class RobotContainer {
-      // private final CatzDriveTrainSubsystem driveTrain;
+       private final CatzDriveTrainSubsystem driveTrain;
        private final CatzElevatorSubsystem elevator;
        private final CatzIntakeSubsystem intake;
        private final CatzArmSubsystem arm;
@@ -69,13 +69,12 @@ import frc.robot.subsystems.Arm.CatzArmSubsystem;
    */
    public RobotContainer() 
    {
- 
-     //driveTrain = CatzDriveTrainSubsystem.getInstance(); 
+    //instantiate subsystems
+     driveTrain = CatzDriveTrainSubsystem.getInstance(); 
      elevator = CatzElevatorSubsystem.getInstance();
      arm = CatzArmSubsystem.getInstance();
      intake = CatzIntakeSubsystem.getInstance();
 
- 
  
      xboxDrv = new CommandXboxController(XBOX_DRV_PORT); 
      xboxAux = new CommandXboxController(XBOX_AUX_PORT);
@@ -87,6 +86,7 @@ import frc.robot.subsystems.Arm.CatzArmSubsystem;
    }
  
    
+
    /**
     * Use this method to define your trigger->command mappings. Triggers can be created via the
     * {@link Trigger#Trigger(java.util.function.BooleanSupplier)} constructor with an arbitrary
