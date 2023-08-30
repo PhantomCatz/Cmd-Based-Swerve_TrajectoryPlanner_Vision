@@ -88,7 +88,7 @@ public class BalanceCmd extends CommandBase {
     }
 
     
-    driveTrain.drive(0.0, -power, 0.0); 
+   // driveTrain.drive(0.0, -power, 0.0); 
     
     prevBalanceAngle = balanceAngle;
     prevTime = time;

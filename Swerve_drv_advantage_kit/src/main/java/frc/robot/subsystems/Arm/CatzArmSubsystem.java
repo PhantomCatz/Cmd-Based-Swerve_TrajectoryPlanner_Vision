@@ -45,7 +45,7 @@ public class CatzArmSubsystem extends SubsystemBase
             io = new ArmIOReal();
             break;
         case SIM :
-            io = new ArmIOSim();
+            io = null;// new ArmIOSim();
             break;
         default:
             io = new ArmIOReal() {};
@@ -67,7 +67,7 @@ public class CatzArmSubsystem extends SubsystemBase
 
         if(inputs.isRevLimitSwitchClosed) 
         {
-            io.setSelectedSensorPositionIO(CatzConstants.POS_ENC_CNTS_RETRACT);
+            io.setSelectedSensorPositionIO(CatzConstants.ArmConstants.POS_ENC_CNTS_RETRACT);
             extendSwitchState = true;
         }
         else 

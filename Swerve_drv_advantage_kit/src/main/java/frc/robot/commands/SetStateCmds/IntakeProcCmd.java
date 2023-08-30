@@ -42,17 +42,17 @@ public class IntakeProcCmd extends CommandBase {
       switch(currentMechanismState)
       {
           case  STOW:
-            targetPosDegCmd = CatzConstants.STOW_ENC_POS;
+            targetPosDegCmd = CatzConstants.IntakeConstants.STOW_ENC_POS;
               break;
               
           case PICKUP_GROUND :
             if(CatzStateUtil.currentGamePieceState == GamePieceState.CUBE)
               {
-                targetPosDegCmd = CatzConstants.INTAKE_CUBE_ENC_POS;
+                targetPosDegCmd = CatzConstants.IntakeConstants.INTAKE_CUBE_ENC_POS;
               }
             else
               {
-                targetPosDegCmd = CatzConstants.INTAKE_PICKUP_CONE_ENC_POS_GROUND;
+                targetPosDegCmd = CatzConstants.IntakeConstants.INTAKE_PICKUP_CONE_ENC_POS_GROUND;
               }
               break;
 
@@ -63,40 +63,40 @@ public class IntakeProcCmd extends CommandBase {
               }
             else
               {
-                targetPosDegCmd = CatzConstants.INTAKE_PICKUP_CONE_ENC_POS_SINGLE;
+                targetPosDegCmd = CatzConstants.IntakeConstants.INTAKE_PICKUP_CONE_ENC_POS_SINGLE;
               }
               break;
               
           case SCORE_LOW :
             if(CatzStateUtil.currentGamePieceState == GamePieceState.CUBE)
               {
-                targetPosDegCmd = CatzConstants.SCORE_CUBE_ENC_POS;
+                targetPosDegCmd = CatzConstants.IntakeConstants.SCORE_CUBE_ENC_POS;
               }
             else
               {
-                targetPosDegCmd = CatzConstants.SCORE_CONE_LOW_ENC_POS;
+                targetPosDegCmd = CatzConstants.IntakeConstants.SCORE_CONE_LOW_ENC_POS;
               }
               break;
 
           case SCORE_MID :
             if(CatzStateUtil.currentGamePieceState == GamePieceState.CUBE)
               {
-                targetPosDegCmd = CatzConstants.SCORE_CUBE_ENC_POS;
+                targetPosDegCmd = CatzConstants.IntakeConstants.SCORE_CUBE_ENC_POS;
               }
             else
               {
-                targetPosDegCmd = CatzConstants.SCORE_CONE_MID_ENC_POS;
+                targetPosDegCmd = CatzConstants.IntakeConstants.SCORE_CONE_MID_ENC_POS;
               }
               break;
               
           case SCORE_HIGH :
             if(CatzStateUtil.currentGamePieceState == GamePieceState.CUBE)
               {
-                targetPosDegCmd = CatzConstants.SCORE_CUBE_ENC_POS;
+                targetPosDegCmd = CatzConstants.IntakeConstants.SCORE_CUBE_ENC_POS;
               }
             else
               {
-                targetPosDegCmd = CatzConstants.SCORE_CONE_HIGH_ENC_POS; 
+                targetPosDegCmd = CatzConstants.IntakeConstants.SCORE_CONE_HIGH_ENC_POS; 
               }
               break;
 

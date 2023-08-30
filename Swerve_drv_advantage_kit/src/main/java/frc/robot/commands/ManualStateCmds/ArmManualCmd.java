@@ -23,7 +23,6 @@ public class ArmManualCmd extends CommandBase {
     this.armExtend = armExtend;
     this.armRetract = armRetract;
     addRequirements(arm);
-    // Use addRequirements() here to declare subsystem dependencies.
   }
 
   // Called when the command is initially scheduled.

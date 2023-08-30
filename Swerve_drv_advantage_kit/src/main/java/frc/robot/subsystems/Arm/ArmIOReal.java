@@ -92,19 +92,19 @@ public class ArmIOReal implements ArmIO
     @Override
     public void armSetFullExtendPosIO()
     {
-        armMtr.set(ControlMode.Position, CatzConstants.POS_ENC_CNTS_EXTEND);
+        armMtr.set(ControlMode.Position, CatzConstants.ArmConstants.POS_ENC_CNTS_EXTEND);
     }
 
     @Override
     public void armSetRetractPosIO()
     {
-        armMtr.set(ControlMode.Position, CatzConstants.POS_ENC_CNTS_RETRACT);
+        armMtr.set(ControlMode.Position, CatzConstants.ArmConstants.POS_ENC_CNTS_RETRACT);
     }
 
     @Override
     public void armSetPickupPosIO()
     {
-        armMtr.set(ControlMode.Position, CatzConstants.POS_ENC_CNTS_PICKUP);
+        armMtr.set(ControlMode.Position, CatzConstants.ArmConstants.POS_ENC_CNTS_PICKUP);
     }
 
 

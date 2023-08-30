@@ -53,19 +53,19 @@ public class ArmProcCmd extends CommandBase {
           case STOW:
           case SCORE_MID :
               arm.armSetRetractPos();
-              targetPosition = CatzConstants.POS_ENC_CNTS_EXTEND;
+              targetPosition = CatzConstants.ArmConstants.POS_ENC_CNTS_EXTEND;
               break;
 
           case PICKUP_GROUND :
           case PICKUP_SINGLE :
           case SCORE_LOW :
               arm.armSetPickupPos();
-              targetPosition = CatzConstants.POS_ENC_CNTS_PICKUP;
+              targetPosition = CatzConstants.ArmConstants.POS_ENC_CNTS_PICKUP;
               break;
 
           case SCORE_HIGH :
                 armAscent = true;
-                targetPosition = CatzConstants.POS_ENC_CNTS_RETRACT;
+                targetPosition = CatzConstants.ArmConstants.POS_ENC_CNTS_RETRACT;
               break;
 
           default:

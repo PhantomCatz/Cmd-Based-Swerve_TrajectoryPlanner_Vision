@@ -101,4 +101,5 @@ public class ModuleIOReal implements ModuleIO
     {
         magEnc.reset();
     }
+
 }

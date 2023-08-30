@@ -7,11 +7,13 @@ package frc.robot.subsystems.drivetrain;
 
 import org.littletonrobotics.junction.Logger;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 
 import edu.wpi.first.hal.SimBoolean;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
@@ -85,31 +87,7 @@ public class SwerveModule
         Logger.getInstance().processInputs("Drive/Module " + Integer.toString(index), inputs);
     }
 
-    public void setWheelAngle(double target, double gyroAngle)
-    {
-        currentAngle = ((magEnc.get() - offset) * 360.0) - gyroAngle;
-        // find closest angle to target angle
-        angleError = closestAngle(currentAngle, target);
 
-        // find closest angle to target angle + 180
-        flippedAngleError = closestAngle(currentAngle, target + 180.0);
-
-        // if the closest angle to target is shorter
-        if (Math.abs(angleError) <= Math.abs(flippedAngleError))
-        {
-            driveDirectionFlipped = false;
-            command = pid.calculate(currentAngle, currentAngle + angleError);
-        }
-        // if the closest angle to target + 180 is shorter
-        else
-        {
-            driveDirectionFlipped = true;
-            command = pid.calculate(currentAngle, currentAngle + flippedAngleError);
-        }
-
-        command = -command / (180 * kP); //scale down command to a range of -1 to 1
-        io.setSteerPwrIO(command);
-    }
 
     public void setSteerPower(double pwr)
     {
@@ -207,7 +185,7 @@ public class SwerveModule
 
     public double getDriveDistanceInch()
     {
-        return inputs.driveMtrSensorPosition * CatzConstants.SDS_L1_GEAR_RATIO * CatzConstants.DRVTRAIN_WHEEL_CIRCUMFERENCE / 2048.0;
+        return inputs.driveMtrSensorPosition * CatzConstants.DriveConstants.SDS_L1_GEAR_RATIO * CatzConstants.DriveConstants.DRVTRAIN_WHEEL_CIRCUMFERENCE / 2048.0;
     }
 
 
@@ -237,24 +215,15 @@ public class SwerveModule
         io.reverseDriveIO(reverse);
     }
 
-    //utils
-    public double closestAngle(double startAngle, double targetAngle)
+    public void setDesiredState(SwerveModuleState desiredState)
     {
-        // get direction
-        double error = targetAngle % 360.0 - startAngle % 360.0;
+        desiredState = SwerveModuleState.optimize(desiredState, getCurrentRotation());
+        setDrivePower(desiredState.speedMetersPerSecond / CatzConstants.DriveConstants.MAX_SPEED);
 
-        // convert from -360 to 360 to -180 to 180
-        if (Math.abs(error) > 180.0)
-        {
-            error = -(Math.signum(error) * 360.0) + error;
-            //closest angle shouldn't be more than 180 degrees. If it is, use other direction
-            if(error > 180.0)
-            {
-                error -= 360;
-            }
-        }
+        double targetAngle = (Math.abs(desiredState.speedMetersPerSecond) 
+                                <= (CatzConstants.DriveConstants.MAX_SPEED * 0.01)) 
+                                    ? getCurrentRotation().getDegrees() : desiredState.angle.getDegrees(); //Prevent rotating module if speed is less then 1%. Prevents Jittering.
 
-        return error;
+        setSteerPower(pid.calculate(getCurrentRotation().getDegrees(), targetAngle));
     }
-
 }

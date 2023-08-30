@@ -2,9 +2,11 @@ package frc.robot.subsystems.drivetrain;
 
 import org.littletonrobotics.junction.Logger;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.trajectory.constraint.SwerveDriveKinematicsConstraint;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.CatzConstants;
@@ -68,7 +70,7 @@ public class CatzDriveTrainSubsystem extends SubsystemBase
             gyroIO = new GyroIONavX();
         break;
         default:
-            gyroIO = new GyroIOSim();
+            gyroIO = null; // new GyroIOSim();
         break;
         }
         
@@ -86,6 +88,14 @@ public class CatzDriveTrainSubsystem extends SubsystemBase
         LT_BACK_MODULE.resetMagEnc();
         RT_FRNT_MODULE.resetMagEnc();
         RT_BACK_MODULE.resetMagEnc();
+
+        new Thread(() -> {
+            try {
+                Thread.sleep(1000);
+                zeroGyro();
+            } catch (Exception e) {
+            }
+        }).start();
     }   
     
 
@@ -98,89 +108,8 @@ public class CatzDriveTrainSubsystem extends SubsystemBase
             module.periodic();
         }
         gyroIO.updateInputs(gyroInputs);
-        Logger.getInstance().processInputs("Drive/ ", gyroInputs);
+        Logger.getInstance().processInputs("Drive/gyroinputs ", gyroInputs);
 
-    }
-
-    public void drive(double joystickAngle, double joystickPower, double gyroAngle)
-    {
-
-        for(SwerveModule module : swerveModules)
-        {
-            module.setWheelAngle(joystickPower, gyroAngle);
-        }
-
-        setDrivePower(joystickPower);
-
-        dataJoystickAngle = joystickAngle;
-        dataJoystickPower = joystickPower;
-    }
-
-    public void rotateInPlace(double pwr)
-    {
-        pwr *= 0.8; //reducing turn in place pwer
-        LT_FRNT_MODULE.setWheelAngle(-45.0, NOT_FIELD_RELATIVE);
-        LT_BACK_MODULE.setWheelAngle(45.0, NOT_FIELD_RELATIVE);
-        RT_FRNT_MODULE.setWheelAngle(-135.0, NOT_FIELD_RELATIVE);
-        RT_BACK_MODULE.setWheelAngle(135.0, NOT_FIELD_RELATIVE);
-
-        for(SwerveModule module : swerveModules)
-        {
-            module.setDrivePower(pwr);
-        }
-    }
-
-    public void translateTurn(double joystickAngle, double translatePower, double turnPercentage, double gyroAngle)
-    {
-        //how far wheels turn determined by how far joystick is pushed (max of 45 degrees)
-        double turnAngle = turnPercentage * -45.0;
-
-        if(Math.abs(closestAngle(joystickAngle, 0.0 - gyroAngle)) <= 45.0)
-        {
-            // if directed towards front of robot
-            index = 1;
-            LT_FRNT_MODULE.setWheelAngle(joystickAngle + turnAngle, gyroAngle);
-            RT_FRNT_MODULE.setWheelAngle(joystickAngle + turnAngle, gyroAngle);
-
-            LT_BACK_MODULE.setWheelAngle(joystickAngle - turnAngle, gyroAngle);
-            RT_BACK_MODULE.setWheelAngle(joystickAngle - turnAngle, gyroAngle);
-        }
-        else if(Math.abs(closestAngle(joystickAngle, 90.0 - gyroAngle)) < 45.0)
-        {
-            // if directed towards left of robot
-            index = 2;
-            LT_FRNT_MODULE.setWheelAngle(joystickAngle + turnAngle, gyroAngle);
-            LT_BACK_MODULE.setWheelAngle(joystickAngle + turnAngle, gyroAngle);
-
-            RT_FRNT_MODULE.setWheelAngle(joystickAngle - turnAngle, gyroAngle);
-            RT_BACK_MODULE.setWheelAngle(joystickAngle - turnAngle, gyroAngle);
-        }
-        else if(Math.abs(closestAngle(joystickAngle, 180.0 - gyroAngle)) <= 45.0)
-        {
-            // if directed towards back of robot
-            index = 3;
-            LT_BACK_MODULE.setWheelAngle(joystickAngle + turnAngle, gyroAngle);
-            RT_BACK_MODULE.setWheelAngle(joystickAngle + turnAngle, gyroAngle);
-
-            LT_FRNT_MODULE.setWheelAngle(joystickAngle - turnAngle, gyroAngle);
-            RT_FRNT_MODULE.setWheelAngle(joystickAngle - turnAngle, gyroAngle);
-        }
-        else if(Math.abs(closestAngle(joystickAngle, -90.0 - gyroAngle)) < 45.0)
-        {
-            // if directed towards right of robot
-            index = 4;
-            RT_FRNT_MODULE.setWheelAngle(joystickAngle + turnAngle, gyroAngle);
-            RT_BACK_MODULE.setWheelAngle(joystickAngle + turnAngle, gyroAngle);
-
-            LT_FRNT_MODULE.setWheelAngle(joystickAngle - turnAngle, gyroAngle);
-            LT_BACK_MODULE.setWheelAngle(joystickAngle - turnAngle, gyroAngle);
-        }
-
-        LT_FRNT_MODULE.setDrivePower(translatePower);
-        LT_BACK_MODULE.setDrivePower(translatePower);
-        RT_FRNT_MODULE.setDrivePower(translatePower);
-        RT_BACK_MODULE.setDrivePower(translatePower);
-        Logger.getInstance().recordOutput("Drive/translatePwr", translatePower);
     }
 
     public void setSteerPower(double pwr) {
@@ -231,31 +160,42 @@ public class CatzDriveTrainSubsystem extends SubsystemBase
         gyroIO.setAngleAdjustmentIO(-gyroInputs.gyroYaw);
     }
 
-
-    public double getGyroAngle() {
-        return gyroInputs.gyroAngle;
-    }
-
     public double getRollAngle() {
         return gyroInputs.gyroRoll;
     }
-
-    public void autoDrive(double power) {
-        LT_FRNT_MODULE.setWheelAngle(0, 0);
-        LT_BACK_MODULE.setWheelAngle(0, 0);
-        RT_FRNT_MODULE.setWheelAngle(0, 0);
-        RT_BACK_MODULE.setWheelAngle(0, 0);
-
-        setDrivePower(power);
-    }
-
+/* 
     public void lockWheels() {
         LT_FRNT_MODULE.setWheelAngle(-45.0, NOT_FIELD_RELATIVE);
         LT_BACK_MODULE.setWheelAngle(45.0, NOT_FIELD_RELATIVE);
         RT_FRNT_MODULE.setWheelAngle(-135.0, NOT_FIELD_RELATIVE);
         RT_BACK_MODULE.setWheelAngle(135.0, NOT_FIELD_RELATIVE);
     }
+    */
 
+
+    public Rotation2d getRotation2d()
+    {
+        return Rotation2d.fromDegrees(getHeading());
+    }
+
+    public double getHeading() 
+    {
+        return Math.IEEEremainder(getGyroAngle(), 360);
+    }
+
+    public double getGyroAngle() {
+        return gyroInputs.gyroAngle;
+    }
+
+    public void setModuleStates(SwerveModuleState[] desiredStates)
+    {
+        SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, CatzConstants.DriveConstants.MAX_SPEED);
+        LT_FRNT_MODULE.setDesiredState(desiredStates[0]);
+        LT_BACK_MODULE.setDesiredState(desiredStates[1]);
+        RT_FRNT_MODULE.setDesiredState(desiredStates[2]);
+        RT_BACK_MODULE.setDesiredState(desiredStates[3]);
+    }
+    
     public static CatzDriveTrainSubsystem getInstance()
     {
 
@@ -268,71 +208,5 @@ public class CatzDriveTrainSubsystem extends SubsystemBase
 
         return instance;
     
-    }
-
-    public SwerveModulePosition[] getModulePositions()
-    {
-        SwerveModulePosition[] modulePositions = new SwerveModulePosition[4];
-
-        for(int i = 0; i < 4; i++)
-        {
-            modulePositions[i] = swerveModules[i].getModulePosition();
-        }
-
-        return modulePositions;
-    }
-
-    public double calcJoystickAngle(double xJoy, double yJoy)
-    {
-        double angle = Math.atan(Math.abs(xJoy) / Math.abs(yJoy));
-        angle *= (180 / Math.PI);
-
-        if(yJoy <= 0)   //joystick pointed up
-        {
-            if(xJoy < 0)    //joystick pointed left
-            {
-              //no change
-            }
-            if(xJoy >= 0)   //joystick pointed right
-            {
-              angle = -angle;
-            }
-        }
-        else    //joystick pointed down
-        {
-            if(xJoy < 0)    //joystick pointed left
-            {
-              angle = 180 - angle;
-            }
-            if(xJoy >= 0)   //joystick pointed right
-            {
-              angle = -180 + angle;
-            }
-        }
-      return angle;
-    }
-
-    public double calcJoystickPower(double xJoy, double yJoy)
-    {
-      return (Math.sqrt(Math.pow(xJoy, 2) + Math.pow(yJoy, 2)));
-    }
-
-    public double closestAngle(double startAngle, double targetAngle)
-    {
-        // get direction
-        double error = targetAngle % 360.0 - startAngle % 360.0;
-
-        // convert from -360 to 360 to -180 to 180
-        if (Math.abs(error) > 180.0)
-        {
-            error = -(Math.signum(error) * 360.0) + error;
-            //closest angle shouldn't be more than 180 degrees. If it is, use other direction
-            if(error > 180.0)
-            {
-                error -= 360;
-            }
-        }
-
-        return error;
     }
 }

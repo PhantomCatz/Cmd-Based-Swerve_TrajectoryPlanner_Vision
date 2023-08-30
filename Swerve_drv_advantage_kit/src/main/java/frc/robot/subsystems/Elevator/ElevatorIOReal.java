@@ -64,9 +64,9 @@ public class ElevatorIOReal implements ElevatorIO
         elevatorMtr.configSupplyCurrentLimit(elevatorCurrentLimit);
     
     
-        elevatorMtr.config_kP(0, CatzConstants.ELEVATOR_KP_HIGH);
-        elevatorMtr.config_kI(0, CatzConstants.ELEVATOR_KI_HIGH);
-        elevatorMtr.config_kD(0, CatzConstants.ELEVATOR_KD_HIGH);
+        elevatorMtr.config_kP(0, CatzConstants.ElevatorConstants.ELEVATOR_KP_HIGH);
+        elevatorMtr.config_kI(0, CatzConstants.ElevatorConstants.ELEVATOR_KI_HIGH);
+        elevatorMtr.config_kD(0, CatzConstants.ElevatorConstants.ELEVATOR_KD_HIGH);
     
     
     
@@ -74,7 +74,7 @@ public class ElevatorIOReal implements ElevatorIO
     
         elevatorMtr.selectProfileSlot(0, 0);
     
-        elevatorMtr.configAllowableClosedloopError(0, CatzConstants.ELEVATOR_CLOSELOOP_ERROR_THRESHOLD_HIGH_MID);//make this constant and make values in inches
+        elevatorMtr.configAllowableClosedloopError(0, CatzConstants.ElevatorConstants.ELEVATOR_CLOSELOOP_ERROR_THRESHOLD_HIGH_MID);//make this constant and make values in inches
         
         elevatorMtr.set(ControlMode.PercentOutput, MANUAL_CONTROL_PWR_OFF);
     
@@ -116,7 +116,7 @@ public class ElevatorIOReal implements ElevatorIO
     @Override
     public void elevatorMtrSetPosIO( double setPositionEnc) 
     {
-        elevatorMtr.set(ControlMode.Position, setPositionEnc,  DemandType.ArbitraryFeedForward, CatzConstants.ELEVATOR_HOLDING_FF);
+        elevatorMtr.set(ControlMode.Position, setPositionEnc,  DemandType.ArbitraryFeedForward, CatzConstants.ElevatorConstants.ELEVATOR_HOLDING_FF);
     }
     @Override
     public void configAllowableClosedloopErrorIO(int slotID, double closeloopErrorThreshold) 

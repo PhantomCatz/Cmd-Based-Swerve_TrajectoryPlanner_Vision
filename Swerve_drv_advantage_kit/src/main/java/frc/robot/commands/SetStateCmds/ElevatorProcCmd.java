@@ -56,37 +56,37 @@ public class ElevatorProcCmd extends CommandBase {
           case SCORE_LOW :
 
               elevatorDescent = true;
-              targetPosition = CatzConstants.ELEVATOR_POS_ENC_CNTS_LOW;
+              targetPosition = CatzConstants.ElevatorConstants.ELEVATOR_POS_ENC_CNTS_LOW;
               break;
 
           case PICKUP_SINGLE :
             if(CatzStateUtil.currentGamePieceState == GamePieceState.CUBE)
               {
                 elevatorDescent = true;
-                targetPosition = CatzConstants.ELEVATOR_POS_ENC_CNTS_LOW;
+                targetPosition = CatzConstants.ElevatorConstants.ELEVATOR_POS_ENC_CNTS_LOW;
               }
             else
               {
                 elevator.elevatorSetToSinglePickup();
-                targetPosition = CatzConstants.ELEVATOR_POS_ENC_CNTS_HIGH;
+                targetPosition = CatzConstants.ElevatorConstants.ELEVATOR_POS_ENC_CNTS_HIGH;
               }
               break;
           case SCORE_MID :
             if(CatzStateUtil.currentGamePieceState == GamePieceState.CUBE)
               {
                 elevator.elevatorSetToMidPosCube();
-                targetPosition = CatzConstants.ELEVATOR_POS_ENC_CNTS_MID_CUBE;
+                targetPosition = CatzConstants.ElevatorConstants.ELEVATOR_POS_ENC_CNTS_MID_CUBE;
               }
             else
               {
                 elevator.elevatorSetToMidPosCone();
-                targetPosition = CatzConstants.ELEVATOR_POS_ENC_CNTS_MID_CONE;
+                targetPosition = CatzConstants.ElevatorConstants.ELEVATOR_POS_ENC_CNTS_MID_CONE;
               }
               break;
               
           case SCORE_HIGH :
                 elevator.elevatorSetToHighPos();
-                targetPosition = CatzConstants.ELEVATOR_POS_ENC_CNTS_HIGH;
+                targetPosition = CatzConstants.ElevatorConstants.ELEVATOR_POS_ENC_CNTS_HIGH;
               break;
 
           default:
@@ -114,7 +114,8 @@ public class ElevatorProcCmd extends CommandBase {
 
         targetPosition = NO_TARGET_POSITION;
         numConsectSamples++;
-            if(numConsectSamples >= 10) {   
+            if(numConsectSamples >= 10) 
+            {   
                 elevatorInPosition = true;
             }
     }

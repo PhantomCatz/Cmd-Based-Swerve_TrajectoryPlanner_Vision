@@ -47,37 +47,41 @@ public final class CatzConstants {
 
  //Saving for finished trajectory planner
   //----------------------Catz auton Constants---------------------------
-  private static final double MODULE_DISTANCE_FROM_CENTER = 0.2984;
+  public static final class DriveConstants
+  {
 
-  private static final Translation2d SWERVE_LEFT_FRONT_LOCATION  = new Translation2d(MODULE_DISTANCE_FROM_CENTER,MODULE_DISTANCE_FROM_CENTER);
-  private static final Translation2d SWERVE_LEFT_BACK_LOCATION   = new Translation2d(MODULE_DISTANCE_FROM_CENTER, -MODULE_DISTANCE_FROM_CENTER);
-  private static final Translation2d SWERVE_RIGHT_FRONT_LOCATION = new Translation2d(-MODULE_DISTANCE_FROM_CENTER, MODULE_DISTANCE_FROM_CENTER);
-  private static final Translation2d SWERVE_RIGHT_BACK_LOCATION  = new Translation2d(-MODULE_DISTANCE_FROM_CENTER, -MODULE_DISTANCE_FROM_CENTER);
+    private static final double MODULE_DISTANCE_FROM_CENTER = 0.2984;
 
-  public static final SwerveDriveKinematics swerveDriveKinematics = new SwerveDriveKinematics(
-      SWERVE_LEFT_FRONT_LOCATION,
-      SWERVE_LEFT_BACK_LOCATION,
-      SWERVE_RIGHT_FRONT_LOCATION,
-      SWERVE_RIGHT_BACK_LOCATION
-  );
+    private static final Translation2d SWERVE_LEFT_FRONT_LOCATION  = new Translation2d(MODULE_DISTANCE_FROM_CENTER,MODULE_DISTANCE_FROM_CENTER);
+    private static final Translation2d SWERVE_LEFT_BACK_LOCATION   = new Translation2d(MODULE_DISTANCE_FROM_CENTER, -MODULE_DISTANCE_FROM_CENTER);
+    private static final Translation2d SWERVE_RIGHT_FRONT_LOCATION = new Translation2d(-MODULE_DISTANCE_FROM_CENTER, MODULE_DISTANCE_FROM_CENTER);
+    private static final Translation2d SWERVE_RIGHT_BACK_LOCATION  = new Translation2d(-MODULE_DISTANCE_FROM_CENTER, -MODULE_DISTANCE_FROM_CENTER);
 
-  public static final double MAX_SPEED = 4.0;
+    public static final SwerveDriveKinematics swerveDriveKinematics = new SwerveDriveKinematics(
+        SWERVE_LEFT_FRONT_LOCATION,
+        SWERVE_LEFT_BACK_LOCATION,
+        SWERVE_RIGHT_FRONT_LOCATION,
+        SWERVE_RIGHT_BACK_LOCATION
+    );
 
-  public static final double SDS_L1_GEAR_RATIO = 8.14;       //SDS mk4i L1 ratio
-  public static final double SDS_L2_GEAR_RATIO = 6.75;       //SDS mk4i L2 ratio
-  
-  public static final double DRVTRAIN_WHEEL_DIAMETER             = 4.0;
-  public static final double DRVTRAIN_WHEEL_CIRCUMFERENCE        = (Math.PI * DRVTRAIN_WHEEL_DIAMETER);
+    public static final double MAX_SPEED = 4.0;
+
+    public static final double SDS_L1_GEAR_RATIO = 8.14;       //SDS mk4i L1 ratio
+    public static final double SDS_L2_GEAR_RATIO = 6.75;       //SDS mk4i L2 ratio
+    
+    public static final double DRVTRAIN_WHEEL_DIAMETER             = 4.0;
+    public static final double DRVTRAIN_WHEEL_CIRCUMFERENCE        = (Math.PI * DRVTRAIN_WHEEL_DIAMETER);
 
 
-  public final double POS_ENC_CNTS_HIGH_EXTEND_THRESHOLD_ELEVATOR = 73000.0;
+    public final double POS_ENC_CNTS_HIGH_EXTEND_THRESHOLD_ELEVATOR = 73000.0;
 
-
+ }
 
 
   //-----------------------------Intake------------------------------------------
 
-
+  public static final class IntakeConstants 
+  {
     //----------------------------------------------------------------------------------------------
     //  Wrist encoder & Position Values
     //----------------------------------------------------------------------------------------------
@@ -123,12 +127,13 @@ public final class CatzConstants {
     
     public static final double MAX_GRAVITY_FF = 0.055; //0.09\
 
-
+  }
 
 
 //-------------------------------Elevator-------------------------------------------------------
 
-
+public static final class ElevatorConstants
+{
     public final static double ELEVATOR_MAX_MANUAL_SCALED_POWER = 0.7;
 
     public final double ELEVATOR_MANUAL_CONTROL_DEADBAND = 0.1;
@@ -199,10 +204,12 @@ public final class CatzConstants {
     public static final double ELEVATOR_CLOSELOOP_ERROR_THRESHOLD_LOW = 50; 
     // private final double CLOSELOOP_ERROR_THRESHOLD_HIGH_MID = 300; 
     public static final double ELEVATOR_CLOSELOOP_ERROR_THRESHOLD_HIGH_MID = 225; 
-
+}
 
 
     //-----------------------------------ARM---------------------------------------
+    public static final class ArmConstants
+    {
     //gear ratio
     private static final double ARM_VERSA_RATIO  = 7.0/1.0;
 
@@ -224,6 +231,6 @@ public final class CatzConstants {
     public static final double POS_ENC_CNTS_RETRACT  = POS_ENC_INCH_RETRACT * CNTS_PER_INCH_CONVERSION_FACTOR;// 0.0
     public static final double POS_ENC_CNTS_EXTEND  = POS_ENC_INCH_EXTEND * CNTS_PER_INCH_CONVERSION_FACTOR; //44000
     public static final double POS_ENC_CNTS_PICKUP = POS_ENC_INCH_PICKUP * CNTS_PER_INCH_CONVERSION_FACTOR; //22000
-  
+    }
   
 }

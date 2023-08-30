@@ -37,4 +37,5 @@ public interface ModuleIO
  public default void setSteerSimPwrIO(double volts) {}
 
  public default void resetMagEncoderIO() {}
+
 }

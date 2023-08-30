@@ -40,7 +40,7 @@ public class CatzIntakeSubsystem extends SubsystemBase {
     
     private boolean  pidEnable = false;
 
-    private double   targetPositionDeg = CatzConstants.STOW_ENC_POS;
+    private double   targetPositionDeg = CatzConstants.IntakeConstants.STOW_ENC_POS;
 
     private double   targetPower = 0.0;
     private double   prevTargetPwr = 0.0;
@@ -70,7 +70,7 @@ public class CatzIntakeSubsystem extends SubsystemBase {
             io = new IntakeIOReal();
             break;
         case SIM :
-            io = new IntakeIOSim();
+            io = null; //new IntakeIOSim();
             break;
         default:
             io = new IntakeIOReal() {};
@@ -78,7 +78,7 @@ public class CatzIntakeSubsystem extends SubsystemBase {
     }
 
 
-        intakePID = new PIDController(CatzConstants.GROSS_kP, CatzConstants.GROSS_kI, CatzConstants.GROSS_kD);
+        intakePID = new PIDController(CatzConstants.IntakeConstants.GROSS_kP, CatzConstants.IntakeConstants.GROSS_kI, CatzConstants.IntakeConstants.GROSS_kD);
         
   }
 
@@ -122,11 +122,11 @@ public class CatzIntakeSubsystem extends SubsystemBase {
     {
         if(wristPwr > 0)
         {
-          targetPositionDeg = Math.min((targetPositionDeg + wristPwr * CatzConstants.INTAKE_MANUAL_HOLD_STEP_SIZE), CatzConstants.SOFT_LIMIT_FORWARD);
+          targetPositionDeg = Math.min((targetPositionDeg + wristPwr * CatzConstants.IntakeConstants.INTAKE_MANUAL_HOLD_STEP_SIZE), CatzConstants.IntakeConstants.SOFT_LIMIT_FORWARD);
         }
         else
         {
-          targetPositionDeg = Math.max((targetPositionDeg + wristPwr * CatzConstants.INTAKE_MANUAL_HOLD_STEP_SIZE), CatzConstants.SOFT_LIMIT_REVERSE);
+          targetPositionDeg = Math.max((targetPositionDeg + wristPwr * CatzConstants.IntakeConstants.INTAKE_MANUAL_HOLD_STEP_SIZE), CatzConstants.IntakeConstants.SOFT_LIMIT_REVERSE);
         }
         prevCurrentPosition = -prevCurrentPosition; //intialize for first time through thread loop, that checks stale position values
     }
@@ -198,7 +198,7 @@ public class CatzIntakeSubsystem extends SubsystemBase {
 
     public double calcWristAngle()
     {
-        double wristAngle = ((inputs.wristPosEnc / CatzConstants.INTAKE_WRIST_CNTS_PER_DEGREE) - CatzConstants.INTAKE_WRIST_ABS_ENC_OFFSET_DEG);
+        double wristAngle = ((inputs.wristPosEnc / CatzConstants.IntakeConstants.INTAKE_WRIST_CNTS_PER_DEGREE) - CatzConstants.IntakeConstants.INTAKE_WRIST_ABS_ENC_OFFSET_DEG);
         return wristAngle;
     }
 
@@ -208,10 +208,10 @@ public class CatzIntakeSubsystem extends SubsystemBase {
     
     public double calculateGravityFF()
     {
-        double radians = Math.toRadians(calcWristAngle() - CatzConstants.INTAKE_CENTER_OF_MASS_OFFSET_DEG);
+        double radians = Math.toRadians(calcWristAngle() - CatzConstants.IntakeConstants.INTAKE_CENTER_OF_MASS_OFFSET_DEG);
         double cosineScalar = Math.cos(radians);
         
-        return CatzConstants.MAX_GRAVITY_FF * cosineScalar;
+        return CatzConstants.IntakeConstants.MAX_GRAVITY_FF * cosineScalar;
     }
 
     public void setTargetPositionDeg(double stateSetTargetPositionDeg)
@@ -273,12 +273,13 @@ public class CatzIntakeSubsystem extends SubsystemBase {
     *---------------------------------------------------------------------------------------------*/
     public void IntakePIDLoop()
     {
+        new Thread(() -> {
                   if(pidEnable)
                   {
                     //----------------------------------------------------------------------------------
                     //  Chk if at final position
                     //----------------------------------------------------------------------------------
-                    currentPosition = inputs.wristPosEnc / CatzConstants.INTAKE_WRIST_CNTS_PER_DEGREE;
+                    currentPosition = inputs.wristPosEnc / CatzConstants.IntakeConstants.INTAKE_WRIST_CNTS_PER_DEGREE;
                     positionError = currentPosition - targetPositionDeg;
 
 
@@ -298,15 +299,15 @@ public class CatzIntakeSubsystem extends SubsystemBase {
                     
                     if(Math.abs(positionError) >= PID_FINE_GROSS_THRESHOLD_DEG)
                     {
-                        intakePID.setP(CatzConstants.GROSS_kP);
-                        intakePID.setI(CatzConstants.GROSS_kI);
-                        intakePID.setD(CatzConstants.GROSS_kD);
+                        intakePID.setP(CatzConstants.IntakeConstants.GROSS_kP);
+                        intakePID.setI(CatzConstants.IntakeConstants.GROSS_kI);
+                        intakePID.setD(CatzConstants.IntakeConstants.GROSS_kD);
                     }
                     else if(Math.abs(positionError) < PID_FINE_GROSS_THRESHOLD_DEG)
                     {
-                        intakePID.setP(CatzConstants.FINE_kP);
-                        intakePID.setI(CatzConstants.FINE_kI);
-                        intakePID.setD(CatzConstants.FINE_kD);
+                        intakePID.setP(CatzConstants.IntakeConstants.FINE_kP);
+                        intakePID.setI(CatzConstants.IntakeConstants.FINE_kI);
+                        intakePID.setD(CatzConstants.IntakeConstants.FINE_kD);
                     }
 
                     pidPower = intakePID.calculate(currentPosition, targetPositionDeg);
@@ -328,7 +329,7 @@ public class CatzIntakeSubsystem extends SubsystemBase {
                     //  power to 0, otherwise calculate new motor power based on position error and 
                     //  current angle
                     //----------------------------------------------------------------------------------
-                    if(targetPositionDeg == CatzConstants.STOW_ENC_POS && currentPosition > CatzConstants.STOW_CUTOFF)
+                    if(targetPositionDeg == CatzConstants.IntakeConstants.STOW_ENC_POS && currentPosition > CatzConstants.IntakeConstants.STOW_CUTOFF)
                     {
                         targetPower = 0.0;
                     }
@@ -339,6 +340,7 @@ public class CatzIntakeSubsystem extends SubsystemBase {
 
                     intakeCmdLoopActive = false;
                 }
+            }).start();
     }
 
     

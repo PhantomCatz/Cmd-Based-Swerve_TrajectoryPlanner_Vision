@@ -21,6 +21,6 @@ public class SetStateCmdGroup extends ParallelCommandGroup {
     addCommands(Commands.runOnce(() -> System.out.println("epic")));
     addCommands(new ElevatorProcCmd(currentMechanismState));
     addCommands(new ArmProcCmd(currentMechanismState));
-    addCommands(new IntakeProcCmd(currentMechanismState));
+    //addCommands(new IntakeProcCmd(currentMechanismState));
   }
 }

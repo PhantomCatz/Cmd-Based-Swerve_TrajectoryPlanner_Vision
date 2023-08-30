@@ -5,7 +5,11 @@ package frc.robot.commands;
 
 import java.util.function.Supplier;
 
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.CatzConstants;
 import frc.robot.subsystems.drivetrain.CatzDriveTrainSubsystem;
 
 public class DriveProcCmd extends CommandBase {
@@ -47,56 +51,17 @@ public class DriveProcCmd extends CommandBase {
   {
         double leftJoyX = supplierLeftJoyX.get();
         double leftJoyY = supplierLeftJoyY.get();
-        double rightJoyX = supplierRightJoyX.get();
+        double turnPower = supplierRightJoyX.get();
+
+        ChassisSpeeds chassisSpeeds;
+        chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(leftJoyX, leftJoyY, turnPower, driveTrain.getRotation2d());
+
+        SwerveModuleState[] moduleStates = CatzConstants.DriveConstants.swerveDriveKinematics.toSwerveModuleStates(chassisSpeeds);
+        
+        driveTrain.setModuleStates(moduleStates);
 
         modifyDrvPwr = supplierPwrMode.get();
 
-        steerAngle = driveTrain.calcJoystickAngle(leftJoyX, leftJoyY);
-        drivePower = driveTrain.calcJoystickPower(leftJoyX, leftJoyY);
-        turnPower  = rightJoyX;
-        
-        gyroAngle  = driveTrain.getGyroAngle();
-
-        
-
-        if(drivePower >= 0.1)
-        {
-            
-            if(modifyDrvPwr == true)
-            {
-                drivePower = drivePower * 0.5;
-            }
-            
-
-            if(Math.abs(turnPower) >= 0.1)
-            {
-                if(modifyDrvPwr == true)
-                {
-                    turnPower = turnPower * 0.5;
-                }
-                driveTrain.translateTurn(steerAngle, drivePower, turnPower, gyroAngle);
-            }
-            else
-            {
-                driveTrain.drive(steerAngle, drivePower, gyroAngle);
-            }
-
-        }
-        else if(Math.abs(turnPower) >= 0.1)
-        {
-            if(modifyDrvPwr == true)
-            {
-                turnPower = turnPower * 0.5;
-            }
-            
-            driveTrain.rotateInPlace(turnPower);
-            
-        }
-        else
-        {
-            driveTrain.setSteerPower(0.0);
-            driveTrain.setDrivePower(0.0);
-        }
   }
 
   // Called once the command ends or is interrupted.
