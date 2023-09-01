@@ -21,30 +21,30 @@ public class CatzDriveTrainSubsystem extends SubsystemBase
     private final GyroIOInputsAutoLogged gyroInputs = new GyroIOInputsAutoLogged();
     private static SwerveModule[] swerveModules = new SwerveModule[4];
 
-    public final SwerveModule RT_FRNT_MODULE;
-    public final SwerveModule RT_BACK_MODULE;
     public final SwerveModule LT_FRNT_MODULE;
     public final SwerveModule LT_BACK_MODULE;
+    public final SwerveModule RT_FRNT_MODULE;
+    public final SwerveModule RT_BACK_MODULE;
 
     private final int LT_FRNT_DRIVE_ID = 1;
     private final int LT_BACK_DRIVE_ID = 3;
-    private final int RT_BACK_DRIVE_ID = 5;
     private final int RT_FRNT_DRIVE_ID = 7;
+    private final int RT_BACK_DRIVE_ID = 5;
     
     private final int LT_FRNT_STEER_ID = 2;
     private final int LT_BACK_STEER_ID = 4;
-    private final int RT_BACK_STEER_ID = 6;
     private final int RT_FRNT_STEER_ID = 8;
+    private final int RT_BACK_STEER_ID = 6;
 
     private final int LT_FRNT_ENC_PORT = 9;
     private final int LT_BACK_ENC_PORT = 6;
-    private final int RT_BACK_ENC_PORT = 7;
     private final int RT_FRNT_ENC_PORT = 8;
+    private final int RT_BACK_ENC_PORT = 7;
 
     private final double LT_FRNT_OFFSET =  0.0168; //-0.0013; //MC ID 2
     private final double LT_BACK_OFFSET =  0.0432; //0.0498; //MC ID 4
-    private final double RT_BACK_OFFSET =  0.2533; //0.2533; //MC ID 6
     private final double RT_FRNT_OFFSET =  0.0226; //0.0222; //MC ID 8
+    private final double RT_BACK_OFFSET =  0.2533; //0.2533; //MC ID 6
 
     private final double NOT_FIELD_RELATIVE = 0.0;
 

@@ -175,7 +175,7 @@ public class SwerveModule
 
     private Rotation2d getCurrentRotation()
     {
-        return Rotation2d.fromDegrees(inputs.magEncoderValue - offset);
+        return Rotation2d.fromDegrees((inputs.magEncoderValue - offset)*360);
     }
 
     public SwerveModulePosition getModulePosition()
@@ -225,5 +225,8 @@ public class SwerveModule
                                     ? getCurrentRotation().getDegrees() : desiredState.angle.getDegrees(); //Prevent rotating module if speed is less then 1%. Prevents Jittering.
 
         setSteerPower(pid.calculate(getCurrentRotation().getDegrees(), targetAngle));
+        Logger.getInstance().recordOutput("speed fraction", desiredState.speedMetersPerSecond / CatzConstants.DriveConstants.MAX_SPEED);
+        Logger.getInstance().recordOutput("rotation", getCurrentRotation().getDegrees());
+
     }
 }

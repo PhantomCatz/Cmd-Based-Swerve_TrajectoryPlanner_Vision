@@ -5,6 +5,8 @@ package frc.robot.commands;
 
 import java.util.function.Supplier;
 
+import org.littletonrobotics.junction.Logger;
+
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -18,7 +20,7 @@ public class DriveProcCmd extends CommandBase {
   Supplier<Double> supplierLeftJoyX;
   Supplier<Double> supplierLeftJoyY;
   Supplier<Double> supplierRightJoyX;
-  Supplier<Boolean> supplierPwrMode;
+  Supplier<Double> supplierPwrMode;
 
   private double steerAngle;
   private double drivePower;
@@ -31,7 +33,7 @@ public class DriveProcCmd extends CommandBase {
   public DriveProcCmd(Supplier<Double> supplierLeftJoyX,
                     Supplier<Double> supplierLeftJoyY,
                     Supplier<Double> supplierRightJoyX,
-                    Supplier<Boolean> supplierPwrMode) 
+                    Supplier<Double> supplierPwrMode) 
   {
     this.supplierLeftJoyX = supplierLeftJoyX;
     this.supplierLeftJoyY = supplierLeftJoyY;
@@ -60,7 +62,9 @@ public class DriveProcCmd extends CommandBase {
         
         driveTrain.setModuleStates(moduleStates);
 
-        modifyDrvPwr = supplierPwrMode.get();
+        modifyDrvPwr = (0.9 < supplierPwrMode.get());
+
+        Logger.getInstance().recordOutput("module states", moduleStates);
 
   }
 

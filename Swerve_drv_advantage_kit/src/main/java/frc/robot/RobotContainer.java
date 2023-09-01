@@ -179,11 +179,11 @@ import frc.robot.subsystems.Arm.CatzArmSubsystem;
    { 
   //  intake.setDefaultCommand(Commands.run(()-> intake.IntakePIDLoop(), intake));
     
-    /*  driveTrain.setDefaultCommand(new TeleopDriveCmd(() -> xboxDrv.getLeftX(),
+      driveTrain.setDefaultCommand(new DriveProcCmd(() -> xboxDrv.getLeftX(),
                                                      () -> xboxDrv.getLeftY(),
                                                      () -> xboxDrv.getRightX(),
                                                      () -> xboxDrv.getRightTriggerAxis()));
-                                                     */
+                                                     
  
    }
    /**
