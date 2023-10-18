@@ -4,7 +4,6 @@ import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.revrobotics.CANSparkMax;
 
-import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
@@ -86,12 +85,12 @@ public class ModuleIOReal implements ModuleIO
     }
 
     @Override
-    public void resetDrvSensorPositionIO()
+    public void setDrvSensorPositionIO(double sensorpos)
     {
         DRIVE_MOTOR.setSelectedSensorPosition(0.0);
     }
     @Override
-    public void reverseDriveIO(Boolean enable)
+    public void reverseDriveIO(boolean enable)
     {
         DRIVE_MOTOR.setInverted(enable);
     }

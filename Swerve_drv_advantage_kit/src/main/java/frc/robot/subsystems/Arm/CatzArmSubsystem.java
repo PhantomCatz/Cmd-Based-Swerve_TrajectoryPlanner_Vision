@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems.Arm;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import org.littletonrobotics.junction.Logger;
@@ -11,6 +12,7 @@ import org.littletonrobotics.junction.Logger;
 
 import frc.robot.*;
 //import frc.robot.Robot.mechMode;
+import frc.robot.subsystems.Elevator.CatzElevatorSubsystem;
 
 public class CatzArmSubsystem extends SubsystemBase 
 {
@@ -20,7 +22,9 @@ public class CatzArmSubsystem extends SubsystemBase
 
   private static CatzArmSubsystem instance;
 
+  private CatzElevatorSubsystem elevator = CatzElevatorSubsystem.getInstance();
 
+  private final double HIGH_EXTEND_THRESHOLD_ELEVATOR = 73000.0;
 
   private final boolean LIMIT_SWITCH_IGNORED = false;
   private final boolean LIMIT_SWITCH_MONITORED = true;
@@ -33,8 +37,20 @@ public class CatzArmSubsystem extends SubsystemBase
 
   private final double ARM_CLOSELOOP_ERROR = 3000;
 
+  private double targetPosition = -999.0;
+  private double currentPosition = -999.0;
+  private double positionError = -999.0;
 
+  private final double ARM_POS_ERROR_THRESHOLD = 2700.0; //0.5 inches    previously 500 enc counts
 
+  private final double NO_TARGET_POSITION = -999999.0;
+
+  private boolean armInPosition = false;
+
+  private int numConsectSamples = 0;
+
+  private boolean armAscent;
+  private double armPower;
 
 
   private CatzArmSubsystem() 
@@ -54,52 +70,119 @@ public class CatzArmSubsystem extends SubsystemBase
 
   }
 
+  private static ArmAutoState armSetState = null;
+  public static enum ArmAutoState {
+    
+    EXTEND,
+    RETRACT,
+    PICKUP,
+  }  
+  private static ArmControlState armControlState = null;
+  public static enum ArmControlState {
+    
+    AUTO,
+    FULLMANUAL,
+  } 
+
+
   @Override
-  public void periodic() {
+  public void periodic() 
+  {
     io.updateInputs(inputs);
     Logger.getInstance().processInputs("Arm", inputs);
 
     checkLimitSwitches();
+
+    if(DriverStation.isDisabled())
+    {
+        io.setArmPwrIO(0.0);
+        armControlState = null;
+        armSetState = null;
+    }
+    else if(armControlState == ArmControlState.FULLMANUAL)
+    {
+        io.setArmPwrIO(armPower);
+    }
+    else if(armControlState == ArmControlState.AUTO)
+    {
+        if((armAscent == true) && (elevator.getElevatorEncoder() >= HIGH_EXTEND_THRESHOLD_ELEVATOR))
+        {
+            io.armSetFullExtendPosIO();
+        }
+    }
+
+    //checking if arm has reached position
+    currentPosition = getArmEncoder();
+    positionError = currentPosition - targetPosition;
+    if  ((Math.abs(positionError) <= ARM_POS_ERROR_THRESHOLD) && targetPosition != NO_TARGET_POSITION) 
+    {
+        targetPosition = NO_TARGET_POSITION;
+        numConsectSamples++;
+            if(numConsectSamples >= 10) 
+            {   
+                armInPosition = true;
+            }
+    }
+    else 
+    {
+        numConsectSamples = 0;
+    }
+
+    Logger.getInstance().recordOutput("ArmControlState", armControlState.toString());
+    Logger.getInstance().recordOutput("ArmAutoState", armSetState.toString());
   }
 
-  
-  public void checkLimitSwitches() {
+  public void checkLimitSwitches() 
+  {
+    if(inputs.isRevLimitSwitchClosed) 
+    {
+        io.setSelectedSensorPositionIO(CatzConstants.ArmConstants.POS_ENC_CNTS_RETRACT);
+        extendSwitchState = true;
+    }
+    else 
+    {
+        extendSwitchState = false;
+    }
+  }
 
-        if(inputs.isRevLimitSwitchClosed) 
-        {
-            io.setSelectedSensorPositionIO(CatzConstants.ArmConstants.POS_ENC_CNTS_RETRACT);
-            extendSwitchState = true;
-        }
-        else 
-        {
-            extendSwitchState = false;
-        }
+  public void setArmAutoState(ArmAutoState state)
+  {
+    armControlState = ArmControlState.AUTO;
+    armSetState = state;   
+
+    if(armSetState != ArmAutoState.EXTEND)
+    {
+        armAscent = false;
     }
 
+    switch(armSetState)
+    {
+        case EXTEND:
+        armAscent = true;
+        break;
 
-    public void setArmPwr(double pwr)
-    {        
-        io.setArmPwrIO(pwr);
+
+        case RETRACT:
+        io.armSetRetractPosIO();
+        break;
+
+
+        case PICKUP:
+        io.armSetPickupPosIO();
+
+        break;
     }
+  }
+
+  public void setArmPwr(double pwr)
+  {        
+      io.setArmPwrIO(pwr);
+      armControlState = ArmControlState.FULLMANUAL;
+  }
 
     public double getArmEncoder()
     {
         return inputs.armMotorEncoder;
-    }
-
-    public void armSetFullExtendPos()
-    {
-        io.armSetFullExtendPosIO();
-    }
-
-    public void armSetRetractPos()
-    {
-        io.armSetRetractPosIO();
-    }
-
-    public void armSetPickupPos()
-    {
-        io.armSetPickupPosIO();
     }
 
     public boolean isArmControlModePercentOutput()

@@ -12,7 +12,7 @@ import frc.robot.CatzConstants.AutonomousPath;
 import frc.robot.Utils.CatzStateUtil;
 import frc.robot.Utils.CatzStateUtil.GamePieceState;
 import frc.robot.Utils.CatzStateUtil.SetMechanismState;
-import frc.robot.commands.SetStateCmds.SetStateCmdGroup;
+import frc.robot.commands.SetStateCmds.StateMachineCmd;
 import frc.robot.subsystems.Arm.CatzArmSubsystem;
 import frc.robot.subsystems.Elevator.CatzElevatorSubsystem;
 import frc.robot.subsystems.Intake.CatzIntakeSubsystem;
@@ -39,15 +39,15 @@ public class CatzAutonomousPaths
     {
         return new SequentialCommandGroup(
                     Commands.runOnce(() -> CatzStateUtil.newGamePieceState(GamePieceState.CUBE)),
-                    new SetStateCmdGroup(SetMechanismState.SCORE_HIGH)
+                    new StateMachineCmd(SetMechanismState.SCORE_HIGH)
                         .raceWith(Commands.waitSeconds(1.0)),
 
                     new ParallelCommandGroup(
                         new DriveToPoseCmd(), 
                         new SequentialCommandGroup(
-                            new SetStateCmdGroup(SetMechanismState.STOW)
+                            new StateMachineCmd(SetMechanismState.STOW)
                                 .raceWith(Commands.waitSeconds(1.0)),
-                            new SetStateCmdGroup(SetMechanismState.PICKUP_GROUND)
+                            new StateMachineCmd(SetMechanismState.PICKUP_GROUND)
                                 .raceWith(Commands.waitSeconds(1.0)),
                             intakeSequenceCommandGroup())
                                             ),
@@ -55,13 +55,13 @@ public class CatzAutonomousPaths
                     new ParallelCommandGroup(
                         new DriveToPoseCmd(), 
                         new SequentialCommandGroup(
-                            new SetStateCmdGroup(SetMechanismState.STOW)
+                            new StateMachineCmd(SetMechanismState.STOW)
                                 .raceWith(Commands.waitSeconds(1.0)),
-                            new SetStateCmdGroup(SetMechanismState.SCORE_HIGH)
+                            new StateMachineCmd(SetMechanismState.SCORE_HIGH)
                                 .raceWith(Commands.waitSeconds(1.0)))
                                             ),
                     intakeSequenceCommandGroup(),
-                    new SetStateCmdGroup(SetMechanismState.STOW)
+                    new StateMachineCmd(SetMechanismState.STOW)
                                          );       
     }
 
@@ -69,7 +69,7 @@ public class CatzAutonomousPaths
     {
         return new SequentialCommandGroup(
                     Commands.runOnce(() -> CatzStateUtil.newGamePieceState(GamePieceState.CONE)),
-                    new SetStateCmdGroup(SetMechanismState.SCORE_HIGH),
+                    new StateMachineCmd(SetMechanismState.SCORE_HIGH),
 
                     new DriveToPoseCmd()
             

@@ -3,7 +3,7 @@ package frc.robot.subsystems.vision;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.*;
-
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class CatzAprilTag {
 
@@ -12,20 +12,15 @@ public class CatzAprilTag {
     private final double METER_TO_INCH = 39.37;
     private final int REQUIRED_ARRAY_LENGTH = 6;
     private final int NUMBER_OF_LINEAR_DIMENSIONS = 3;
-    private final double INVALID_POSE_ENTY = 999.0;
     private static final double DISX_TAG_TO_TAG = 570.32; //distance form this side apriltag to the other side apriltag
 
     private final int POS_X_INDEX = 0;
     private final int POS_Y_INDEX = 1;
-    private final int POS_Z_INDEX = 2;
-    private final int ROT_X_INDEX = 3;
-    private final int ROT_Y_INDEX = 4;
     private final int ROT_Z_INDEX = 5;
     
     private static final int BLUE_ALLIANCE = 0;
     private static final int RED_ALLIANCE = 1;
 
-    private final double[] INVALIDARRAY = {INVALID_POSE_ENTY,INVALID_POSE_ENTY,INVALID_POSE_ENTY,INVALID_POSE_ENTY,INVALID_POSE_ENTY,INVALID_POSE_ENTY};
     private double[] botPose = null;
 
     private int alliance;
@@ -72,15 +67,6 @@ public class CatzAprilTag {
         return (NetworkTableInstance.getDefault().getTable("limelight").getEntry("tid").getInteger(-1) != -1);
     }
 
-
-    
-
-    //return botpos calculated by limelight
-    public double[] getBotPoseArray()
-    {
-        return botPose;
-    }
-
     public Pose2d getLimelightBotPose()
     {
         botPoseUpdate();
@@ -102,4 +88,10 @@ public class CatzAprilTag {
         return instance;
     }
 
+    public void smartDashboardAprilTag()
+    {
+        SmartDashboard.putNumber("botpos Px", botPose[POS_X_INDEX]);
+        SmartDashboard.putNumber("botpos Py", botPose[POS_Y_INDEX]);
+        SmartDashboard.putNumber("botpos Rz", botPose[ROT_Z_INDEX]);
+    }
 }

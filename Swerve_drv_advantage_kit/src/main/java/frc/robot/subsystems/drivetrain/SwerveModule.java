@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.CatzConstants;
 import frc.robot.Utils.CatzMathUtils;
+import frc.robot.Utils.Conversions;
 import frc.robot.subsystems.drivetrain.ModuleIOInputsAutoLogged;
 
 
@@ -48,7 +49,8 @@ public class SwerveModule
     private double command;
     public boolean driveDirectionFlipped = false;
 
-    private double offset;
+    private double wheelOffset;
+
 
     private int index;
 
@@ -75,7 +77,7 @@ public class SwerveModule
 
         pid = new PIDController(kP, kI, kD);
 
-        this.offset = offset;
+        wheelOffset = offset;
 
         //for shuffleboard
         MOTOR_ID = steerMotorID;
@@ -121,20 +123,6 @@ public class SwerveModule
     {
         return inputs.driveMtrSensorPosition;
     }
-    public void resetMagEnc()
-    {
-        io.resetMagEncoderIO();
-    }
-    
-    public void resetDriveEncs()
-    {
-        io.resetDrvSensorPositionIO();
-    }
-
-    public void initializeOffset()
-    {
-       offset = inputs.magEncoderValue;
-    }
 
     public void setCoastMode()
     {
@@ -162,7 +150,7 @@ public class SwerveModule
     {
         int i = 0;
 
-        io.resetDrvSensorPositionIO();
+        io.setDrvSensorPositionIO(0.0); //resetsensorpos
         while(Math.abs(inputs.driveMtrSensorPosition) > 1.0)
         {
             i++;
@@ -171,16 +159,6 @@ public class SwerveModule
                 resetDrvDistance();
             }
         }
-    }
-
-    private Rotation2d getCurrentRotation()
-    {
-        return Rotation2d.fromDegrees((inputs.magEncoderValue - offset)*360);
-    }
-
-    public SwerveModulePosition getModulePosition()
-    {
-        return new SwerveModulePosition(Units.inchesToMeters(getDriveDistanceInch()), Rotation2d.fromDegrees(getCurrentRotation().getDegrees()));
     }
 
     public double getDriveDistanceInch()
@@ -228,5 +206,42 @@ public class SwerveModule
         Logger.getInstance().recordOutput("speed fraction", desiredState.speedMetersPerSecond / CatzConstants.DriveConstants.MAX_SPEED);
         Logger.getInstance().recordOutput("rotation", getCurrentRotation().getDegrees());
 
+    }
+
+    public void resetMagEnc()
+    {
+        magEnc.reset();
+    }
+
+    public void resetDriveEncs()
+    {
+        io.setDrvSensorPositionIO(0.0);
+    }
+
+    public void initializeOffset()
+    {
+        wheelOffset = magEnc.get();
+    }
+
+    private Rotation2d getCurrentRotation()
+    {
+        return Rotation2d.fromDegrees((magEnc.get() - wheelOffset)*360);
+    }
+
+    public SwerveModuleState getModuleState()
+    {
+        double velocity = Conversions.falconToMPS(inputs.driveMtrSensorPosition,CatzConstants.DriveConstants.DRVTRAIN_WHEEL_CIRCUMFERENCE, CatzConstants.DriveConstants.SDS_L2_GEAR_RATIO);
+        
+        return new SwerveModuleState(velocity, getCurrentRotation());
+    }
+
+    public SwerveModulePosition getModulePosition()
+    {
+        return new SwerveModulePosition(getDriveDistanceMeters(), getCurrentRotation());
+    }
+
+    public double getDriveDistanceMeters()
+    {
+        return  inputs.driveMtrSensorPosition / CatzConstants.DriveConstants.SDS_L2_GEAR_RATIO * CatzConstants.DriveConstants.DRVTRAIN_WHEEL_CIRCUMFERENCE / 2048.0;
     }
 }

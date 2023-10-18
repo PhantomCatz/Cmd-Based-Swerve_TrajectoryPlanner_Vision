@@ -28,9 +28,9 @@ public interface ModuleIO
 
  public default void setSteerBrakeModeIO() {}
 
- public default void resetDrvSensorPositionIO() {}
+ public default void setDrvSensorPositionIO(double sensorpos) {}
 
- public default void reverseDriveIO(Boolean enable) {}
+ public default void reverseDriveIO(boolean enable) {}
 
  public default void setDriveSimPwrIO(double volts) {}
 

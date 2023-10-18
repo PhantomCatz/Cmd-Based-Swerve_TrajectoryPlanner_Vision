@@ -1,4 +1,4 @@
-package frc.robot.Utils;
+package frc.Utils;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -55,21 +55,5 @@ public class CatzMathUtils {
               newAngle += 360;
           }
           return newAngle;
-      }
-
-      public static double Clamp(double min, double in, double max)
-      {
-          if(in > max)
-          {
-              return max;
-          }
-          else if(in < min)
-          {
-              return min;
-          }
-          else
-          {
-              return in;
-          }
       }
 }

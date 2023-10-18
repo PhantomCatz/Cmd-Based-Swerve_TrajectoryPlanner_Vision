@@ -11,7 +11,7 @@ import frc.robot.subsystems.Elevator.CatzElevatorSubsystem;
 
 public class ElevatorManualCmd extends CommandBase {
   CatzElevatorSubsystem elevator = CatzElevatorSubsystem.getInstance();
-
+      
   Supplier<Double> supplierElevatorPwr;
   Supplier<Boolean> supplierManualMode;
 
@@ -39,7 +39,7 @@ public class ElevatorManualCmd extends CommandBase {
   public void execute() 
   {
     boolean isElevatorInManualMode = supplierManualMode.get();
-    double  elevatorPwr = supplierElevatorPwr.get();
+    double  elevatorPwr = -supplierElevatorPwr.get(); //reverse elevator pwr so up = up on joystick
     
       if(Math.abs(elevatorPwr) >= MANUAL_CONTROL_DEADBAND)
       {
@@ -74,3 +74,4 @@ public class ElevatorManualCmd extends CommandBase {
     return false;
   }
 }
+

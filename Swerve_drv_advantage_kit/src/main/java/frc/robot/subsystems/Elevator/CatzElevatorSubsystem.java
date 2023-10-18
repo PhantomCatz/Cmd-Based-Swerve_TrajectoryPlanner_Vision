@@ -4,15 +4,18 @@
 
 package frc.robot.subsystems.Elevator;
 
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.CatzConstants;
+import frc.robot.Utils.CatzStateUtil;
+import frc.robot.Utils.CatzStateUtil.GamePieceState;
 //import frc.robot.Robot.mechMode;
+import frc.robot.subsystems.Arm.CatzArmSubsystem;
 
+import java.util.function.Supplier;
 
 import org.littletonrobotics.junction.Logger;
-
-
-
 
 
 public class CatzElevatorSubsystem extends SubsystemBase {
@@ -22,6 +25,10 @@ public class CatzElevatorSubsystem extends SubsystemBase {
 
   private static CatzElevatorSubsystem instance;
 
+  CatzArmSubsystem arm = CatzArmSubsystem.getInstance();
+
+  private final double ARM_ENCODER_THRESHOLD = 35000.0;
+  private final double MANUAL_HOLD_STEP_SIZE = 10000.0; //5000.0;
 
  //limit switch
 
@@ -34,6 +41,21 @@ public class CatzElevatorSubsystem extends SubsystemBase {
 
   private final boolean LIMIT_SWITCH_IGNORED   = false;
   private final boolean LIMIT_SWITCH_MONITORED = true;  // limit switches will shut off the motor
+
+  private boolean elevatorDescent = false;
+  private double manualHoldTargetPos;
+  private double elevatorPwr;
+  private double targetPosition = -999.0;
+  private double currentPosition = -999.0;
+  private double positionError = -999.0;
+
+  private final double ELEVATOR_POS_ERROR_THRESHOLD = 1000.0; //0.424 inches
+
+  private final double NO_TARGET_POSITION = -999999.0;
+
+  private boolean elevatorInPosition = false;
+
+  private int numConsectSamples = 0;
 
 
 
@@ -53,9 +75,24 @@ public class CatzElevatorSubsystem extends SubsystemBase {
             io = new ElevatorIOReal() {};
             break;
     }
-
-
   }
+
+  private static ElevatorAutoState elevatorSetStateUpdate = null;
+  public static enum ElevatorAutoState {
+
+    HIGH,
+    MIDCONE,
+    MIDCUBE,
+    LOW,
+  }  
+
+  private static ElevatorControlState elevatorControlState = null;
+  public static enum ElevatorControlState {
+    
+    AUTO,
+    SEMIMANUAL,
+    FULLMANUAL,
+  } 
 
   @Override
   public void periodic() 
@@ -65,7 +102,97 @@ public class CatzElevatorSubsystem extends SubsystemBase {
     
     checkLimitSwitches();
     // This method will be called once per scheduler run
+
+    if(DriverStation.isDisabled())
+    {
+        io.elevatorManualIO(0.0);
+        elevatorControlState = null;
+        elevatorSetStateUpdate = null;
+    }
+    else if(elevatorControlState == ElevatorControlState.FULLMANUAL)
+    {
+      elevatorManual(elevatorPwr);
+    }
+    else if(elevatorControlState == ElevatorControlState.SEMIMANUAL)
+    {
+      manualHoldTargetPos = getElevatorEncoder();
+      manualHoldTargetPos = manualHoldTargetPos + (elevatorPwr * MANUAL_HOLD_STEP_SIZE);
+      elevatorHoldingManual(manualHoldTargetPos);
+    }
+    else
+    {
+      if((elevatorDescent == true) && (arm.getArmEncoder() <= ARM_ENCODER_THRESHOLD))
+      {
+        elevatorSetToLowPos();
+      }
+    }
+
+    //checking elevator is in position
+    currentPosition = getElevatorEncoder();
+    positionError = currentPosition - targetPosition;
+    if  ((Math.abs(positionError) <= ELEVATOR_POS_ERROR_THRESHOLD) && targetPosition != NO_TARGET_POSITION) 
+    {
+
+        targetPosition = NO_TARGET_POSITION;
+        numConsectSamples++;
+            if(numConsectSamples >= 10) 
+            {   
+                elevatorInPosition = true;
+            }
+    }
+    else 
+    {
+        numConsectSamples = 0;
+    }
+
+
   }
+
+  public void elevatorManualCmd(double elevatorPwr, boolean isFullManualEnabled)
+  {
+    this.elevatorPwr = elevatorPwr;
+    
+    if(isFullManualEnabled)
+    {
+      elevatorControlState = ElevatorControlState.FULLMANUAL;
+    }
+    else
+    {
+      elevatorControlState = ElevatorControlState.SEMIMANUAL;
+    }
+
+  }
+
+  public void setElevatorAutoState(ElevatorAutoState state)
+  {
+    this.elevatorSetStateUpdate = state;
+    elevatorControlState = ElevatorControlState.AUTO;
+
+    if(elevatorSetStateUpdate != ElevatorAutoState.LOW)
+    {
+      elevatorDescent = false;
+    }
+
+    switch(elevatorSetStateUpdate)
+    {
+      case HIGH:
+      elevatorSetToHighPos();
+      break;
+
+      case MIDCONE:
+      elevatorSetToMidPosCone();
+      break;
+
+      case MIDCUBE:
+      elevatorSetToMidPosCube();
+      break;
+
+      case LOW:
+      elevatorDescent = true;
+      break;
+    }
+  }
+
 
 
     public void elevatorManual(double pwr)
@@ -82,7 +209,7 @@ public class CatzElevatorSubsystem extends SubsystemBase {
         io.elevatorMtrSetPosIO(holdingEncPos);
     }
 
-    public void elevatorSetToLowPos()
+    private void elevatorSetToLowPos()
     {
         io.configAllowableClosedloopErrorIO(0, CatzConstants.ElevatorConstants.ELEVATOR_CLOSELOOP_ERROR_THRESHOLD_LOW);
 
@@ -93,7 +220,7 @@ public class CatzElevatorSubsystem extends SubsystemBase {
         io.elevatorMtrSetPosIO(CatzConstants.ElevatorConstants.ELEVATOR_POS_ENC_CNTS_LOW);
     }
 
-    public void elevatorSetToMidPosCone()
+    private void elevatorSetToMidPosCone()
     {
         io.configAllowableClosedloopErrorIO(0, CatzConstants.ElevatorConstants.ELEVATOR_CLOSELOOP_ERROR_THRESHOLD_HIGH_MID);
 
@@ -104,7 +231,7 @@ public class CatzElevatorSubsystem extends SubsystemBase {
         io.elevatorMtrSetPosIO(CatzConstants.ElevatorConstants.ELEVATOR_POS_ENC_CNTS_MID_CONE);
     }
 
-    public void elevatorSetToMidPosCube()
+    private void elevatorSetToMidPosCube()
     {
         io.configAllowableClosedloopErrorIO(0, CatzConstants.ElevatorConstants.ELEVATOR_CLOSELOOP_ERROR_THRESHOLD_HIGH_MID);
 
@@ -115,7 +242,7 @@ public class CatzElevatorSubsystem extends SubsystemBase {
         io.elevatorMtrSetPosIO(CatzConstants.ElevatorConstants.ELEVATOR_POS_ENC_CNTS_MID_CUBE);
     }
 
-    public void elevatorSetToHighPos()
+    private void elevatorSetToHighPos()
     {
         io.configAllowableClosedloopErrorIO(0, CatzConstants.ElevatorConstants.ELEVATOR_CLOSELOOP_ERROR_THRESHOLD_HIGH_MID);
 
@@ -126,7 +253,7 @@ public class CatzElevatorSubsystem extends SubsystemBase {
         io.elevatorMtrSetPosIO(CatzConstants.ElevatorConstants.ELEVATOR_POS_ENC_CNTS_HIGH);
     }
 
-    public void elevatorSetToSinglePickup()
+    private void elevatorSetToSinglePickup()
     {
         io.configAllowableClosedloopErrorIO(0, CatzConstants.ElevatorConstants.ELEVATOR_CLOSELOOP_ERROR_THRESHOLD_LOW);
 
@@ -186,7 +313,4 @@ public class CatzElevatorSubsystem extends SubsystemBase {
         return instance;
     
     }
-
-    
-      
-}
+  }

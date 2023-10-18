@@ -27,7 +27,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.ManualStateCmds.ArmManualCmd;
 import frc.robot.commands.ManualStateCmds.ElevatorManualCmd;
 import frc.robot.commands.ManualStateCmds.IntakeManualCmd;
-import frc.robot.commands.SetStateCmds.SetStateCmdGroup;
+import frc.robot.commands.SetStateCmds.StateMachineCmd;
 import frc.robot.subsystems.Arm.CatzArmSubsystem;
  import frc.robot.subsystems.Elevator.CatzElevatorSubsystem;
  import frc.robot.subsystems.Intake.CatzIntakeSubsystem;
@@ -97,13 +97,13 @@ import frc.robot.subsystems.Arm.CatzArmSubsystem;
    private void configureBindings() 
    {
    //---------------------------------------Button mechanism cmds-----------------------------------------------------------------
-     xboxAux.y().onTrue(new SetStateCmdGroup(SetMechanismState.SCORE_HIGH));
-     xboxAux.b().onTrue(new SetStateCmdGroup(SetMechanismState.SCORE_MID));
-     xboxAux.a().onTrue(new SetStateCmdGroup(SetMechanismState.SCORE_LOW));
+     xboxAux.y().onTrue(new StateMachineCmd(SetMechanismState.SCORE_HIGH));
+     xboxAux.b().onTrue(new StateMachineCmd(SetMechanismState.SCORE_MID));
+     xboxAux.a().onTrue(new StateMachineCmd(SetMechanismState.SCORE_LOW));
      xboxAux.x().or(xboxDrv.rightStick())
-       .onTrue(new SetStateCmdGroup(SetMechanismState.STOW));
+       .onTrue(new StateMachineCmd(SetMechanismState.STOW));
      xboxAux.start().or(xboxDrv.leftStick())
-       .onTrue(new SetStateCmdGroup(SetMechanismState.PICKUP_GROUND));
+       .onTrue(new StateMachineCmd(SetMechanismState.PICKUP_GROUND));
  
    
    //--------------------------------------------Manual Cmds---------------------------------------------------------------------------

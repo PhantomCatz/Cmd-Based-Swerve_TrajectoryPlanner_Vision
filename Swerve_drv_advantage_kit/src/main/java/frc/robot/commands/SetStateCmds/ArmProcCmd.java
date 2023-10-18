@@ -52,14 +52,12 @@ public class ArmProcCmd extends CommandBase {
       {
           case STOW:
           case SCORE_MID :
-              arm.armSetRetractPos();
               targetPosition = CatzConstants.ArmConstants.POS_ENC_CNTS_EXTEND;
               break;
 
           case PICKUP_GROUND :
           case PICKUP_SINGLE :
           case SCORE_LOW :
-              arm.armSetPickupPos();
               targetPosition = CatzConstants.ArmConstants.POS_ENC_CNTS_PICKUP;
               break;
 
@@ -77,10 +75,7 @@ public class ArmProcCmd extends CommandBase {
   @Override
   public void execute() 
   {
-    if((armAscent == true) && (elevator.getElevatorEncoder() >= HIGH_EXTEND_THRESHOLD_ELEVATOR))
-    {
-      arm.armSetFullExtendPos();
-    }
+
 
     currentPosition = arm.getArmEncoder();
     positionError = currentPosition - targetPosition;

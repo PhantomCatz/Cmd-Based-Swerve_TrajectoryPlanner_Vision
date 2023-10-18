@@ -124,8 +124,8 @@ public class IntakeIOReal implements IntakeIO
 
         wristMtr.configFactoryDefault();
 
-        wristMtr.configIntegratedSensorInitializationStrategy(SensorInitializationStrategy.BootToAbsolutePosition);
-        wristMtr.configIntegratedSensorAbsoluteRange(AbsoluteSensorRange.Unsigned_0_to_360);
+        wristMtr.configIntegratedSensorInitializationStrategy(SensorInitializationStrategy.BootToZero);
+
         wristMtr.configIntegratedSensorOffset(0.0);
         
         wristMtr.setNeutralMode(NeutralMode.Brake);

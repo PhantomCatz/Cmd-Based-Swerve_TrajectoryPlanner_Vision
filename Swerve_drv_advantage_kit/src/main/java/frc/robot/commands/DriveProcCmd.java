@@ -8,7 +8,6 @@ import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.CatzConstants;
@@ -21,12 +20,6 @@ public class DriveProcCmd extends CommandBase {
   Supplier<Double> supplierLeftJoyY;
   Supplier<Double> supplierRightJoyX;
   Supplier<Double> supplierPwrMode;
-
-  private double steerAngle;
-  private double drivePower;
-  private double turnPower;
-  private double gyroAngle;
-  private boolean modifyDrvPwr;
 
   
   /** Creates a new TeleopDriveCmd. */
@@ -61,8 +54,6 @@ public class DriveProcCmd extends CommandBase {
         SwerveModuleState[] moduleStates = CatzConstants.DriveConstants.swerveDriveKinematics.toSwerveModuleStates(chassisSpeeds);
         
         driveTrain.setModuleStates(moduleStates);
-
-        modifyDrvPwr = (0.9 < supplierPwrMode.get());
 
         Logger.getInstance().recordOutput("module states", moduleStates);
 

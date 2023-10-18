@@ -136,26 +136,6 @@ public class CatzDriveTrainSubsystem extends SubsystemBase
         }
     }
 
-    private void resetMagEncs() {
-        for(SwerveModule module : swerveModules) {
-            module.resetMagEnc();
-        }
-    }
-
-    public void resetDriveEncs() {
-        for(SwerveModule module : swerveModules) {
-            module.resetDriveEncs();
-        }
-    }
-
-    public void initializeOffsets() {
-        gyroIO.setAngleAdjustmentIO(-gyroInputs.gyroYaw);
-
-        for(SwerveModule module : swerveModules) {
-            module.initializeOffset();
-        }
-    }
-
     public void zeroGyro() {
         gyroIO.setAngleAdjustmentIO(-gyroInputs.gyroYaw);
     }
@@ -163,14 +143,6 @@ public class CatzDriveTrainSubsystem extends SubsystemBase
     public double getRollAngle() {
         return gyroInputs.gyroRoll;
     }
-/* 
-    public void lockWheels() {
-        LT_FRNT_MODULE.setWheelAngle(-45.0, NOT_FIELD_RELATIVE);
-        LT_BACK_MODULE.setWheelAngle(45.0, NOT_FIELD_RELATIVE);
-        RT_FRNT_MODULE.setWheelAngle(-135.0, NOT_FIELD_RELATIVE);
-        RT_BACK_MODULE.setWheelAngle(135.0, NOT_FIELD_RELATIVE);
-    }
-    */
 
 
     public Rotation2d getRotation2d()
@@ -187,13 +159,83 @@ public class CatzDriveTrainSubsystem extends SubsystemBase
         return gyroInputs.gyroAngle;
     }
 
-    public void setModuleStates(SwerveModuleState[] desiredStates)
+    public void setModuleStates(SwerveModuleState[] states)
     {
-        SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, CatzConstants.DriveConstants.MAX_SPEED);
-        LT_FRNT_MODULE.setDesiredState(desiredStates[0]);
-        LT_BACK_MODULE.setDesiredState(desiredStates[1]);
-        RT_FRNT_MODULE.setDesiredState(desiredStates[2]);
-        RT_BACK_MODULE.setDesiredState(desiredStates[3]);
+        SwerveDriveKinematics.desaturateWheelSpeeds(states, CatzConstants.DriveConstants.MAX_SPEED);
+
+        for(int i = 0; i < 4; i++)
+        {
+            swerveModules[i].setDesiredState(states[i]);
+        }
+    }
+    private void resetMagEncs()
+    {
+        for(SwerveModule module : swerveModules)
+        {
+            module.resetMagEnc();
+        }
+    }
+
+    public void resetDriveEncs()
+    {
+        for(SwerveModule module : swerveModules)
+        {
+            module.resetDriveEncs();
+        }
+    }
+
+    public void initializeOffsets()
+    {
+        gyroIO.setAngleAdjustmentIO(-gyroInputs.gyroYaw);
+
+        for(SwerveModule module : swerveModules)
+        {
+            module.initializeOffset();
+        }
+    }
+
+    public void stopDriving(){
+        for(SwerveModule module : swerveModules)
+        {
+            
+            module.setDrivePower(0.0);
+            module.setSteerPower(0.0);
+        }
+    }
+
+    public SwerveModuleState[] getModuleStates()
+    {
+        SwerveModuleState[] moduleStates = new SwerveModuleState[4];
+
+        for(int i = 0; i < 4; i++)
+        {
+            moduleStates[i] = swerveModules[i].getModuleState();
+        }
+
+        return moduleStates;
+    }
+
+    public SwerveModulePosition[] getModulePositions()
+    {
+        SwerveModulePosition[] modulePositions = new SwerveModulePosition[4];
+
+        for(int i = 0; i < 4; i++)
+        {
+            modulePositions[i] = swerveModules[i].getModulePosition();
+        }
+
+        return modulePositions;
+    }
+
+    public void printModulePositions()
+    {
+        SwerveModulePosition[] modulePositions = new SwerveModulePosition[4];
+
+        for(int i = 0; i < 4; i++)
+        {
+            modulePositions[i] = swerveModules[i].getModulePosition();
+            System.out.println(modulePositions[i].distanceMeters);
+        }
     }
     
     public static CatzDriveTrainSubsystem getInstance()
