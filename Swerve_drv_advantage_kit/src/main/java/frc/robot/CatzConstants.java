@@ -53,12 +53,12 @@ public final class CatzConstants {
   //----------------------Catz auton Constants---------------------------
   public static final class DriveConstants
   {
-    private static final double MODULE_DISTANCE_FROM_CENTER = 0.42672;
+    private static final double MODULE_DISTANCE_FROM_CENTER = 0.298;
 
-    private static final Translation2d SWERVE_LEFT_FRONT_LOCATION  = new Translation2d(MODULE_DISTANCE_FROM_CENTER, MODULE_DISTANCE_FROM_CENTER).div(Math.sqrt(2));
-    private static final Translation2d SWERVE_LEFT_BACK_LOCATION   = new Translation2d(MODULE_DISTANCE_FROM_CENTER, -MODULE_DISTANCE_FROM_CENTER).div(Math.sqrt(2));
-    private static final Translation2d SWERVE_RIGHT_FRONT_LOCATION = new Translation2d(-MODULE_DISTANCE_FROM_CENTER, MODULE_DISTANCE_FROM_CENTER).div(Math.sqrt(2));
-    private static final Translation2d SWERVE_RIGHT_BACK_LOCATION  = new Translation2d(-MODULE_DISTANCE_FROM_CENTER, -MODULE_DISTANCE_FROM_CENTER).div(Math.sqrt(2));
+    private static final Translation2d SWERVE_LEFT_FRONT_LOCATION  = new Translation2d(MODULE_DISTANCE_FROM_CENTER, MODULE_DISTANCE_FROM_CENTER);
+    private static final Translation2d SWERVE_LEFT_BACK_LOCATION   = new Translation2d(-MODULE_DISTANCE_FROM_CENTER, MODULE_DISTANCE_FROM_CENTER);
+    private static final Translation2d SWERVE_RIGHT_FRONT_LOCATION = new Translation2d(MODULE_DISTANCE_FROM_CENTER, -MODULE_DISTANCE_FROM_CENTER);
+    private static final Translation2d SWERVE_RIGHT_BACK_LOCATION  = new Translation2d(-MODULE_DISTANCE_FROM_CENTER, -MODULE_DISTANCE_FROM_CENTER);
 
     // calculates the orientation and speed of individual swerve modules when given the motion of the whole robot
     public static final SwerveDriveKinematics swerveDriveKinematics = new SwerveDriveKinematics(
@@ -68,7 +68,8 @@ public final class CatzConstants {
         SWERVE_RIGHT_BACK_LOCATION
     );
 
-    public static final double MAX_SPEED = 4.0;
+    public static final double MAX_SPEED = 3.0; // meters per second
+    public static final double MAX_ANGSPEED = 6.0; // radians per second
 
     public static final double SDS_L1_GEAR_RATIO = 8.14;       //SDS mk4i L1 ratio reduction
     public static final double SDS_L2_GEAR_RATIO = 6.75;       //SDS mk4i L2 ratio reduction
@@ -78,11 +79,11 @@ public final class CatzConstants {
 
     //uses a trapezoidal velocity/time graph enforced with a PID loop
     private static ProfiledPIDController autoTurnPIDController
-            = new ProfiledPIDController(2, 0, 0, new TrapezoidProfile.Constraints(8, 8));
+            = new ProfiledPIDController(2, 0, 0, new TrapezoidProfile.Constraints(MAX_ANGSPEED, MAX_ANGSPEED));
 
     static{
         autoTurnPIDController.enableContinuousInput(-Math.PI, Math.PI); //offset clamped between these two values
-        autoTurnPIDController.setTolerance(Math.toRadians(10)); //tolerable error
+        autoTurnPIDController.setTolerance(Math.toRadians(0.1)); //tolerable error
     }
 
     // calculates target chassis motion when given current position and desired trajectory

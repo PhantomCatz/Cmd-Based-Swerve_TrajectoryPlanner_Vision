@@ -30,7 +30,6 @@ public class CatzRobotTracker extends CommandBase{
     public void resetPosition(Pose2d pose)
     {
         driveTrain.resetDriveEncs();
-        poseEstimator.resetPosition(Rotation2d.fromDegrees(driveTrain.getGyroAngle()), driveTrain.getModulePositions(), pose);
     }
     //METHOD USED IN AUTONOMOUS CONTAINER
 
@@ -64,7 +63,7 @@ public class CatzRobotTracker extends CommandBase{
         {
             poseEstimator.addVisionMeasurement(limelight.getLimelightBotPose(), Timer.getFPGATimestamp());
         }
-        poseEstimator.update(Rotation2d.fromDegrees(driveTrain.getGyroAngle()), driveTrain.getModulePositions());
+       // poseEstimator.update(Rotation2d.fromDegrees(driveTrain.getGyroAngle()), driveTrain.getModulePositions());
         System.out.println("("+poseEstimator.getEstimatedPosition().getX()+","+poseEstimator.getEstimatedPosition().getY()+")");
     }
 

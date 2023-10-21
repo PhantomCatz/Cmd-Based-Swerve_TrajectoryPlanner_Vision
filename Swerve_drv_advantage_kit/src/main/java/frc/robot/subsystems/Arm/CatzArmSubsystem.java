@@ -22,7 +22,7 @@ public class CatzArmSubsystem extends SubsystemBase
 
   private static CatzArmSubsystem instance;
 
-  private CatzElevatorSubsystem elevator = CatzElevatorSubsystem.getInstance();
+  private static CatzElevatorSubsystem elevator = CatzElevatorSubsystem.getInstance();
 
   private final double HIGH_EXTEND_THRESHOLD_ELEVATOR = 73000.0;
 
@@ -128,8 +128,8 @@ public class CatzArmSubsystem extends SubsystemBase
         numConsectSamples = 0;
     }
 
-    Logger.getInstance().recordOutput("ArmControlState", armControlState.toString());
-    Logger.getInstance().recordOutput("ArmAutoState", armSetState.toString());
+    //Logger.getInstance().recordOutput("ArmControlState", armControlState.toString());
+    //Logger.getInstance().recordOutput("ArmAutoState", armSetState.toString());
   }
 
   public void checkLimitSwitches() 

@@ -37,12 +37,11 @@ public class SwerveModule
     private DutyCycleEncoder magEnc;
     private DigitalInput MagEncPWMInput;
 
-    private PIDController pid;
-    private final double kP = 0.01;
+    private PIDController pidGross;
+    private final double kP = 0.001;
     private final double kI = 0.0;
     private final double kD = 0.0;
 
-    private double currentAngle = 0.0;
     private double angleError = 0.0;
     private double flippedAngleError = 0.0;
 
@@ -75,7 +74,7 @@ public class SwerveModule
                 break;
         }
 
-        pid = new PIDController(kP, kI, kD);
+        pidGross = new PIDController(kP, kI, kD);
 
         wheelOffset = offset;
 
@@ -195,16 +194,24 @@ public class SwerveModule
 
     public void setDesiredState(SwerveModuleState desiredState)
     {
+        double currentAngle = (((magEnc.get()-wheelOffset)*360)%360);
         desiredState = SwerveModuleState.optimize(desiredState, getCurrentRotation());
         setDrivePower(desiredState.speedMetersPerSecond / CatzConstants.DriveConstants.MAX_SPEED);
 
-        double targetAngle = (Math.abs(desiredState.speedMetersPerSecond) 
-                                <= (CatzConstants.DriveConstants.MAX_SPEED * 0.01)) 
-                                    ? getCurrentRotation().getDegrees() : desiredState.angle.getDegrees(); //Prevent rotating module if speed is less then 1%. Prevents Jittering.
+        double targetAngle = desiredState.angle.getDegrees();
+      //  (Math.abs(desiredState.speedMetersPerSecond)                         <= (CatzConstants.DriveConstants.MAX_SPEED * 0.01))                            ? getCurrentRotation().getDegrees() : desiredState.angle.getDegrees(); //Prevent rotating module if speed is less then 1%. Prevents Jittering.
+        
+        double pidpower = pidGross.calculate(currentAngle, targetAngle);
+        if((Math.abs(currentAngle)-Math.abs(targetAngle)) <0.5)
+        {
+            pidpower = 0.0;
+        }
+        setSteerPower(pidpower);
 
-        setSteerPower(pid.calculate(getCurrentRotation().getDegrees(), targetAngle));
-        Logger.getInstance().recordOutput("speed fraction", desiredState.speedMetersPerSecond / CatzConstants.DriveConstants.MAX_SPEED);
-        Logger.getInstance().recordOutput("rotation", getCurrentRotation().getDegrees());
+
+        Logger.getInstance().recordOutput("speed fraction" + Integer.toString(index), desiredState.speedMetersPerSecond / CatzConstants.DriveConstants.MAX_SPEED);
+        Logger.getInstance().recordOutput("target Angle" + Integer.toString(index), desiredState.angle.getDegrees());
+        Logger.getInstance().recordOutput("rotation" + Integer.toString(index), currentAngle);
 
     }
 
@@ -225,7 +232,7 @@ public class SwerveModule
 
     private Rotation2d getCurrentRotation()
     {
-        return Rotation2d.fromDegrees((magEnc.get() - wheelOffset)*360);
+        return Rotation2d.fromDegrees(((magEnc.get()-wheelOffset)*360)%360);
     }
 
     public SwerveModuleState getModuleState()
@@ -239,7 +246,7 @@ public class SwerveModule
     {
         return new SwerveModulePosition(getDriveDistanceMeters(), getCurrentRotation());
     }
-
+    
     public double getDriveDistanceMeters()
     {
         return  inputs.driveMtrSensorPosition / CatzConstants.DriveConstants.SDS_L2_GEAR_RATIO * CatzConstants.DriveConstants.DRVTRAIN_WHEEL_CIRCUMFERENCE / 2048.0;

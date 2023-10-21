@@ -25,7 +25,7 @@ public class CatzElevatorSubsystem extends SubsystemBase {
 
   private static CatzElevatorSubsystem instance;
 
-  CatzArmSubsystem arm = CatzArmSubsystem.getInstance();
+  private static CatzArmSubsystem arm = CatzArmSubsystem.getInstance();
 
   private final double ARM_ENCODER_THRESHOLD = 35000.0;
   private final double MANUAL_HOLD_STEP_SIZE = 10000.0; //5000.0;

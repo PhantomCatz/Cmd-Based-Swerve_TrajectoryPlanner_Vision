@@ -45,18 +45,18 @@ public class CatzDriveTrainSubsystem extends SubsystemBase
 
     private final int LT_FRNT_DRIVE_ID = 1;
     private final int LT_BACK_DRIVE_ID = 3;
+    private final int RT_BACK_DRIVE_ID = 22;
     private final int RT_FRNT_DRIVE_ID = 7;
-    private final int RT_BACK_DRIVE_ID = 5;
     
     private final int LT_FRNT_STEER_ID = 2;
     private final int LT_BACK_STEER_ID = 4;
-    private final int RT_FRNT_STEER_ID = 8;
     private final int RT_BACK_STEER_ID = 6;
+    private final int RT_FRNT_STEER_ID = 8;
 
     private final int LT_FRNT_ENC_PORT = 9;
     private final int LT_BACK_ENC_PORT = 6;
-    private final int RT_FRNT_ENC_PORT = 8;
     private final int RT_BACK_ENC_PORT = 7;
+    private final int RT_FRNT_ENC_PORT = 8;
 
     private final double LT_FRNT_OFFSET =  0.0168; //-0.0013; //MC ID 2
     private final double LT_BACK_OFFSET =  0.0432; //0.0498; //MC ID 4
@@ -65,10 +65,6 @@ public class CatzDriveTrainSubsystem extends SubsystemBase
 
     private final double NOT_FIELD_RELATIVE = 0.0;
 
-    private double steerAngle = 0.0;
-    private double drivePower = 0.0;
-    private double turnPower  = 0.0;
-    private double gyroAngle  = 0.0;
 
     private boolean modifyDrvPwr = false;
     
@@ -145,9 +141,10 @@ public class CatzDriveTrainSubsystem extends SubsystemBase
     }
     public void cmdProcSwerve(double leftPwrX, double leftPwrY, double turnPowerX)
     {
-        chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(leftPwrX, leftPwrY, turnPower, getRotation2d());
+        chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(leftPwrX, leftPwrY, turnPowerX, getRotation2d());
 
         driveRobotRelative(chassisSpeeds);
+        Logger.getInstance().recordOutput("rotation2d", getRotation2d().getDegrees());
     }
 
     public void driveRobotRelative(ChassisSpeeds chassisSpeeds)
@@ -198,21 +195,17 @@ public class CatzDriveTrainSubsystem extends SubsystemBase
 
     public Rotation2d getRotation2d()
     {
-        return Rotation2d.fromDegrees(getHeading());
+        return Rotation2d.fromDegrees(Math.round(gyroInputs.gyroAngle));
     }
 
     public double getHeading() 
     {
-        return Math.IEEEremainder(getGyroAngle(), 360);
-    }
-
-    public double getGyroAngle() {
-        return gyroInputs.gyroAngle;
+        return Math.IEEEremainder(gyroInputs.gyroAngle, 360);
     }
 
     public void setModuleStates(SwerveModuleState[] states)
     {
-        SwerveDriveKinematics.desaturateWheelSpeeds(states, CatzConstants.DriveConstants.MAX_SPEED);
+        //SwerveDriveKinematics.desaturateWheelSpeeds(states, CatzConstants.DriveConstants.MAX_SPEED);
 
         for(int i = 0; i < 4; i++)
         {
@@ -221,7 +214,7 @@ public class CatzDriveTrainSubsystem extends SubsystemBase
     }
     private void resetPosition(Pose2d pose)
     {
-        poseEstimator.resetPosition(Rotation2d.fromDegrees(getGyroAngle()), getModulePositions(), pose);
+        poseEstimator.resetPosition(Rotation2d.fromDegrees(gyroInputs.gyroAngle), getModulePositions(), pose);
     }
 
     private ChassisSpeeds getChassisSpeeds()

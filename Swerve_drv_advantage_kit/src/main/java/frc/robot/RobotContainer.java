@@ -45,9 +45,9 @@ import frc.robot.subsystems.Arm.CatzArmSubsystem;
   */
  public class RobotContainer {
        private final CatzDriveTrainSubsystem driveTrain;
-       private final CatzElevatorSubsystem elevator;
+       //private final CatzElevatorSubsystem elevator;
        //private final CatzIntakeSubsystem intake;
-       private final CatzArmSubsystem arm;
+       //private final CatzArmSubsystem arm;
        //private final CatzRobotTracker robotTracker; //TBD need to test and modify swerve drive code for this
  
        private final CatzAutonomousSelection auton = new CatzAutonomousSelection();
@@ -72,8 +72,8 @@ import frc.robot.subsystems.Arm.CatzArmSubsystem;
    {
     //instantiate subsystems
      driveTrain = CatzDriveTrainSubsystem.getInstance(); 
-     elevator = CatzElevatorSubsystem.getInstance();
-     arm = CatzArmSubsystem.getInstance();
+     //elevator = CatzElevatorSubsystem.getInstance();
+     //arm = CatzArmSubsystem.getInstance();
      //intake = CatzIntakeSubsystem.getInstance();
 
      NamedCommands.registerCommand("autoBalance", new BalanceCmd(driveTrain));
@@ -116,6 +116,7 @@ import frc.robot.subsystems.Arm.CatzArmSubsystem;
    
    //--------------------------------------------Manual Cmds---------------------------------------------------------------------------
      //arm
+      /* 
      xboxAux.rightTrigger()
      .onTrue(new ArmManualCmd(true,
                             false))
@@ -129,7 +130,7 @@ import frc.robot.subsystems.Arm.CatzArmSubsystem;
      .onFalse(Commands.run(
              () -> arm.setArmPwr(0.0)
                           ));
-
+*/
     //intake
     xboxAux.leftStick().onTrue(new IntakeManualCmd(() -> xboxAux.getLeftY(), 
                                                   () -> xboxAux.leftStick().getAsBoolean()));
