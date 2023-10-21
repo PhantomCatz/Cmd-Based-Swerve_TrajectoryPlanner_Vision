@@ -163,7 +163,7 @@ public class CatzElevatorSubsystem extends SubsystemBase {
 
   }
 
-  public void setElevatorAutoState(ElevatorAutoState state)
+  public void cmdProcElevator(ElevatorAutoState state)
   {
     this.elevatorSetStateUpdate = state;
     elevatorControlState = ElevatorControlState.AUTO;

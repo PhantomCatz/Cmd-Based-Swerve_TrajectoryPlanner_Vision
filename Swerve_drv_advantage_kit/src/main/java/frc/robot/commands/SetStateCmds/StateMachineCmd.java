@@ -41,20 +41,20 @@ public class StateMachineCmd extends InstantCommand {
     switch(currentMechanismState)
     {
         case  STOW:
-        arm.setArmAutoState(ArmAutoState.RETRACT);
-        intake.setNewTargetPositionDeg(CatzConstants.IntakeConstants.STOW_ENC_POS);
-        elevator.setElevatorAutoState(ElevatorAutoState.LOW);
+        arm.cmdProcArm(ArmAutoState.RETRACT);
+        intake.cmdProcIntake(CatzConstants.IntakeConstants.STOW_ENC_POS);
+        elevator.cmdProcElevator(ElevatorAutoState.LOW);
         break;
             
         case PICKUP_GROUND :
-        arm.setArmAutoState(ArmAutoState.PICKUP);
-        elevator.setElevatorAutoState(ElevatorAutoState.LOW);
+        arm.cmdProcArm(ArmAutoState.PICKUP);
+        elevator.cmdProcElevator(ElevatorAutoState.LOW);
           if(CatzStateUtil.currentGamePieceState == GamePieceState.CUBE){
-              intake.setNewTargetPositionDeg(CatzConstants.IntakeConstants.INTAKE_CUBE_ENC_POS);
+              intake.cmdProcIntake(CatzConstants.IntakeConstants.INTAKE_CUBE_ENC_POS);
             }
           else
             {
-              intake.setNewTargetPositionDeg(CatzConstants.IntakeConstants.INTAKE_CONE_ENC_POS_GROUND);
+              intake.cmdProcIntake(CatzConstants.IntakeConstants.INTAKE_CONE_ENC_POS_GROUND);
             }
         break;
 
@@ -65,48 +65,48 @@ public class StateMachineCmd extends InstantCommand {
             }
           else
             {
-              arm.setArmAutoState(ArmAutoState.PICKUP);
-              elevator.setElevatorAutoState(ElevatorAutoState.LOW);
-              intake.setNewTargetPositionDeg(IntakeConstants.INTAKE_CONE_ENC_POS_SINGLE_UPRIGHT);
+              arm.cmdProcArm(ArmAutoState.PICKUP);
+              elevator.cmdProcElevator(ElevatorAutoState.LOW);
+              intake.cmdProcIntake(IntakeConstants.INTAKE_CONE_ENC_POS_SINGLE_UPRIGHT);
             }
         break;
             
         case SCORE_LOW :
-        arm.setArmAutoState(ArmAutoState.PICKUP);
-        elevator.setElevatorAutoState(ElevatorAutoState.LOW);
+        arm.cmdProcArm(ArmAutoState.PICKUP);
+        elevator.cmdProcElevator(ElevatorAutoState.LOW);
           if(CatzStateUtil.currentGamePieceState == GamePieceState.CUBE)
             {
-              intake.setNewTargetPositionDeg(IntakeConstants.SCORE_CUBE_ENC_POS);
+              intake.cmdProcIntake(IntakeConstants.SCORE_CUBE_ENC_POS);
             }
           else
             {
-              intake.setNewTargetPositionDeg(IntakeConstants.SCORE_CONE_LOW_ENC_POS);
+              intake.cmdProcIntake(IntakeConstants.SCORE_CONE_LOW_ENC_POS);
             }
         break;
 
         case SCORE_MID :
-        arm.setArmAutoState(ArmAutoState.RETRACT);
-        elevator.setElevatorAutoState(ElevatorAutoState.MIDCUBE);
+        arm.cmdProcArm(ArmAutoState.RETRACT);
+        elevator.cmdProcElevator(ElevatorAutoState.MIDCUBE);
           if(CatzStateUtil.currentGamePieceState == GamePieceState.CUBE)
             {
-              intake.setNewTargetPositionDeg(IntakeConstants.SCORE_CUBE_ENC_POS);
+              intake.cmdProcIntake(IntakeConstants.SCORE_CUBE_ENC_POS);
             }
           else
             {
-              intake.setNewTargetPositionDeg(IntakeConstants.SCORE_CONE_MID_ENC_POS);
+              intake.cmdProcIntake(IntakeConstants.SCORE_CONE_MID_ENC_POS);
             }
         break;
             
         case SCORE_HIGH :
-        arm.setArmAutoState(ArmAutoState.EXTEND);
-        elevator.setElevatorAutoState(ElevatorAutoState.HIGH);
+        arm.cmdProcArm(ArmAutoState.EXTEND);
+        elevator.cmdProcElevator(ElevatorAutoState.HIGH);
           if(CatzStateUtil.currentGamePieceState == GamePieceState.CUBE)
             {
-              intake.setNewTargetPositionDeg(IntakeConstants.SCORE_CUBE_ENC_POS);
+              intake.cmdProcIntake(IntakeConstants.SCORE_CUBE_ENC_POS);
             }
           else
             {
-              intake.setNewTargetPositionDeg(IntakeConstants.SCORE_CONE_HIGH_ENC_POS_AUTON);
+              intake.cmdProcIntake(IntakeConstants.SCORE_CONE_HIGH_ENC_POS_AUTON);
             }
         break;
 

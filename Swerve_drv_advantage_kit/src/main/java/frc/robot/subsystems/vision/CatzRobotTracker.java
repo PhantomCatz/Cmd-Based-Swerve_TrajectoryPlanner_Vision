@@ -50,13 +50,19 @@ public class CatzRobotTracker extends CommandBase{
         return poseEstimator.getEstimatedPosition();
     }
 
+    public SwerveDrivePoseEstimator getEstimator()
+    {
+        return poseEstimator;
+    }
+
+
     // updates poseEstimator with new measurements
     @Override
     public void execute() 
     {
         if(limelight.aprilTagInView())
         {
-            //poseEstimator.addVisionMeasurement(limelight.getLimelightBotPose(), Timer.getFPGATimestamp());
+            poseEstimator.addVisionMeasurement(limelight.getLimelightBotPose(), Timer.getFPGATimestamp());
         }
         poseEstimator.update(Rotation2d.fromDegrees(driveTrain.getGyroAngle()), driveTrain.getModulePositions());
         System.out.println("("+poseEstimator.getEstimatedPosition().getX()+","+poseEstimator.getEstimatedPosition().getY()+")");

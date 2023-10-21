@@ -285,7 +285,7 @@ public class CatzIntakeSubsystem extends SubsystemBase {
         return CatzConstants.IntakeConstants.MAX_GRAVITY_FF * cosineScalar;
     }
 
-    public void setNewTargetPositionDeg(double stateSetTargetPositionDeg)
+    public void cmdProcIntake(double stateSetTargetPositionDeg)
     {
         targetPositionDeg = stateSetTargetPositionDeg;
         pidEnable = true;

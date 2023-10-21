@@ -14,12 +14,15 @@
  package frc.robot;
 
 
- import edu.wpi.first.wpilibj2.command.Command;
+ import com.pathplanner.lib.auto.NamedCommands;
+
+import edu.wpi.first.wpilibj2.command.Command;
  import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
  import edu.wpi.first.wpilibj2.command.button.Trigger;
- import frc.robot.Autonomous.CatzAutonomousSelection;
+import frc.robot.Autonomous.BalanceCmd;
+import frc.robot.Autonomous.CatzAutonomousSelection;
  import frc.robot.Utils.CatzStateUtil;
  import frc.robot.Utils.CatzStateUtil.GamePieceState;
  import frc.robot.Utils.CatzStateUtil.SetMechanismState;
@@ -72,6 +75,11 @@ import frc.robot.subsystems.Arm.CatzArmSubsystem;
      elevator = CatzElevatorSubsystem.getInstance();
      arm = CatzArmSubsystem.getInstance();
      //intake = CatzIntakeSubsystem.getInstance();
+
+     NamedCommands.registerCommand("autoBalance", new BalanceCmd(driveTrain));
+     NamedCommands.registerCommand("exampleCommand", new StateMachineCmd(SetMechanismState.SCORE_HIGH));
+
+     
 
  
      xboxDrv = new CommandXboxController(XBOX_DRV_PORT); 

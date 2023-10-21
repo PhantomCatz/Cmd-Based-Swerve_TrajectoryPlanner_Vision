@@ -1,6 +1,9 @@
 package frc.robot.Autonomous;
 
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+
+import com.pathplanner.lib.commands.PathPlannerAuto;
+
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -83,5 +86,9 @@ public class CatzAutonomousPaths
                 Commands.waitSeconds(0.5),
                 Commands.runOnce(() -> intake.intakeRollersOff())           
                                          );
+    }
+
+    public static Command getAutonomousCommand(){
+        return new PathPlannerAuto("Example Auto");
     }
 }

@@ -145,7 +145,7 @@ public class CatzArmSubsystem extends SubsystemBase
     }
   }
 
-  public void setArmAutoState(ArmAutoState state)
+  public void cmdProcArm(ArmAutoState state)
   {
     armControlState = ArmControlState.AUTO;
     armSetState = state;   

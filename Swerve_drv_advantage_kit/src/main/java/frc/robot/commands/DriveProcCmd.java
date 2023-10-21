@@ -48,14 +48,7 @@ public class DriveProcCmd extends CommandBase {
         double leftJoyY = supplierLeftJoyY.get();
         double turnPower = supplierRightJoyX.get();
 
-        ChassisSpeeds chassisSpeeds;
-        chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(leftJoyX, leftJoyY, turnPower, driveTrain.getRotation2d());
-
-        SwerveModuleState[] moduleStates = CatzConstants.DriveConstants.swerveDriveKinematics.toSwerveModuleStates(chassisSpeeds);
-        
-        driveTrain.setModuleStates(moduleStates);
-
-        Logger.getInstance().recordOutput("module states", moduleStates);
+        driveTrain.cmdProcSwerve(leftJoyX, leftJoyY, turnPower);
 
   }
 
