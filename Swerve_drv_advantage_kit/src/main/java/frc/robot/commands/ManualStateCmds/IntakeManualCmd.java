@@ -65,9 +65,6 @@ public class IntakeManualCmd extends CommandBase {
               intake.wristSetPercentOuput(targetPowerCmd);
           }
       }
-   
-  
-   intake.IntakePIDLoop();
   }
 
   // Called once the command ends or is interrupted.

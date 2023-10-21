@@ -59,10 +59,8 @@ public class TrajectoryFollowingCmd extends CommandBase{
         Trajectory.State goal = trajectory.sample(currentTime);
         
         ChassisSpeeds adjustedSpeed = controller.calculate(robotTracker.getEstimatedPosition(), goal, targetHeading);
-        SwerveModuleState[] targetModuleStates = CatzConstants.DriveConstants.swerveDriveKinematics.toSwerveModuleStates(adjustedSpeed);
-        
-        // System.out.println("goal: " + targetModuleStates[0].angle.getDegrees());
-        driveTrain.setModuleStates(targetModuleStates);
+
+        driveTrain.driveRobotRelative(adjustedSpeed);
     }
 
     // stop all robot motion

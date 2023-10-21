@@ -41,21 +41,21 @@ public class StateMachineCmd extends InstantCommand {
     switch(currentMechanismState)
     {
         case  STOW:
-        arm.cmdProcArm(ArmAutoState.RETRACT);
-        intake.cmdProcIntake(CatzConstants.IntakeConstants.STOW_ENC_POS);
-        elevator.cmdProcElevator(ElevatorAutoState.LOW);
+        arm.cmdUpdateArm(ArmAutoState.RETRACT);
+        intake.cmdUpdateIntake(CatzConstants.IntakeConstants.STOW_ENC_POS);
+        elevator.cmdUpdateElevator(ElevatorAutoState.LOW);
         break;
             
         case PICKUP_GROUND :
-        arm.cmdProcArm(ArmAutoState.PICKUP);
-        elevator.cmdProcElevator(ElevatorAutoState.LOW);
+        arm.cmdUpdateArm(ArmAutoState.PICKUP);
+        elevator.cmdUpdateElevator(ElevatorAutoState.LOW);
           if(CatzStateUtil.currentGamePieceState == GamePieceState.CUBE)
             {
-              intake.cmdProcIntake(CatzConstants.IntakeConstants.INTAKE_CUBE_ENC_POS);
+              intake.cmdUpdateIntake(CatzConstants.IntakeConstants.INTAKE_CUBE_ENC_POS);
             }
           else
             {
-              intake.cmdProcIntake(CatzConstants.IntakeConstants.INTAKE_CONE_ENC_POS_GROUND);
+              intake.cmdUpdateIntake(CatzConstants.IntakeConstants.INTAKE_CONE_ENC_POS_GROUND);
             }
         break;
 
@@ -66,48 +66,48 @@ public class StateMachineCmd extends InstantCommand {
             }
           else
             {
-              arm.cmdProcArm(ArmAutoState.PICKUP);
-              elevator.cmdProcElevator(ElevatorAutoState.LOW);
-              intake.cmdProcIntake(IntakeConstants.INTAKE_CONE_ENC_POS_SINGLE_UPRIGHT);
+              arm.cmdUpdateArm(ArmAutoState.PICKUP);
+              elevator.cmdUpdateElevator(ElevatorAutoState.LOW);
+              intake.cmdUpdateIntake(IntakeConstants.INTAKE_CONE_ENC_POS_SINGLE_UPRIGHT);
             }
         break;
             
         case SCORE_LOW :
-        arm.cmdProcArm(ArmAutoState.PICKUP);
-        elevator.cmdProcElevator(ElevatorAutoState.LOW);
+        arm.cmdUpdateArm(ArmAutoState.PICKUP);
+        elevator.cmdUpdateElevator(ElevatorAutoState.LOW);
           if(CatzStateUtil.currentGamePieceState == GamePieceState.CUBE)
             {
-              intake.cmdProcIntake(IntakeConstants.SCORE_CUBE_ENC_POS);
+              intake.cmdUpdateIntake(IntakeConstants.SCORE_CUBE_ENC_POS);
             }
           else
             {
-              intake.cmdProcIntake(IntakeConstants.SCORE_CONE_LOW_ENC_POS);
+              intake.cmdUpdateIntake(IntakeConstants.SCORE_CONE_LOW_ENC_POS);
             }
         break;
 
         case SCORE_MID :
-        arm.cmdProcArm(ArmAutoState.RETRACT);
-        elevator.cmdProcElevator(ElevatorAutoState.MIDCUBE);
+        arm.cmdUpdateArm(ArmAutoState.RETRACT);
+        elevator.cmdUpdateElevator(ElevatorAutoState.MIDCUBE);
           if(CatzStateUtil.currentGamePieceState == GamePieceState.CUBE)
             {
-              intake.cmdProcIntake(IntakeConstants.SCORE_CUBE_ENC_POS);
+              intake.cmdUpdateIntake(IntakeConstants.SCORE_CUBE_ENC_POS);
             }
           else
             {
-              intake.cmdProcIntake(IntakeConstants.SCORE_CONE_MID_ENC_POS);
+              intake.cmdUpdateIntake(IntakeConstants.SCORE_CONE_MID_ENC_POS);
             }
         break;
             
         case SCORE_HIGH :
-        arm.cmdProcArm(ArmAutoState.EXTEND);
-        elevator.cmdProcElevator(ElevatorAutoState.HIGH);
+        arm.cmdUpdateArm(ArmAutoState.EXTEND);
+        elevator.cmdUpdateElevator(ElevatorAutoState.HIGH);
           if(CatzStateUtil.currentGamePieceState == GamePieceState.CUBE)
             {
-              intake.cmdProcIntake(IntakeConstants.SCORE_CUBE_ENC_POS);
+              intake.cmdUpdateIntake(IntakeConstants.SCORE_CUBE_ENC_POS);
             }
           else
             {
-              intake.cmdProcIntake(IntakeConstants.SCORE_CONE_HIGH_ENC_POS_AUTON);
+              intake.cmdUpdateIntake(IntakeConstants.SCORE_CONE_HIGH_ENC_POS_AUTON);
             }
         break;
 

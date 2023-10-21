@@ -44,10 +44,10 @@ import frc.robot.subsystems.Arm.CatzArmSubsystem;
   * subsystems, commands, and trigger mappings) should be declared here.
   */
  public class RobotContainer {
-       private final CatzDriveTrainSubsystem driveTrain;
-       //private final CatzElevatorSubsystem elevator;
-       //private final CatzIntakeSubsystem intake;
-       //private final CatzArmSubsystem arm;
+       private static CatzDriveTrainSubsystem driveTrain;
+       private static CatzElevatorSubsystem elevator;
+       private static CatzIntakeSubsystem intake;
+       private static CatzArmSubsystem arm;
        //private final CatzRobotTracker robotTracker; //TBD need to test and modify swerve drive code for this
  
        private final CatzAutonomousSelection auton = new CatzAutonomousSelection();
@@ -72,9 +72,9 @@ import frc.robot.subsystems.Arm.CatzArmSubsystem;
    {
     //instantiate subsystems
      driveTrain = CatzDriveTrainSubsystem.getInstance(); 
-     //elevator = CatzElevatorSubsystem.getInstance();
-     //arm = CatzArmSubsystem.getInstance();
-     //intake = CatzIntakeSubsystem.getInstance();
+     elevator = CatzElevatorSubsystem.getInstance();
+     arm = CatzArmSubsystem.getInstance();
+     intake = CatzIntakeSubsystem.getInstance();
 
      NamedCommands.registerCommand("autoBalance", new BalanceCmd(driveTrain));
      NamedCommands.registerCommand("exampleCommand", new StateMachineCmd(SetMechanismState.SCORE_HIGH));
@@ -116,7 +116,7 @@ import frc.robot.subsystems.Arm.CatzArmSubsystem;
    
    //--------------------------------------------Manual Cmds---------------------------------------------------------------------------
      //arm
-      /* 
+       
      xboxAux.rightTrigger()
      .onTrue(new ArmManualCmd(true,
                             false))
@@ -130,7 +130,7 @@ import frc.robot.subsystems.Arm.CatzArmSubsystem;
      .onFalse(Commands.run(
              () -> arm.setArmPwr(0.0)
                           ));
-*/
+
     //intake
     xboxAux.leftStick().onTrue(new IntakeManualCmd(() -> xboxAux.getLeftY(), 
                                                   () -> xboxAux.leftStick().getAsBoolean()));
@@ -157,17 +157,17 @@ import frc.robot.subsystems.Arm.CatzArmSubsystem;
                              ));
  
       //disabling softlimits only when both bumpers are pressed
-      /* 
+      
      xboxAux.leftBumper().and(xboxAux.rightBumper()) 
      .onTrue(Commands.runOnce(() -> intake.softLimitOverideDisabled()))
      .onFalse(Commands.runOnce(() -> intake.softLimitOverideEnabled()));
- */
  
-     //xboxDrv.start().onTrue(Commands.runOnce(() -> driveTrain.zeroGyro()));
  
-     //xboxDrv.b().onTrue(Commands.runOnce(() -> driveTrain.lockWheels()));
+     xboxDrv.start().onTrue(Commands.runOnce(() -> driveTrain.zeroGyro()));
  
-     /* 
+     //xboxDrv.b().onTrue(Commands.runOnce(() -> driveTrain.lockWheels())); TBD need to add this back in
+ 
+     
      //--------------------------Intake Rollers--------------------------
        xboxAux.rightBumper().onTrue(Commands.runOnce(() -> intake.intakeRollerFunctionIN()))
                             .onFalse(Commands.runOnce(() -> intake.intakeRollersOff()));
@@ -179,19 +179,17 @@ import frc.robot.subsystems.Arm.CatzArmSubsystem;
            () -> {
              intake.intakeRollersOff();
            }));
-           */
+           
  
    }
    //mechanisms with default commands revert back to these cmds if no other cmd requiring the subsystem is active
    //
    private void defaultCommands() 
-   { 
-  //  intake.setDefaultCommand(Commands.run(()-> intake.IntakePIDLoop(), intake));
-    
+   {  
       driveTrain.setDefaultCommand(new DriveProcCmd(() -> xboxDrv.getLeftX(),
-                                                     () -> xboxDrv.getLeftY(),
-                                                     () -> xboxDrv.getRightX(),
-                                                     () -> xboxDrv.getRightTriggerAxis()));
+                                                    () -> xboxDrv.getLeftY(),
+                                                    () -> xboxDrv.getRightX(),
+                                                    () -> xboxDrv.getRightTriggerAxis()));
                                                      
  
    }

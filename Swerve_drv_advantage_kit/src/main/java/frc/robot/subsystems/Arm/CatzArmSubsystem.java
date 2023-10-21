@@ -127,9 +127,6 @@ public class CatzArmSubsystem extends SubsystemBase
     {
         numConsectSamples = 0;
     }
-
-    //Logger.getInstance().recordOutput("ArmControlState", armControlState.toString());
-    //Logger.getInstance().recordOutput("ArmAutoState", armSetState.toString());
   }
 
   public void checkLimitSwitches() 
@@ -145,7 +142,7 @@ public class CatzArmSubsystem extends SubsystemBase
     }
   }
 
-  public void cmdProcArm(ArmAutoState state)
+  public void cmdUpdateArm(ArmAutoState state)
   {
     armControlState = ArmControlState.AUTO;
     armSetState = state;   
@@ -190,6 +187,7 @@ public class CatzArmSubsystem extends SubsystemBase
         return inputs.currentArmControlMode;
     }
 
+    //Singleton implementation for instatiating subssytems(Every refrence to this method should be static)
     public static CatzArmSubsystem getInstance()
     {
 

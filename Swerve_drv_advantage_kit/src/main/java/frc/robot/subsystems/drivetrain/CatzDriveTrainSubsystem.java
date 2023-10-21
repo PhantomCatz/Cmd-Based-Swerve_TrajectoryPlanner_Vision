@@ -110,6 +110,7 @@ public class CatzDriveTrainSubsystem extends SubsystemBase
             }
         }).start();
         
+        //For pathplanner trajectory auton
         AutoBuilder.configureHolonomic(
             this::getPose, // Robot pose supplier
             this::resetPosition, // Method to reset odometry (will be called if your auto has a starting pose)
@@ -131,6 +132,7 @@ public class CatzDriveTrainSubsystem extends SubsystemBase
     @Override
     public void periodic() 
     {
+        //update inputs(sensors/encoders) for code logic and advantage kit
         for(SwerveModule module : swerveModules)
         {
             module.periodic();
@@ -139,6 +141,7 @@ public class CatzDriveTrainSubsystem extends SubsystemBase
         Logger.getInstance().processInputs("Drive/gyroinputs ", gyroInputs);
 
     }
+    
     public void cmdProcSwerve(double leftPwrX, double leftPwrY, double turnPowerX)
     {
         chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(leftPwrX, leftPwrY, turnPowerX, getRotation2d());
@@ -150,20 +153,14 @@ public class CatzDriveTrainSubsystem extends SubsystemBase
     public void driveRobotRelative(ChassisSpeeds chassisSpeeds)
     {
         SwerveModuleState[] moduleStates = CatzConstants.DriveConstants.swerveDriveKinematics.toSwerveModuleStates(chassisSpeeds);
-        
-        setModuleStates(moduleStates);
+        SwerveDriveKinematics.desaturateWheelSpeeds(moduleStates, CatzConstants.DriveConstants.MAX_SPEED);
 
-        Logger.getInstance().recordOutput("module states", moduleStates);
-    }
-
-    public void setModuleStates(SwerveModuleState[] states)
-    {
-        SwerveDriveKinematics.desaturateWheelSpeeds(states, CatzConstants.DriveConstants.MAX_SPEED);
 
         for(int i = 0; i < 4; i++)
         {
-            swerveModules[i].setDesiredState(states[i]);
+            swerveModules[i].setDesiredState(moduleStates[i]);
         }
+        Logger.getInstance().recordOutput("module states", moduleStates);
     }
 
     public void setSteerPower(double pwr) {
@@ -251,7 +248,6 @@ public class CatzDriveTrainSubsystem extends SubsystemBase
     public void stopDriving(){
         for(SwerveModule module : swerveModules)
         {
-            
             module.setDrivePower(0.0);
             module.setSteerPower(0.0);
         }
@@ -292,16 +288,13 @@ public class CatzDriveTrainSubsystem extends SubsystemBase
         }
     }
     
+    //Singleton implementation for instatiating subssytems(Every refrence to this method should be static)
     public static CatzDriveTrainSubsystem getInstance()
     {
-
         if(instance == null)
         {
-
             instance = new CatzDriveTrainSubsystem();
-
         }
-
         return instance;
     
     }

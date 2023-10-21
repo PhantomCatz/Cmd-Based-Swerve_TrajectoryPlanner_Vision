@@ -163,7 +163,7 @@ public class CatzElevatorSubsystem extends SubsystemBase {
 
   }
 
-  public void cmdProcElevator(ElevatorAutoState state)
+  public void cmdUpdateElevator(ElevatorAutoState state)
   {
     this.elevatorSetStateUpdate = state;
     elevatorControlState = ElevatorControlState.AUTO;
@@ -300,16 +300,13 @@ public class CatzElevatorSubsystem extends SubsystemBase {
         return inputs.elevatorEncoderCnts;
     }
 
+    //Singleton implementation for instatiating subssytems(Every refrence to this method should be static)
     public static CatzElevatorSubsystem getInstance()
     {
-
         if(instance == null)
         {
-
             instance = new CatzElevatorSubsystem();
-
         }
-
         return instance;
     
     }
