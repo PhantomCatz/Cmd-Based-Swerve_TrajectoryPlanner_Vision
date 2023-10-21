@@ -156,6 +156,16 @@ public class CatzDriveTrainSubsystem extends SubsystemBase
         Logger.getInstance().recordOutput("module states", moduleStates);
     }
 
+    public void setModuleStates(SwerveModuleState[] states)
+    {
+        SwerveDriveKinematics.desaturateWheelSpeeds(states, CatzConstants.DriveConstants.MAX_SPEED);
+
+        for(int i = 0; i < 4; i++)
+        {
+            swerveModules[i].setDesiredState(states[i]);
+        }
+    }
+
     public void setSteerPower(double pwr) {
         for(SwerveModule module : swerveModules) {
             module.setSteerPower(pwr);
@@ -201,16 +211,6 @@ public class CatzDriveTrainSubsystem extends SubsystemBase
     public double getHeading() 
     {
         return Math.IEEEremainder(gyroInputs.gyroAngle, 360);
-    }
-
-    public void setModuleStates(SwerveModuleState[] states)
-    {
-        //SwerveDriveKinematics.desaturateWheelSpeeds(states, CatzConstants.DriveConstants.MAX_SPEED);
-
-        for(int i = 0; i < 4; i++)
-        {
-            swerveModules[i].setDesiredState(states[i]);
-        }
     }
     private void resetPosition(Pose2d pose)
     {

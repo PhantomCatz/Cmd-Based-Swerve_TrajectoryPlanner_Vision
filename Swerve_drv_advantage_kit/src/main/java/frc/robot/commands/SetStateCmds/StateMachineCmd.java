@@ -49,7 +49,8 @@ public class StateMachineCmd extends InstantCommand {
         case PICKUP_GROUND :
         arm.cmdProcArm(ArmAutoState.PICKUP);
         elevator.cmdProcElevator(ElevatorAutoState.LOW);
-          if(CatzStateUtil.currentGamePieceState == GamePieceState.CUBE){
+          if(CatzStateUtil.currentGamePieceState == GamePieceState.CUBE)
+            {
               intake.cmdProcIntake(CatzConstants.IntakeConstants.INTAKE_CUBE_ENC_POS);
             }
           else

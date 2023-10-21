@@ -12,6 +12,7 @@ import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 
 import edu.wpi.first.hal.SimBoolean;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -37,7 +38,10 @@ public class SwerveModule
     private DutyCycleEncoder magEnc;
     private DigitalInput MagEncPWMInput;
 
-    private PIDController pidGross;
+    private PIDController pid;
+    private final SimpleMotorFeedforward m_driveFeedforward = new SimpleMotorFeedforward(1, 3);
+    private final SimpleMotorFeedforward m_turnFeedforward = new SimpleMotorFeedforward(1, 0.5);
+
     private final double kP = 0.001;
     private final double kI = 0.0;
     private final double kD = 0.0;
@@ -74,7 +78,7 @@ public class SwerveModule
                 break;
         }
 
-        pidGross = new PIDController(kP, kI, kD);
+        pid = new PIDController(kP, kI, kD);
 
         wheelOffset = offset;
 
@@ -104,10 +108,6 @@ public class SwerveModule
 
     public void setDrivePower(double pwr)
     {
-        if(driveDirectionFlipped == true)
-        {
-            pwr = -pwr;
-        }
         if(CatzConstants.currentMode == CatzConstants.Mode.SIM)
         {
            io.setDriveSimPwrIO(pwr);
@@ -192,7 +192,42 @@ public class SwerveModule
         io.reverseDriveIO(reverse);
     }
 
-    public void setDesiredState(SwerveModuleState desiredState)
+    /**
+     * Sets the desired state for the module.
+     *
+     * @param desiredState Desired state with speed and angle.
+     */
+    public void setDesiredState(SwerveModuleState desiredState) {
+        var encoderRotation = new Rotation2d(inputs.magEncoderValue);
+
+        // Optimize the reference state to avoid spinning further than 90 degrees
+        SwerveModuleState state = SwerveModuleState.optimize(desiredState, encoderRotation);
+
+        // Scale speed by cosine of angle error. This scales down movement perpendicular to the desired
+        // direction of travel that can occur when modules change directions. This results in smoother
+        // driving.
+        state.speedMetersPerSecond *= state.angle.minus(encoderRotation).getCos();
+
+        // Calculate the drive output from the drive PID controller.
+        final double driveOutput =
+            desiredState.speedMetersPerSecond/CatzConstants.DriveConstants.MAX_SPEED;
+
+        final double driveFeedforward = m_driveFeedforward.calculate(state.speedMetersPerSecond);
+
+        // Calculate the turning motor output from the turning PID controller.
+        final double turnOutput =
+            pid.calculate(inputs.magEncoderValue - wheelOffset, state.angle.getRadians());
+
+        final double turnFeedforward =
+            m_turnFeedforward.calculate(pid.getSetpoint());
+
+            
+        setDrivePower(driveOutput + driveFeedforward);
+        setSteerPower(turnOutput + turnFeedforward);
+    }
+    
+    //TBD using example wpilib code so the method below can be deprecated
+    public void setDesiredStatefalse(SwerveModuleState desiredState)
     {
         double currentAngle = (((magEnc.get()-wheelOffset)*360)%360);
         desiredState = SwerveModuleState.optimize(desiredState, getCurrentRotation());
@@ -201,7 +236,7 @@ public class SwerveModule
         double targetAngle = desiredState.angle.getDegrees();
       //  (Math.abs(desiredState.speedMetersPerSecond)                         <= (CatzConstants.DriveConstants.MAX_SPEED * 0.01))                            ? getCurrentRotation().getDegrees() : desiredState.angle.getDegrees(); //Prevent rotating module if speed is less then 1%. Prevents Jittering.
         
-        double pidpower = pidGross.calculate(currentAngle, targetAngle);
+        double pidpower = pid.calculate(currentAngle, targetAngle);
         if((Math.abs(currentAngle)-Math.abs(targetAngle)) <0.5)
         {
             pidpower = 0.0;
