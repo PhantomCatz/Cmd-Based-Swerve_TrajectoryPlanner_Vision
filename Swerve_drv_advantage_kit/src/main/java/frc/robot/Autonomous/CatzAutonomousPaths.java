@@ -15,7 +15,7 @@ import frc.robot.CatzConstants.AutonomousPath;
 import frc.robot.Utils.CatzStateUtil;
 import frc.robot.Utils.CatzStateUtil.GamePieceState;
 import frc.robot.Utils.CatzStateUtil.SetMechanismState;
-import frc.robot.commands.SetStateCmds.StateMachineCmd;
+import frc.robot.commands.StateMachineCmd;
 import frc.robot.subsystems.Arm.CatzArmSubsystem;
 import frc.robot.subsystems.Elevator.CatzElevatorSubsystem;
 import frc.robot.subsystems.Intake.CatzIntakeSubsystem;

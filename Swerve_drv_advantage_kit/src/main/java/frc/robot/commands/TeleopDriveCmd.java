@@ -13,7 +13,7 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.CatzConstants;
 import frc.robot.subsystems.drivetrain.CatzDriveTrainSubsystem;
 
-public class DriveProcCmd extends CommandBase {
+public class TeleopDriveCmd extends CommandBase {
 
   private CatzDriveTrainSubsystem driveTrain = CatzDriveTrainSubsystem.getInstance();
   Supplier<Double> supplierLeftJoyX;
@@ -23,7 +23,7 @@ public class DriveProcCmd extends CommandBase {
 
   
   /** Creates a new TeleopDriveCmd. */
-  public DriveProcCmd(Supplier<Double> supplierLeftJoyX,
+  public TeleopDriveCmd(Supplier<Double> supplierLeftJoyX,
                     Supplier<Double> supplierLeftJoyY,
                     Supplier<Double> supplierRightJoyX,
                     Supplier<Double> supplierPwrMode) 

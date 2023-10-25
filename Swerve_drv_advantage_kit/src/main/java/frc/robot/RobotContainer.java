@@ -26,11 +26,11 @@ import frc.robot.Autonomous.CatzAutonomousSelection;
  import frc.robot.Utils.CatzStateUtil;
  import frc.robot.Utils.CatzStateUtil.GamePieceState;
  import frc.robot.Utils.CatzStateUtil.SetMechanismState;
- import frc.robot.commands.DriveProcCmd;
+import frc.robot.commands.StateMachineCmd;
+import frc.robot.commands.TeleopDriveCmd;
 import frc.robot.commands.ManualStateCmds.ArmManualCmd;
 import frc.robot.commands.ManualStateCmds.ElevatorManualCmd;
 import frc.robot.commands.ManualStateCmds.IntakeManualCmd;
-import frc.robot.commands.SetStateCmds.StateMachineCmd;
 import frc.robot.subsystems.Arm.CatzArmSubsystem;
  import frc.robot.subsystems.Elevator.CatzElevatorSubsystem;
  import frc.robot.subsystems.Intake.CatzIntakeSubsystem;
@@ -77,7 +77,7 @@ import frc.robot.subsystems.Arm.CatzArmSubsystem;
      intake = CatzIntakeSubsystem.getInstance();
 
      NamedCommands.registerCommand("autoBalance", new BalanceCmd(driveTrain));
-     NamedCommands.registerCommand("exampleCommand", new StateMachineCmd(SetMechanismState.SCORE_HIGH));
+     NamedCommands.registerCommand("stateMachine high", new StateMachineCmd(SetMechanismState.SCORE_HIGH));
 
      
 
@@ -186,7 +186,7 @@ import frc.robot.subsystems.Arm.CatzArmSubsystem;
    //
    private void defaultCommands() 
    {  
-      driveTrain.setDefaultCommand(new DriveProcCmd(() -> xboxDrv.getLeftX(),
+      driveTrain.setDefaultCommand(new TeleopDriveCmd(() -> xboxDrv.getLeftX(),
                                                     () -> xboxDrv.getLeftY(),
                                                     () -> xboxDrv.getRightX(),
                                                     () -> xboxDrv.getRightTriggerAxis()));

@@ -198,7 +198,7 @@ public class SwerveModule
      * @param desiredState Desired state with speed and angle.
      */
     public void setDesiredState(SwerveModuleState desiredState) {
-        var encoderRotation = new Rotation2d(inputs.magEncoderValue);
+        var encoderRotation = getCurrentRotation(); 
 
         // Optimize the reference state to avoid spinning further than 90 degrees
         SwerveModuleState state = SwerveModuleState.optimize(desiredState, encoderRotation);
@@ -210,13 +210,13 @@ public class SwerveModule
 
         // Calculate the drive output from the drive PID controller.
         final double driveOutput =
-            desiredState.speedMetersPerSecond/CatzConstants.DriveConstants.MAX_SPEED;
+            state.speedMetersPerSecond;
 
         final double driveFeedforward = m_driveFeedforward.calculate(state.speedMetersPerSecond);
 
         // Calculate the turning motor output from the turning PID controller.
         final double turnOutput =
-            pid.calculate(inputs.magEncoderValue - wheelOffset, state.angle.getRadians());
+            pid.calculate(encoderRotation.getRadians(), state.angle.getRadians());
 
         final double turnFeedforward =
             m_turnFeedforward.calculate(pid.getSetpoint());
@@ -237,10 +237,6 @@ public class SwerveModule
       //  (Math.abs(desiredState.speedMetersPerSecond)                         <= (CatzConstants.DriveConstants.MAX_SPEED * 0.01))                            ? getCurrentRotation().getDegrees() : desiredState.angle.getDegrees(); //Prevent rotating module if speed is less then 1%. Prevents Jittering.
         
         double pidpower = pid.calculate(currentAngle, targetAngle);
-        if((Math.abs(currentAngle)-Math.abs(targetAngle)) <0.5)
-        {
-            pidpower = 0.0;
-        }
         setSteerPower(pidpower);
 
 
@@ -265,10 +261,13 @@ public class SwerveModule
         wheelOffset = magEnc.get();
     }
 
+    //inputs the rotation object as degree
     private Rotation2d getCurrentRotation()
     {
-        return Rotation2d.fromDegrees(((magEnc.get()-wheelOffset)*360)%360);
+        return Rotation2d.fromDegrees(((inputs.magEncoderValue-wheelOffset)*360)%360);
     }
+
+
 
     public SwerveModuleState getModuleState()
     {
@@ -284,6 +283,6 @@ public class SwerveModule
     
     public double getDriveDistanceMeters()
     {
-        return  inputs.driveMtrSensorPosition / CatzConstants.DriveConstants.SDS_L2_GEAR_RATIO * CatzConstants.DriveConstants.DRVTRAIN_WHEEL_CIRCUMFERENCE / 2048.0;
+        return  ((inputs.driveMtrSensorPosition / 2048)/ CatzConstants.DriveConstants.SDS_L2_GEAR_RATIO) * CatzConstants.DriveConstants.DRVTRAIN_WHEEL_CIRCUMFERENCE;
     }
 }
