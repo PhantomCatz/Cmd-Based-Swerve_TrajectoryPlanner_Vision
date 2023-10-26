@@ -14,6 +14,7 @@ public interface ModuleIO
     public double driveAppliedVolts = 0.0;
     public double steerAppliedVolts = 0.0;
     public double driveMtrPercentOutput = 0.0;
+    public double turnMtrEnc = 0.0;
 
  }
 

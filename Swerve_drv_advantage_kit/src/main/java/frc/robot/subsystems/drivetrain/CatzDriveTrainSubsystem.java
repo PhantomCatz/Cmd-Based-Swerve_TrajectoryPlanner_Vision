@@ -90,9 +90,9 @@ public class CatzDriveTrainSubsystem extends SubsystemBase
         RT_FRNT_MODULE = new SwerveModule(RT_FRNT_DRIVE_ID, RT_FRNT_STEER_ID, RT_FRNT_ENC_PORT, RT_FRNT_OFFSET, 3);
 
         swerveModules[0] = LT_FRNT_MODULE;
-        swerveModules[2] = LT_BACK_MODULE;
-        swerveModules[1] = RT_FRNT_MODULE;
-        swerveModules[3] = RT_BACK_MODULE;
+        swerveModules[1] = LT_BACK_MODULE;
+        swerveModules[2] = RT_BACK_MODULE;
+        swerveModules[3] = RT_FRNT_MODULE;
 
         LT_FRNT_MODULE.resetMagEnc();
         LT_BACK_MODULE.resetMagEnc();
@@ -157,7 +157,7 @@ public class CatzDriveTrainSubsystem extends SubsystemBase
 
         for(int i = 0; i < 4; i++)
         {
-            swerveModules[i].setDesiredState(moduleStates[i]);
+            swerveModules[i].setDesiredState(moduleStates[i], gyroInputs.gyroAngle);
         }
         Logger.getInstance().recordOutput("module states", moduleStates);
     }

@@ -4,6 +4,7 @@ import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.revrobotics.CANSparkMax;
 
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
@@ -17,7 +18,8 @@ public class ModuleIOReal implements ModuleIO
     private final CANSparkMax STEER_MOTOR;
     private final WPI_TalonFX DRIVE_MOTOR;
 
-    DutyCycleEncoder magEnc;
+    private DutyCycleEncoder magEnc;
+    private DigitalInput MagEncPWMInput;
 
     public boolean driveDirectionFlipped = false;
 
@@ -30,9 +32,11 @@ public class ModuleIOReal implements ModuleIO
 
     private final int     STEER_CURRENT_LIMIT_AMPS      = 30;
 
-    public ModuleIOReal(int driveMotorIDIO, int steerMotorIDIO, DutyCycleEncoder magEnc)
+    public ModuleIOReal(int driveMotorIDIO, int steerMotorIDIO, int magDIOPort)
     {
-        this.magEnc = magEnc;
+        MagEncPWMInput = new DigitalInput(magDIOPort);
+        magEnc = new DutyCycleEncoder(MagEncPWMInput);
+
         STEER_MOTOR = new CANSparkMax(steerMotorIDIO, MotorType.kBrushless);
         DRIVE_MOTOR = new WPI_TalonFX(driveMotorIDIO);
 
@@ -58,6 +62,7 @@ public class ModuleIOReal implements ModuleIO
         inputs.driveMtrSensorPosition = DRIVE_MOTOR.getSelectedSensorPosition();
         inputs.magEncoderValue = magEnc.get();
         inputs.driveMtrPercentOutput = DRIVE_MOTOR.getMotorOutputPercent();
+        inputs.turnMtrEnc = STEER_MOTOR.get(); //not correct TBD
     }
 
     @Override
