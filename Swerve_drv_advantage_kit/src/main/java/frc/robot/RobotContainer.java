@@ -187,10 +187,10 @@ import frc.robot.subsystems.Arm.CatzArmSubsystem;
    private void defaultCommands() 
    {  
       driveTrain.setDefaultCommand(new TeleopDriveCmd(() -> xboxDrv.getLeftX(),
-                                                    () -> xboxDrv.getLeftY(),
-                                                    () -> xboxDrv.getRightX(),
-                                                    () -> xboxDrv.getRightTriggerAxis(), 
-                                                    () -> xboxDrv.b().getAsBoolean()));
+                                                      () -> xboxDrv.getLeftY(),
+                                                      () -> xboxDrv.getRightX(),
+                                                      () -> xboxDrv.getRightTriggerAxis(), 
+                                                      () -> xboxDrv.b().getAsBoolean()));
                                                      
  
    }

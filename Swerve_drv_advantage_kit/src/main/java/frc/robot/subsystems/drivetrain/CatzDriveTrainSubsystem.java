@@ -78,15 +78,19 @@ public class CatzDriveTrainSubsystem extends SubsystemBase
         case REAL:
             gyroIO = new GyroIONavX();
         break;
+        case REPLAY:
+            gyroIO = new GyroIONavX() {};
+        break;
+
         default:
             gyroIO = null; // new GyroIOSim();
         break;
         }
         
-        LT_FRNT_MODULE = new SwerveModule(LT_FRNT_DRIVE_ID, LT_FRNT_STEER_ID, LT_FRNT_ENC_PORT, LT_FRNT_OFFSET, 0);
-        LT_BACK_MODULE = new SwerveModule(LT_BACK_DRIVE_ID, LT_BACK_STEER_ID, LT_BACK_ENC_PORT, LT_BACK_OFFSET, 1);
-        RT_BACK_MODULE = new SwerveModule(RT_BACK_DRIVE_ID, RT_BACK_STEER_ID, RT_BACK_ENC_PORT, RT_BACK_OFFSET, 2);
-        RT_FRNT_MODULE = new SwerveModule(RT_FRNT_DRIVE_ID, RT_FRNT_STEER_ID, RT_FRNT_ENC_PORT, RT_FRNT_OFFSET, 3);
+        LT_FRNT_MODULE = new SwerveModule(LT_FRNT_DRIVE_ID, LT_FRNT_STEER_ID, LT_FRNT_ENC_PORT, LT_FRNT_OFFSET, false, 0);
+        LT_BACK_MODULE = new SwerveModule(LT_BACK_DRIVE_ID, LT_BACK_STEER_ID, LT_BACK_ENC_PORT, LT_BACK_OFFSET, false, 1);
+        RT_BACK_MODULE = new SwerveModule(RT_BACK_DRIVE_ID, RT_BACK_STEER_ID, RT_BACK_ENC_PORT, RT_BACK_OFFSET, false, 2);
+        RT_FRNT_MODULE = new SwerveModule(RT_FRNT_DRIVE_ID, RT_FRNT_STEER_ID, RT_FRNT_ENC_PORT, RT_FRNT_OFFSET, false, 3);
 
         swerveModules[0] = LT_FRNT_MODULE;
         swerveModules[1] = LT_BACK_MODULE;
@@ -139,6 +143,7 @@ public class CatzDriveTrainSubsystem extends SubsystemBase
         Logger.getInstance().processInputs("Drive/gyroinputs ", gyroInputs);
         swerveDriveOdometry.update(getRotation2d(), getModulePositions());
         Logger.getInstance().recordOutput("Odometry/pose", getPose());
+        Logger.getInstance().recordOutput("rotationheading" , getHeading());
 
     }
     
@@ -152,10 +157,10 @@ public class CatzDriveTrainSubsystem extends SubsystemBase
     public void setModuleStates(SwerveModuleState[] desiredStates) 
     {
         SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, CatzConstants.DriveConstants.MAX_SPEED);
-        LT_FRNT_MODULE.setDesiredState(desiredStates[0]);
-        LT_BACK_MODULE.setDesiredState(desiredStates[1]);
-        RT_BACK_MODULE.setDesiredState(desiredStates[2]);
-        RT_FRNT_MODULE.setDesiredState(desiredStates[3]);
+        swerveModules[0].setDesiredState(desiredStates[3]);
+        swerveModules[1].setDesiredState(desiredStates[1]);
+        swerveModules[2].setDesiredState(desiredStates[0]);
+        swerveModules[3].setDesiredState(desiredStates[2]);
     }
 
     public void setSteerPower(double pwr) {

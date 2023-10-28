@@ -24,7 +24,7 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
  * constants are needed, to reduce verbosity.
  */
 public final class CatzConstants {
-  public static final Mode currentMode = Mode.REAL;
+  public static final Mode currentMode = Mode.REPLAY;
 
   public static enum Mode {
     /** Running on a real robot. */

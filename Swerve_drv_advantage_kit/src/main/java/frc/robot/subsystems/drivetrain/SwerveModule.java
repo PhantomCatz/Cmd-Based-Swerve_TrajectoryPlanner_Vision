@@ -54,7 +54,7 @@ public class SwerveModule
     private double gyroAngle;
 
 
-    public SwerveModule(int driveMotorID, int steerMotorID, int encoderDIOChannel, double offset, int index)
+    public SwerveModule(int driveMotorID, int steerMotorID, int encoderDIOChannel, double offset, boolean isInverted, int index)
     {
         this.index = index;
         

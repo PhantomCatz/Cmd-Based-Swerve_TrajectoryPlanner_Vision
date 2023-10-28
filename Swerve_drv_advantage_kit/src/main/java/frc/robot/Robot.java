@@ -38,7 +38,6 @@ public class Robot extends LoggedRobot {
   @Override
   public void robotInit() {
     Logger logger = Logger.getInstance();
-    m_robotContainer = new RobotContainer();
 
     // Record metadata
     logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);
@@ -88,6 +87,7 @@ public class Robot extends LoggedRobot {
 
     // Instantiate our RobotContainer. This will perform all our button mappings to triggers, and put our
     // autonomous chooser on the dashboard.
+    m_robotContainer = new RobotContainer();
   }
 
   /**
