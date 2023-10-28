@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.CatzConstants;
 import frc.robot.CatzConstants.DriveConstants;
 import frc.robot.CatzConstants.OIConstants;
+import frc.robot.Utils.CatzMathUtils;
 import frc.robot.subsystems.drivetrain.CatzDriveTrainSubsystem;
 
 public class TeleopDriveCmd extends CommandBase {
@@ -24,7 +25,7 @@ public class TeleopDriveCmd extends CommandBase {
   Supplier<Double> supplierLeftJoyY;
   Supplier<Double> supplierRightJoyX;
   Supplier<Double> supplierPwrMode;
-  Supplier<Boolean> isFeildOriented;
+  Supplier<Boolean> isFieldOriented;
 
   
   /** Creates a new TeleopDriveCmd. */
@@ -38,7 +39,7 @@ public class TeleopDriveCmd extends CommandBase {
     this.supplierLeftJoyY = supplierLeftJoyY;
     this.supplierRightJoyX = supplierRightJoyX;
     this.supplierPwrMode = supplierPwrMode;
-    this.isFeildOriented = isFeildOriented;
+    this.isFieldOriented = isFeildOriented;
 
     addRequirements(driveTrain);
   }
@@ -59,11 +60,11 @@ public class TeleopDriveCmd extends CommandBase {
         // Apply deadbands to prevent modules from receiving unintentional pwr
         xSpeed = Math.abs(xSpeed) > OIConstants.kDeadband ? xSpeed : 0.0;
         ySpeed = Math.abs(ySpeed) > OIConstants.kDeadband ? ySpeed : 0.0;
-        turningSpeed = Math.abs(turningSpeed) > OIConstants.kDeadband ? turningSpeed : 0.0;
+        turningSpeed = CatzMathUtils.getSwerveRotation(turningSpeed);
 
         //Construct desired chassis speeds
         ChassisSpeeds chassisSpeeds;
-        if (isFeildOriented.get()) {
+        if (isFieldOriented.get()) {
             // Relative to field
             chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
                     xSpeed, ySpeed, turningSpeed, driveTrain.getRotation2d());
@@ -77,6 +78,16 @@ public class TeleopDriveCmd extends CommandBase {
 
         driveTrain.setModuleStates(moduleStates);
 
+        Logger.getInstance().recordOutput("module states", moduleStates);
+        Logger.getInstance().recordOutput("robot xspeed", xSpeed);
+        Logger.getInstance().recordOutput("robot yspeed", ySpeed);
+        Logger.getInstance().recordOutput("robot turnspeed", turningSpeed);
+        Logger.getInstance().recordOutput("robot orientation", driveTrain.getRotation2d().getRadians());
+        Logger.getInstance().recordOutput("chassisspeed x speed mtr sec", chassisSpeeds.vxMetersPerSecond);
+        Logger.getInstance().recordOutput("chassisspeed y speed mtr sec", chassisSpeeds.vyMetersPerSecond);
+
+        
+/* 
         var frontLeftState = new SwerveModuleState(0.0, Rotation2d.fromDegrees(-45));
         var backRightState = new SwerveModuleState(0.0, Rotation2d.fromDegrees(45));
         var backLeftState = new SwerveModuleState(0.0, Rotation2d.fromDegrees(-45));
@@ -86,6 +97,7 @@ public class TeleopDriveCmd extends CommandBase {
         // Convert to chassis speeds
         ChassisSpeeds chassisSpeedss = DriveConstants.swerveDriveKinematics.toChassisSpeeds(
         frontLeftState, frontRightState, backLeftState, backRightState);
+        */
   }
 
   // Called once the command ends or is interrupted.
@@ -97,4 +109,5 @@ public class TeleopDriveCmd extends CommandBase {
   public boolean isFinished() {
     return false;
   }
+
 }

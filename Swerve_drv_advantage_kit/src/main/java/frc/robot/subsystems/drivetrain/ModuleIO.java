@@ -23,6 +23,8 @@ public interface ModuleIO
 
  public default void setDrivePwrPercentIO(double drivePwrPercent) {}
 
+ public default void setDriveVelocityIO(double velocity) {}
+
  public default void setSteerPwrIO(double SteerPwr) {}
 
  public default void setSteerCoastModeIO() {}

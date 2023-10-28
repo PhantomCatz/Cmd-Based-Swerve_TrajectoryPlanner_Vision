@@ -2,6 +2,7 @@ package frc.robot.Utils;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import frc.robot.CatzConstants;
 
 public class CatzMathUtils {
     public static double velocityCntsToRPM(double velocityCounts, double gearRatio) {
@@ -71,5 +72,17 @@ public class CatzMathUtils {
           {
               return in;
           }
+      }
+
+      public static double getSwerveRotation(double rotAxis)
+      {
+        if(rotAxis < CatzConstants.OIConstants.kDeadband)
+        {
+            return 0.0;
+        }
+        else
+        {
+            return CatzConstants.DriveConstants.MAX_ANGSPEED_RAD_PER_SEC * rotAxis;
+        }
       }
 }

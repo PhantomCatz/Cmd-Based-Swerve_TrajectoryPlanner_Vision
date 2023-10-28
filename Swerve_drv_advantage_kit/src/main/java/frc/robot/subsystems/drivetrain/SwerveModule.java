@@ -84,6 +84,7 @@ public class SwerveModule
     {
         io.updateInputs(inputs);
         Logger.getInstance().processInputs("Drive/Module " + Integer.toString(index), inputs);
+        Logger.getInstance().recordOutput("absenctorad" + Integer.toString(index) , getAbsEncRadians());
     }
 
 
@@ -100,7 +101,7 @@ public class SwerveModule
         }
     }
 
-    public void setDrivePower(double pwr)
+    public void setDrivePercent(double pwr)
     {
         if(CatzConstants.currentMode == CatzConstants.Mode.SIM)
         {
@@ -109,6 +110,18 @@ public class SwerveModule
         else
         {       
             io.setDrivePwrPercentIO(pwr);
+        }
+    }
+
+    public void setDriveVelocity(double velocity)
+    {
+        if(CatzConstants.currentMode == CatzConstants.Mode.SIM)
+        {
+            
+        }
+        else
+        {
+            io.setDriveVelocityIO(velocity);
         }
     }
 
@@ -167,7 +180,7 @@ public class SwerveModule
     
     public double getAbsEncRadians()
     {
-        return inputs.magEncoderValue * 2 * Math.PI;
+        return - (inputs.magEncoderValue - wheelOffset) * 2 * Math.PI;
     }
 
     public double getError()
@@ -195,7 +208,7 @@ public class SwerveModule
 
         if (Math.abs(state.speedMetersPerSecond) < 0.001) 
         {
-            setDrivePower(0.0);
+            setDrivePercent(0.0);
             setSteerPower(0.0);
             return;
         }
@@ -204,16 +217,17 @@ public class SwerveModule
         state = SwerveModuleState.optimize(state, getModuleState().angle);
         
         //calculate pwrs
-        double drivePwr = state.speedMetersPerSecond/DriveConstants.MAX_SPEED;
+        double drivePwrVelocity = Conversions.MPSToFalcon(state.speedMetersPerSecond, CatzConstants.DriveConstants.DRVTRAIN_WHEEL_CIRCUMFERENCE, CatzConstants.DriveConstants.SDS_L2_GEAR_RATIO);
         double steerPIDpwr = pid.calculate(getAbsEncRadians(), state.angle.getRadians());
 
         //set powers
-        setDrivePower(drivePwr);// + driveFeedforward);
+        setDriveVelocity(drivePwrVelocity);// + driveFeedforward);
         setSteerPower(steerPIDpwr);// + turnFeedforward);
 
         //logging
         Logger.getInstance().recordOutput("current roation" + Integer.toString(index), getAbsEncRadians());
         Logger.getInstance().recordOutput("target Angle" + Integer.toString(index), state.angle.getRadians());
+        Logger.getInstance().recordOutput("drive velocity" + Integer.toString(index), drivePwrVelocity);
        // Logger.getInstance().recordOutput("rotation" + Integer.toString(index), null);
     }
 

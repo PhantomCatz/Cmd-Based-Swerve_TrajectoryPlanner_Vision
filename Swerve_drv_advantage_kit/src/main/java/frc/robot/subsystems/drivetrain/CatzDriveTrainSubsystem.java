@@ -88,14 +88,17 @@ public class CatzDriveTrainSubsystem extends SubsystemBase
         RT_BACK_MODULE = new SwerveModule(RT_BACK_DRIVE_ID, RT_BACK_STEER_ID, RT_BACK_ENC_PORT, RT_BACK_OFFSET, 2);
         RT_FRNT_MODULE = new SwerveModule(RT_FRNT_DRIVE_ID, RT_FRNT_STEER_ID, RT_FRNT_ENC_PORT, RT_FRNT_OFFSET, 3);
 
-
+        swerveModules[0] = LT_FRNT_MODULE;
+        swerveModules[1] = LT_BACK_MODULE;
+        swerveModules[2] = RT_BACK_MODULE;
+        swerveModules[3] = RT_FRNT_MODULE;
 
         LT_FRNT_MODULE.resetMagEnc();
         LT_BACK_MODULE.resetMagEnc();
         RT_FRNT_MODULE.resetMagEnc();
         RT_BACK_MODULE.resetMagEnc();
 
-        swerveDriveOdometry = new SwerveDriveOdometry(CatzConstants.DriveConstants.swerveDriveKinematics, Rotation2d.fromDegrees(gyroInputs.gyroAngle), getModulePositions());
+        swerveDriveOdometry = new SwerveDriveOdometry(CatzConstants.DriveConstants.swerveDriveKinematics, Rotation2d.fromDegrees(getGyroAngle()), getModulePositions());
 
         new Thread(() -> {
             try {
@@ -163,7 +166,7 @@ public class CatzDriveTrainSubsystem extends SubsystemBase
 
     public void setDrivePower(double pwr) {
         for(SwerveModule module : swerveModules) {
-            module.setDrivePower(pwr);
+            module.setDrivePercent(pwr);
         }
     }
 
@@ -192,8 +195,12 @@ public class CatzDriveTrainSubsystem extends SubsystemBase
         return swerveDriveOdometry.getPoseMeters();
     }
 
+    public double getGyroAngle(){
+        return - gyroInputs.gyroAngle;
+    }
+
     public double getHeading() {
-        return Math.IEEEremainder(gyroInputs.gyroAngle, 360);
+        return Math.IEEEremainder(getGyroAngle(), 360);
     }
 
     public Rotation2d getRotation2d() {
@@ -239,7 +246,7 @@ public class CatzDriveTrainSubsystem extends SubsystemBase
     public void stopDriving(){
         for(SwerveModule module : swerveModules)
         {
-            module.setDrivePower(0.0);
+            module.setDrivePercent(0.0);
             module.setSteerPower(0.0);
         }
     }

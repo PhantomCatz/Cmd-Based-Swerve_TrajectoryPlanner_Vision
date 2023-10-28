@@ -69,7 +69,7 @@ public final class CatzConstants {
     );
 
     public static final double MAX_SPEED = 3.0; // meters per second
-    public static final double MAX_ANGSPEED = 6.0; // radians per second
+    public static final double MAX_ANGSPEED_RAD_PER_SEC = 6.0; // radians per second
 
     public static final double SDS_L1_GEAR_RATIO = 8.14;       //SDS mk4i L1 ratio reduction
     public static final double SDS_L2_GEAR_RATIO = 6.75;       //SDS mk4i L2 ratio reduction
@@ -79,7 +79,7 @@ public final class CatzConstants {
 
     //uses a trapezoidal velocity/time graph enforced with a PID loop
     private static ProfiledPIDController autoTurnPIDController
-            = new ProfiledPIDController(2, 0, 0, new TrapezoidProfile.Constraints(MAX_ANGSPEED, MAX_ANGSPEED));
+            = new ProfiledPIDController(2, 0, 0, new TrapezoidProfile.Constraints(MAX_ANGSPEED_RAD_PER_SEC, MAX_ANGSPEED_RAD_PER_SEC));
 
     static{
         autoTurnPIDController.enableContinuousInput(-Math.PI, Math.PI); //offset clamped between these two values
@@ -103,7 +103,7 @@ public final class CatzConstants {
   public static final int kDriverRotAxis = 4;
   public static final int kDriverFieldOrientedButtonIdx = 1;
 
-  public static final double kDeadband = 0.05;
+  public static final double kDeadband = 0.1;
 }
 
 

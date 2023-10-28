@@ -6,6 +6,9 @@ import com.revrobotics.CANSparkMax;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
+
+import javax.naming.ldap.Control;
+
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.revrobotics.CANSparkMax.IdleMode;
@@ -51,6 +54,10 @@ public class ModuleIOReal implements ModuleIO
 
         STEER_MOTOR.setIdleMode(IdleMode.kCoast);
         DRIVE_MOTOR.setNeutralMode(NeutralMode.Brake);
+
+        DRIVE_MOTOR.config_kP(0, 0.1);
+        DRIVE_MOTOR.config_kI(0, 0.0);
+        DRIVE_MOTOR.config_kD(0, 0.0);
     }
 
     @Override
@@ -67,6 +74,12 @@ public class ModuleIOReal implements ModuleIO
     public void setDrivePwrPercentIO(double drivePwrPercent) 
     {
         DRIVE_MOTOR.set(ControlMode.PercentOutput, drivePwrPercent);
+    }
+
+    @Override
+    public void setDriveVelocityIO(double velocity)
+    {
+        DRIVE_MOTOR.set(ControlMode.Velocity, velocity);
     }
 
     @Override
