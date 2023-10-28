@@ -51,8 +51,6 @@ public class ModuleIOReal implements ModuleIO
 
         STEER_MOTOR.setIdleMode(IdleMode.kCoast);
         DRIVE_MOTOR.setNeutralMode(NeutralMode.Brake);
-        
-
     }
 
     @Override

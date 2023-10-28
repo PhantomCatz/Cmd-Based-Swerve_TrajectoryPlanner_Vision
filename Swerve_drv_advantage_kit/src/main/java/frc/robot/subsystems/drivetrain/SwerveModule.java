@@ -17,12 +17,8 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.DutyCycleEncoder;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.CatzConstants;
+import frc.robot.CatzConstants.DriveConstants;
 import frc.robot.Utils.CatzMathUtils;
 import frc.robot.Utils.Conversions;
 import frc.robot.subsystems.drivetrain.ModuleIOInputsAutoLogged;
@@ -169,9 +165,9 @@ public class SwerveModule
         return inputs.driveMtrVelocity;
     }
     
-    public double getMagEncAngle()
+    public double getAbsEncRadians()
     {
-        return inputs.magEncoderValue;
+        return inputs.magEncoderValue * 2 * Math.PI;
     }
 
     public double getError()
@@ -193,49 +189,31 @@ public class SwerveModule
     /**
      * Sets the desired state for the module.
      *
-     * @param desiredState Desired state with speed and angle.
+     * @param state Desired state with speed and angle.
      */
-    public void setDesiredState(SwerveModuleState desiredState, double gyroAngle) {
-        this.gyroAngle = gyroAngle;
-        var encoderRotation = inputs.magEncoderValue; 
+    public void setDesiredState(SwerveModuleState state) {
 
-        // Optimize the reference state to avoid spinning further than 90 degrees
-        SwerveModuleState state = desiredState; //SwerveModuleState.optimize(desiredState, encoderRotation);
+        if (Math.abs(state.speedMetersPerSecond) < 0.001) 
+        {
+            setDrivePower(0.0);
+            setSteerPower(0.0);
+            return;
+        }
 
-        final double driveOutput =
-            state.speedMetersPerSecond;
+        //optimize wheel angles
+        state = SwerveModuleState.optimize(state, getModuleState().angle);
+        
+        //calculate pwrs
+        double drivePwr = state.speedMetersPerSecond/DriveConstants.MAX_SPEED;
+        double steerPIDpwr = pid.calculate(getAbsEncRadians(), state.angle.getRadians());
 
+        //set powers
+        setDrivePower(drivePwr);// + driveFeedforward);
+        setSteerPower(steerPIDpwr);// + turnFeedforward);
 
-        final double turnFeedforward =
-            m_turnFeedforward.calculate(pid.getSetpoint());
-
-            double currentAngle = ((inputs.magEncoderValue - wheelOffset) * 360.0) - gyroAngle;
-            // find closest angle to target angle
-            angleError = closestAngle(currentAngle, state.angle.getDegrees());
-    
-            // find closest angle to target angle + 180
-            flippedAngleError = closestAngle(currentAngle, state.angle.getDegrees() + 180.0);
-    
-            // if the closest angle to target is shorter
-            if (Math.abs(angleError) <= Math.abs(flippedAngleError))
-            {
-                driveDirectionFlipped = false;
-                command = pid.calculate(currentAngle, currentAngle + angleError);
-            }
-            // if the closest angle to target + 180 is shorter
-            else
-            {
-                driveDirectionFlipped = true;
-                command = pid.calculate(currentAngle, currentAngle + flippedAngleError);
-            }
-    
-            command = -command / (180 * kP); //scale down command to a range of -1 to 1
-            
-        setDrivePower(driveOutput);// + driveFeedforward);
-        setSteerPower(command);// + turnFeedforward);
-
-        Logger.getInstance().recordOutput("current roation" + Integer.toString(index), encoderRotation);
-        Logger.getInstance().recordOutput("target Angle" + Integer.toString(index), desiredState.angle.getDegrees());
+        //logging
+        Logger.getInstance().recordOutput("current roation" + Integer.toString(index), getAbsEncRadians());
+        Logger.getInstance().recordOutput("target Angle" + Integer.toString(index), state.angle.getRadians());
        // Logger.getInstance().recordOutput("rotation" + Integer.toString(index), null);
     }
 
@@ -252,16 +230,14 @@ public class SwerveModule
 
     public void initializeOffset()
     {
-        //
+        //TBD
     }
 
-    //inputs the rotation object as degree
+    //inputs the rotation object as radian conversion
     private Rotation2d getCurrentRotation()
     {
-        return Rotation2d.fromDegrees(((inputs.magEncoderValue*360)));
+        return new Rotation2d(getAbsEncRadians());
     }
-
-
 
     public SwerveModuleState getModuleState()
     {
@@ -278,24 +254,5 @@ public class SwerveModule
     public double getDriveDistanceMeters()
     {
         return  ((inputs.driveMtrSensorPosition / 2048)/ CatzConstants.DriveConstants.SDS_L2_GEAR_RATIO) * CatzConstants.DriveConstants.DRVTRAIN_WHEEL_CIRCUMFERENCE;
-    }
-
-    public double closestAngle(double startAngle, double targetAngle)
-    {
-        // get direction
-        double error = targetAngle % 360.0 - startAngle % 360.0;
-
-        // convert from -360 to 360 to -180 to 180
-        if (Math.abs(error) > 180.0)
-        {
-            error = -(Math.signum(error) * 360.0) + error;
-            //closest angle shouldn't be more than 180 degrees. If it is, use other direction
-            if(error > 180.0)
-            {
-                error -= 360;
-            }
-        }
-
-        return error;
     }
 }

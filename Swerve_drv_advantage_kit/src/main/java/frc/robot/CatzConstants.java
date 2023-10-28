@@ -58,7 +58,7 @@ public final class CatzConstants {
     private static final Translation2d SWERVE_LEFT_FRONT_LOCATION  = new Translation2d(MODULE_DISTANCE_FROM_CENTER, MODULE_DISTANCE_FROM_CENTER);
     private static final Translation2d SWERVE_LEFT_BACK_LOCATION   = new Translation2d(-MODULE_DISTANCE_FROM_CENTER, MODULE_DISTANCE_FROM_CENTER);
     private static final Translation2d SWERVE_RIGHT_BACK_LOCATION  = new Translation2d(-MODULE_DISTANCE_FROM_CENTER, -MODULE_DISTANCE_FROM_CENTER);
-    private static final Translation2d SWERVE_RIGHT_FRONT_LOCATION = new Translation2d(MODULE_DISTANCE_FROM_CENTER, -MODULE_DISTANCE_FROM_CENTER); //++ corrispoonds to right back
+    private static final Translation2d SWERVE_RIGHT_FRONT_LOCATION = new Translation2d(MODULE_DISTANCE_FROM_CENTER, -MODULE_DISTANCE_FROM_CENTER);
 
     // calculates the orientation and speed of individual swerve modules when given the motion of the whole robot
     public static final SwerveDriveKinematics swerveDriveKinematics = new SwerveDriveKinematics(
@@ -94,6 +94,17 @@ public final class CatzConstants {
     );
 
  }
+
+ public static final class OIConstants {
+  public static final int kDriverControllerPort = 0;
+
+  public static final int kDriverYAxis = 1;
+  public static final int kDriverXAxis = 0;
+  public static final int kDriverRotAxis = 4;
+  public static final int kDriverFieldOrientedButtonIdx = 1;
+
+  public static final double kDeadband = 0.05;
+}
 
 
   //-----------------------------Intake------------------------------------------
