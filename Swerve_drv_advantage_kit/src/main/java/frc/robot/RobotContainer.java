@@ -133,7 +133,7 @@ import frc.robot.subsystems.Arm.CatzArmSubsystem;
 
     //intake
     xboxAux.leftStick().onTrue(new IntakeManualCmd(() -> xboxAux.getLeftY(), 
-                                                  () -> xboxAux.leftStick().getAsBoolean()));
+                                                   () -> xboxAux.leftStick().getAsBoolean()));
     //elevator     
      xboxAux.rightStick().onTrue(new ElevatorManualCmd(() -> xboxAux.getRightY(), 
                                                        () -> xboxAux.rightStick().getAsBoolean()));

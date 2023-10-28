@@ -77,9 +77,9 @@ public class TeleopDriveCmd extends CommandBase {
 
         driveTrain.setModuleStates(moduleStates);
 
-        var frontLeftState = new SwerveModuleState(0.0, Rotation2d.fromDegrees(45));
+        var frontLeftState = new SwerveModuleState(0.0, Rotation2d.fromDegrees(-45));
         var backRightState = new SwerveModuleState(0.0, Rotation2d.fromDegrees(45));
-        var backLeftState = new SwerveModuleState(0.0, Rotation2d.fromDegrees(45));
+        var backLeftState = new SwerveModuleState(0.0, Rotation2d.fromDegrees(-45));
         var frontRightState = new SwerveModuleState(0.0, Rotation2d.fromDegrees(45));
 
 
