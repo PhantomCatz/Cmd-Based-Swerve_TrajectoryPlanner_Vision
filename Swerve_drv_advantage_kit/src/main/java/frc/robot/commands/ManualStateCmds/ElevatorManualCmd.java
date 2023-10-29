@@ -27,7 +27,6 @@ public class ElevatorManualCmd extends CommandBase {
   {
     this.supplierElevatorPwr = supplierElevatorPwr;
     this.supplierManualMode = supplierManualMode;
-    addRequirements(elevator);
   }
 
   // Called when the command is initially scheduled.

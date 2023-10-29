@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.CatzConstants;
 import frc.robot.Robot;
+import frc.robot.subsystems.vision.CatzAprilTag;
 import frc.robot.subsystems.vision.CatzRobotTracker;
 
 
@@ -29,15 +30,16 @@ public class CatzDriveTrainSubsystem extends SubsystemBase
 
     private final GyroIO gyroIO;
     private final GyroIOInputsAutoLogged gyroInputs = new GyroIOInputsAutoLogged();
-    private static SwerveModule[] swerveModules = new SwerveModule[4];
+    private static CatzSwerveModule[] swerveModules = new CatzSwerveModule[4];
 
-    private static SwerveDriveOdometry swerveDriveOdometry;
+    private static SwerveDrivePoseEstimator poseEstimator;
     private static ChassisSpeeds chassisSpeeds;
+    private static CatzAprilTag aprilTag = CatzAprilTag.getInstance();
 
-    public final SwerveModule LT_FRNT_MODULE;
-    public final SwerveModule LT_BACK_MODULE;
-    public final SwerveModule RT_FRNT_MODULE;
-    public final SwerveModule RT_BACK_MODULE;
+    public final CatzSwerveModule LT_FRNT_MODULE;
+    public final CatzSwerveModule LT_BACK_MODULE;
+    public final CatzSwerveModule RT_FRNT_MODULE;
+    public final CatzSwerveModule RT_BACK_MODULE;
 
     private final int LT_FRNT_DRIVE_ID = 1;
     private final int LT_BACK_DRIVE_ID = 3;
@@ -69,6 +71,7 @@ public class CatzDriveTrainSubsystem extends SubsystemBase
     public double dataJoystickPower;
     private int index;
 
+    private double testAngleInc = 0.0;
 
 
     private CatzDriveTrainSubsystem()
@@ -87,10 +90,10 @@ public class CatzDriveTrainSubsystem extends SubsystemBase
         break;
         }
         
-        LT_FRNT_MODULE = new SwerveModule(LT_FRNT_DRIVE_ID, LT_FRNT_STEER_ID, LT_FRNT_ENC_PORT, LT_FRNT_OFFSET, false, 0);
-        LT_BACK_MODULE = new SwerveModule(LT_BACK_DRIVE_ID, LT_BACK_STEER_ID, LT_BACK_ENC_PORT, LT_BACK_OFFSET, false, 1);
-        RT_BACK_MODULE = new SwerveModule(RT_BACK_DRIVE_ID, RT_BACK_STEER_ID, RT_BACK_ENC_PORT, RT_BACK_OFFSET, false, 2);
-        RT_FRNT_MODULE = new SwerveModule(RT_FRNT_DRIVE_ID, RT_FRNT_STEER_ID, RT_FRNT_ENC_PORT, RT_FRNT_OFFSET, false, 3);
+        LT_FRNT_MODULE = new CatzSwerveModule(LT_FRNT_DRIVE_ID, LT_FRNT_STEER_ID, LT_FRNT_ENC_PORT, LT_FRNT_OFFSET, false, 0);
+        LT_BACK_MODULE = new CatzSwerveModule(LT_BACK_DRIVE_ID, LT_BACK_STEER_ID, LT_BACK_ENC_PORT, LT_BACK_OFFSET, false, 1);
+        RT_BACK_MODULE = new CatzSwerveModule(RT_BACK_DRIVE_ID, RT_BACK_STEER_ID, RT_BACK_ENC_PORT, RT_BACK_OFFSET, false, 2);
+        RT_FRNT_MODULE = new CatzSwerveModule(RT_FRNT_DRIVE_ID, RT_FRNT_STEER_ID, RT_FRNT_ENC_PORT, RT_FRNT_OFFSET, false, 3);
 
         swerveModules[0] = LT_FRNT_MODULE;
         swerveModules[1] = LT_BACK_MODULE;
@@ -102,7 +105,11 @@ public class CatzDriveTrainSubsystem extends SubsystemBase
         RT_FRNT_MODULE.resetMagEnc();
         RT_BACK_MODULE.resetMagEnc();
 
-        swerveDriveOdometry = new SwerveDriveOdometry(CatzConstants.DriveConstants.swerveDriveKinematics, Rotation2d.fromDegrees(getGyroAngle()), getModulePositions());
+        poseEstimator = new SwerveDrivePoseEstimator(CatzConstants.DriveConstants.swerveDriveKinematics, 
+                                                     Rotation2d.fromDegrees(0), 
+                                                     getModulePositions(), 
+                                                     new Pose2d(0,0,Rotation2d.fromDegrees(0)));
+        
 
         new Thread(() -> {
             try {
@@ -135,16 +142,23 @@ public class CatzDriveTrainSubsystem extends SubsystemBase
     public void periodic() 
     {
         //update inputs(sensors/encoders) for code logic and advantage kit
-        for(SwerveModule module : swerveModules)
+        for(CatzSwerveModule module : swerveModules)
         {
             module.periodic();
         }
         gyroIO.updateInputs(gyroInputs);
         Logger.getInstance().processInputs("Drive/gyroinputs ", gyroInputs);
-        swerveDriveOdometry.update(getRotation2d(), getModulePositions());
-        Logger.getInstance().recordOutput("Odometry/pose", getPose());
-        Logger.getInstance().recordOutput("rotationheading" , getHeading());
 
+        poseEstimator.updateWithTime(Logger.getInstance().getTimestamp(), getRotation2d(), getModulePositions());
+
+        if(aprilTag.aprilTagInView())
+        {
+            poseEstimator.addVisionMeasurement(aprilTag.getLimelightBotPose(), Logger.getInstance().getTimestamp());
+        }
+
+        //logging
+        Logger.getInstance().recordOutput("Obometry/pose", getPose());
+        Logger.getInstance().recordOutput("Drive/rotationheading" , getHeading());
     }
     
 
@@ -163,26 +177,14 @@ public class CatzDriveTrainSubsystem extends SubsystemBase
         swerveModules[3].setDesiredState(desiredStates[3]);
     }
 
-    public void setSteerPower(double pwr) {
-        for(SwerveModule module : swerveModules) {
-            module.setSteerPower(pwr);
-        }
-    }
-
-    public void setDrivePower(double pwr) {
-        for(SwerveModule module : swerveModules) {
-            module.setDrivePercent(pwr);
-        }
-    }
-
     public void setBrakeMode() {
-        for(SwerveModule module : swerveModules) {
+        for(CatzSwerveModule module : swerveModules) {
             module.setBrakeMode();
         }
     }
 
     public void setCoastMode(){
-        for(SwerveModule module : swerveModules) {
+        for(CatzSwerveModule module : swerveModules) {
             module.setCoastMode();
         }
     }
@@ -197,7 +199,7 @@ public class CatzDriveTrainSubsystem extends SubsystemBase
 
     public Pose2d getPose()
     {
-        return swerveDriveOdometry.getPoseMeters();
+        return poseEstimator.getEstimatedPosition();
     }
 
     public double getGyroAngle(){
@@ -208,13 +210,18 @@ public class CatzDriveTrainSubsystem extends SubsystemBase
         return Math.IEEEremainder(getGyroAngle(), 360);
     }
 
+    public double getHeadingRadians() {
+        testAngleInc += 0.5;
+        return -testAngleInc * Math.PI/180;
+    }
+
     public Rotation2d getRotation2d() {
-        return Rotation2d.fromDegrees(getHeading());
+        return Rotation2d.fromRadians(getHeadingRadians());
     }
 
     private void resetPosition(Pose2d pose)
     {
-        swerveDriveOdometry.resetPosition(getRotation2d(), getModulePositions(), pose);
+        poseEstimator.resetPosition(getRotation2d(), getModulePositions(), pose);
     }
 
     private ChassisSpeeds getChassisSpeeds()
@@ -224,7 +231,7 @@ public class CatzDriveTrainSubsystem extends SubsystemBase
 
     private void resetMagEncs()
     {
-        for(SwerveModule module : swerveModules)
+        for(CatzSwerveModule module : swerveModules)
         {
             module.resetMagEnc();
         }
@@ -232,7 +239,7 @@ public class CatzDriveTrainSubsystem extends SubsystemBase
 
     public void resetDriveEncs()
     {
-        for(SwerveModule module : swerveModules)
+        for(CatzSwerveModule module : swerveModules)
         {
             module.resetDriveEncs();
         }
@@ -242,14 +249,14 @@ public class CatzDriveTrainSubsystem extends SubsystemBase
     {
         gyroIO.setAngleAdjustmentIO(-gyroInputs.gyroYaw);
 
-        for(SwerveModule module : swerveModules)
+        for(CatzSwerveModule module : swerveModules)
         {
             module.initializeOffset();
         }
     }
 
     public void stopDriving(){
-        for(SwerveModule module : swerveModules)
+        for(CatzSwerveModule module : swerveModules)
         {
             module.setDrivePercent(0.0);
             module.setSteerPower(0.0);
@@ -259,24 +266,20 @@ public class CatzDriveTrainSubsystem extends SubsystemBase
     public SwerveModuleState[] getModuleStates()
     {
         SwerveModuleState[] moduleStates = new SwerveModuleState[4];
-
         for(int i = 0; i < 4; i++)
         {
             moduleStates[i] = swerveModules[i].getModuleState();
         }
-
         return moduleStates;
     }
 
     public static SwerveModulePosition[] getModulePositions()
     {
         SwerveModulePosition[] modulePositions = new SwerveModulePosition[4];
-
         for(int i = 0; i < 4; i++)
         {
             modulePositions[i] = swerveModules[i].getModulePosition();
         }
-
         return modulePositions;
     }
     
@@ -288,6 +291,5 @@ public class CatzDriveTrainSubsystem extends SubsystemBase
             instance = new CatzDriveTrainSubsystem();
         }
         return instance;
-    
     }
 }

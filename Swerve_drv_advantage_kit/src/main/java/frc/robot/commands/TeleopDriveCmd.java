@@ -7,6 +7,8 @@ import java.util.function.Supplier;
 
 import org.littletonrobotics.junction.Logger;
 
+import com.ctre.phoenixpro.sim.ChassisReference;
+
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -27,7 +29,6 @@ public class TeleopDriveCmd extends CommandBase {
   Supplier<Double> supplierPwrMode;
   Supplier<Boolean> isFieldOriented;
 
-  
   /** Creates a new TeleopDriveCmd. */
   public TeleopDriveCmd(Supplier<Double> supplierLeftJoyX,
                         Supplier<Double> supplierLeftJoyY,
@@ -60,13 +61,13 @@ public class TeleopDriveCmd extends CommandBase {
         // Apply deadbands to prevent modules from receiving unintentional pwr
         xSpeed = Math.abs(xSpeed) > OIConstants.kDeadband ? xSpeed : 0.0;
         ySpeed = Math.abs(ySpeed) > OIConstants.kDeadband ? ySpeed : 0.0;
-        turningSpeed = Math.abs(turningSpeed) > OIConstants.kDeadband ? turningSpeed : 0.0;//CatzMathUtils.getSwerveRotation(turningSpeed);
+        turningSpeed = 1;//Math.abs(turningSpeed) > OIConstants.kDeadband ? turningSpeed : 0.0;//CatzMathUtils.getSwerveRotation(turningSpeed);
 
         //Construct desired chassis speeds
         ChassisSpeeds chassisSpeeds;
         if (isFieldOriented.get()) {
             // Relative to field
-            chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
+            chassisSpeeds = fromFieldRelativeSpeeds(
                     xSpeed, ySpeed, turningSpeed, driveTrain.getRotation2d());
         } else {
             // Relative to robot
@@ -110,4 +111,14 @@ public class TeleopDriveCmd extends CommandBase {
     return false;
   }
 
+  public static ChassisSpeeds fromFieldRelativeSpeeds(
+    double vxMetersPerSecond,
+    double vyMetersPerSecond,
+    double omegaRadiansPerSecond,
+    Rotation2d robotAngle) {
+  return new ChassisSpeeds(
+      vxMetersPerSecond * robotAngle.getCos() + vyMetersPerSecond * robotAngle.getSin(),
+      -vxMetersPerSecond * robotAngle.getSin() + vyMetersPerSecond * robotAngle.getCos(),
+      omegaRadiansPerSecond);
+  }
 }

@@ -24,7 +24,7 @@ import frc.robot.Utils.Conversions;
 import frc.robot.subsystems.drivetrain.ModuleIOInputsAutoLogged;
 
 
-public class SwerveModule
+public class CatzSwerveModule
 {
     private final ModuleIO io;
     private final ModuleIOInputsAutoLogged   inputs = new ModuleIOInputsAutoLogged();
@@ -36,7 +36,7 @@ public class SwerveModule
     private final SimpleMotorFeedforward m_driveFeedforward = new SimpleMotorFeedforward(1, 3);
     private final SimpleMotorFeedforward m_turnFeedforward = new SimpleMotorFeedforward(1, 0.5);
 
-    private final double kP = 0.01;
+    private final double kP = 1.0; //cuz error is in tenths place so no need to mutiply kp value
     private final double kI = 0.0;
     private final double kD = 0.0;
 
@@ -54,10 +54,9 @@ public class SwerveModule
     private double gyroAngle;
 
 
-    public SwerveModule(int driveMotorID, int steerMotorID, int encoderDIOChannel, double offset, boolean isInverted, int index)
+    public CatzSwerveModule(int driveMotorID, int steerMotorID, int encoderDIOChannel, double offset, boolean isInverted, int index)
     {
         this.index = index;
-        
 
         switch (CatzConstants.currentMode)
         {
@@ -84,6 +83,8 @@ public class SwerveModule
     {
         io.updateInputs(inputs);
         Logger.getInstance().processInputs("Drive/Module " + Integer.toString(index), inputs);
+
+        //Logging outputs
         Logger.getInstance().recordOutput("absenctorad" + Integer.toString(index) , getAbsEncRadians());
     }
 
@@ -219,9 +220,9 @@ public class SwerveModule
         //calculate pwrs 
         double drivePwrVelocity = Conversions.MPSToFalcon(state.speedMetersPerSecond, 
                                                           CatzConstants.DriveConstants.DRVTRAIN_WHEEL_CIRCUMFERENCE, 
-                                                          CatzConstants.DriveConstants.SDS_L2_GEAR_RATIO);
-                                                          
-        double steerPIDpwr = pid.calculate(getAbsEncRadians()*100, state.angle.getRadians()*100);//scaling pids to a value that the pid controler will take
+                                                          1/CatzConstants.DriveConstants.SDS_L2_GEAR_RATIO); //to set is as a gear reduction not an overdrive
+
+        double steerPIDpwr = pid.calculate(getAbsEncRadians(), state.angle.getRadians());
 
         //set powers
         setDriveVelocity(drivePwrVelocity);// + driveFeedforward);
@@ -229,10 +230,11 @@ public class SwerveModule
 
         //logging
         
-        Logger.getInstance().recordOutput("current roation" + Integer.toString(index), getAbsEncRadians());
-        Logger.getInstance().recordOutput("target Angle" + Integer.toString(index), state.angle.getRadians());
-        Logger.getInstance().recordOutput("drive velocity" + Integer.toString(index), drivePwrVelocity);
-       // Logger.getInstance().recordOutput("rotation" + Integer.toString(index), null);
+        Logger.getInstance().recordOutput("Drive/current roation" + Integer.toString(index), getAbsEncRadians());
+        Logger.getInstance().recordOutput("Drive/target Angle" + Integer.toString(index), state.angle.getRadians());
+        Logger.getInstance().recordOutput("Drive/drive velocity" + Integer.toString(index), drivePwrVelocity);
+        Logger.getInstance().recordOutput("Drive/turn power" + Integer.toString(index), steerPIDpwr);
+       // Logger.getInstance().recordOutput("rotation" + Integer.toString(index), d);
     }
 
 
@@ -259,7 +261,7 @@ public class SwerveModule
 
     public SwerveModuleState getModuleState()
     {
-        double velocity = Conversions.falconToMPS(inputs.driveMtrSensorPosition,CatzConstants.DriveConstants.DRVTRAIN_WHEEL_CIRCUMFERENCE, CatzConstants.DriveConstants.SDS_L2_GEAR_RATIO);
+        double velocity = Conversions.falconToMPS(inputs.driveMtrSensorPosition,CatzConstants.DriveConstants.DRVTRAIN_WHEEL_CIRCUMFERENCE, 1/CatzConstants.DriveConstants.SDS_L2_GEAR_RATIO);
         
         return new SwerveModuleState(velocity, getCurrentRotation());
     }

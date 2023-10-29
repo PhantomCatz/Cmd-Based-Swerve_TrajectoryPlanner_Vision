@@ -14,15 +14,14 @@ public class ArmManualCmd extends CommandBase {
 
   private final double EXTEND_PWR  = 0.2;
   private final double RETRACT_PWR = -0.2;
-
-
   private final double MANUAL_CONTROL_PWR_OFF = 0.0;
+
+  
   /** Creates a new ArmManualCmd. */
   public ArmManualCmd(boolean armExtend, boolean armRetract) 
   {
     this.armExtend = armExtend;
     this.armRetract = armRetract;
-    addRequirements(arm);
   }
 
   // Called when the command is initially scheduled.

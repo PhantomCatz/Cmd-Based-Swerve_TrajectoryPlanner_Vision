@@ -13,8 +13,6 @@ public class CatzRobotTracker extends CommandBase{
 
     private static CatzRobotTracker instance = null;
 
-    private static final int THREAD_PERIOD_MS = 20;
-
     private final CatzDriveTrainSubsystem driveTrain = CatzDriveTrainSubsystem.getInstance();
     private final CatzAprilTag limelight =  CatzAprilTag.getInstance();
     
@@ -59,12 +57,14 @@ public class CatzRobotTracker extends CommandBase{
     @Override
     public void execute() 
     {
+        /* *
         if(limelight.aprilTagInView())
         {
             poseEstimator.addVisionMeasurement(limelight.getLimelightBotPose(), Timer.getFPGATimestamp());
         }
        // poseEstimator.update(Rotation2d.fromDegrees(driveTrain.getGyroAngle()), driveTrain.getModulePositions());
         System.out.println("("+poseEstimator.getEstimatedPosition().getX()+","+poseEstimator.getEstimatedPosition().getY()+")");
+        */
     }
 
 }

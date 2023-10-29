@@ -31,7 +31,7 @@ public class CatzAprilTag {
     }
 
     //grab botpos from limelight load into this class, load INVALID_POSE_ENTY if no apriltag is seeing
-    public void botPoseUpdate()
+    private void botPoseUpdate()
     {
         if(aprilTagInView() && NetworkTableInstance.getDefault().getTable("limelight").getEntry("botpose").getDoubleArray(botPose).length == REQUIRED_ARRAY_LENGTH)
         {

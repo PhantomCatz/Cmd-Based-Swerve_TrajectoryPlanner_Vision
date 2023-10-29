@@ -88,11 +88,13 @@ public class CatzArmSubsystem extends SubsystemBase
   @Override
   public void periodic() 
   {
+    //perform input updates
     io.updateInputs(inputs);
     Logger.getInstance().processInputs("Arm", inputs);
 
     checkLimitSwitches();
 
+    //arm logic implementation requiring a loop
     if(DriverStation.isDisabled())
     {
         io.setArmPwrIO(0.0);
@@ -142,6 +144,7 @@ public class CatzArmSubsystem extends SubsystemBase
     }
   }
 
+  //updates the arm statemachine to auto and does auto cmds
   public void cmdUpdateArm(ArmAutoState state)
   {
     armControlState = ArmControlState.AUTO;
@@ -190,15 +193,10 @@ public class CatzArmSubsystem extends SubsystemBase
     //Singleton implementation for instatiating subssytems(Every refrence to this method should be static)
     public static CatzArmSubsystem getInstance()
     {
-
         if(instance == null)
         {
-
             instance = new CatzArmSubsystem();
-
         }
-
         return instance;
-    
     }
 }

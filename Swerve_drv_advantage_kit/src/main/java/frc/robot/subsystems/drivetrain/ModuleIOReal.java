@@ -67,7 +67,7 @@ public class ModuleIOReal implements ModuleIO
         inputs.driveMtrSensorPosition = DRIVE_MOTOR.getSelectedSensorPosition();
         inputs.magEncoderValue = magEnc.get();
         inputs.driveMtrPercentOutput = DRIVE_MOTOR.getMotorOutputPercent();
-        inputs.turnMtrEnc = STEER_MOTOR.get(); //not correct TBD
+        inputs.turnMtrEnc = -999.9;
     }
 
     @Override
