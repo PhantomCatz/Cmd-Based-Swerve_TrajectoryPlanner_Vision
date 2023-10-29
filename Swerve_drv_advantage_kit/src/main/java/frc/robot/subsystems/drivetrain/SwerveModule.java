@@ -216,15 +216,19 @@ public class SwerveModule
         //optimize wheel angles
         state = SwerveModuleState.optimize(state, getModuleState().angle);
         
-        //calculate pwrs
-        double drivePwrVelocity = Conversions.MPSToFalcon(state.speedMetersPerSecond, CatzConstants.DriveConstants.DRVTRAIN_WHEEL_CIRCUMFERENCE, CatzConstants.DriveConstants.SDS_L2_GEAR_RATIO);
-        double steerPIDpwr = pid.calculate(getAbsEncRadians(), state.angle.getRadians());
+        //calculate pwrs 
+        double drivePwrVelocity = Conversions.MPSToFalcon(state.speedMetersPerSecond, 
+                                                          CatzConstants.DriveConstants.DRVTRAIN_WHEEL_CIRCUMFERENCE, 
+                                                          CatzConstants.DriveConstants.SDS_L2_GEAR_RATIO);
+                                                          
+        double steerPIDpwr = pid.calculate(getAbsEncRadians()*100, state.angle.getRadians()*100);//scaling pids to a value that the pid controler will take
 
         //set powers
         setDriveVelocity(drivePwrVelocity);// + driveFeedforward);
         setSteerPower(steerPIDpwr);// + turnFeedforward);
 
         //logging
+        
         Logger.getInstance().recordOutput("current roation" + Integer.toString(index), getAbsEncRadians());
         Logger.getInstance().recordOutput("target Angle" + Integer.toString(index), state.angle.getRadians());
         Logger.getInstance().recordOutput("drive velocity" + Integer.toString(index), drivePwrVelocity);

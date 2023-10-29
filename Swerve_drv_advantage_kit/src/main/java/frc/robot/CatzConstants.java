@@ -62,10 +62,10 @@ public final class CatzConstants {
 
     // calculates the orientation and speed of individual swerve modules when given the motion of the whole robot
     public static final SwerveDriveKinematics swerveDriveKinematics = new SwerveDriveKinematics(
+       SWERVE_RIGHT_FRONT_LOCATION,
         SWERVE_LEFT_FRONT_LOCATION,
         SWERVE_LEFT_BACK_LOCATION,
-        SWERVE_RIGHT_BACK_LOCATION,
-        SWERVE_RIGHT_FRONT_LOCATION
+        SWERVE_RIGHT_BACK_LOCATION
     );
 
     public static final double MAX_SPEED = 3.0; // meters per second
