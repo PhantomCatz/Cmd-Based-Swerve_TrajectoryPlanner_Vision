@@ -1,8 +1,6 @@
 # Advantage-Kit
 
 
-contains working replay datalogging and sim motor sim
+contains working replay datalogging and motor sim
 
-currently working on autonomous simulation
-
-example log files have been included in wpilog format. They will need to be opened with [advantage scope](https://github.com/Mechanical-Advantage/AdvantageScope)
+Any log files from Atlas will need to be opened with [advantage scope](https://github.com/Mechanical-Advantage/AdvantageScope)
