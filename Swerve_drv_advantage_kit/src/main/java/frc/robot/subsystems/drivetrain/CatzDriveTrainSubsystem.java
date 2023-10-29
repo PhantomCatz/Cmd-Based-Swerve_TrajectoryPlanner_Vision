@@ -211,8 +211,7 @@ public class CatzDriveTrainSubsystem extends SubsystemBase
     }
 
     public double getHeadingRadians() {
-        testAngleInc += 0.5;
-        return -testAngleInc * Math.PI/180;
+        return getHeading() * Math.PI/180;
     }
 
     public Rotation2d getRotation2d() {

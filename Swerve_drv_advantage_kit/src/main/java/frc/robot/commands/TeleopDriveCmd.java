@@ -27,7 +27,7 @@ public class TeleopDriveCmd extends CommandBase {
   Supplier<Double> supplierLeftJoyY;
   Supplier<Double> supplierRightJoyX;
   Supplier<Double> supplierPwrMode;
-  Supplier<Boolean> isFieldOriented;
+  Supplier<Boolean> isFieldOrientedDisabled;
 
   /** Creates a new TeleopDriveCmd. */
   public TeleopDriveCmd(Supplier<Double> supplierLeftJoyX,
@@ -40,7 +40,7 @@ public class TeleopDriveCmd extends CommandBase {
     this.supplierLeftJoyY = supplierLeftJoyY;
     this.supplierRightJoyX = supplierRightJoyX;
     this.supplierPwrMode = supplierPwrMode;
-    this.isFieldOriented = isFeildOriented;
+    this.isFieldOrientedDisabled = isFeildOriented;
 
     addRequirements(driveTrain);
   }
@@ -65,13 +65,14 @@ public class TeleopDriveCmd extends CommandBase {
 
         //Construct desired chassis speeds
         ChassisSpeeds chassisSpeeds;
-        if (isFieldOriented.get()) {
-            // Relative to field
-            chassisSpeeds = fromFieldRelativeSpeeds(
-                    xSpeed, ySpeed, turningSpeed, driveTrain.getRotation2d());
-        } else {
+        if (isFieldOrientedDisabled.get()) {
             // Relative to robot
             chassisSpeeds = new ChassisSpeeds(xSpeed, ySpeed, turningSpeed);
+        } else {
+            // Relative to field
+            chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
+                                                xSpeed, ySpeed, turningSpeed, driveTrain.getRotation2d()
+                                                                 );
         }
 
         // 5. Convert chassis speeds to individual module states
@@ -87,18 +88,6 @@ public class TeleopDriveCmd extends CommandBase {
         Logger.getInstance().recordOutput("chassisspeed x speed mtr sec", chassisSpeeds.vxMetersPerSecond);
         Logger.getInstance().recordOutput("chassisspeed y speed mtr sec", chassisSpeeds.vyMetersPerSecond);
 
-        
-/* 
-        var frontLeftState = new SwerveModuleState(0.0, Rotation2d.fromDegrees(-45));
-        var backRightState = new SwerveModuleState(0.0, Rotation2d.fromDegrees(45));
-        var backLeftState = new SwerveModuleState(0.0, Rotation2d.fromDegrees(-45));
-        var frontRightState = new SwerveModuleState(0.0, Rotation2d.fromDegrees(45));
-
-
-        // Convert to chassis speeds
-        ChassisSpeeds chassisSpeedss = DriveConstants.swerveDriveKinematics.toChassisSpeeds(
-        frontLeftState, frontRightState, backLeftState, backRightState);
-        */
   }
 
   // Called once the command ends or is interrupted.
@@ -109,16 +98,5 @@ public class TeleopDriveCmd extends CommandBase {
   @Override
   public boolean isFinished() {
     return false;
-  }
-
-  public static ChassisSpeeds fromFieldRelativeSpeeds(
-    double vxMetersPerSecond,
-    double vyMetersPerSecond,
-    double omegaRadiansPerSecond,
-    Rotation2d robotAngle) {
-  return new ChassisSpeeds(
-      vxMetersPerSecond * robotAngle.getCos() + vyMetersPerSecond * robotAngle.getSin(),
-      -vxMetersPerSecond * robotAngle.getSin() + vyMetersPerSecond * robotAngle.getCos(),
-      omegaRadiansPerSecond);
   }
 }
