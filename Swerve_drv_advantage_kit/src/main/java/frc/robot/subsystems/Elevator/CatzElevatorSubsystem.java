@@ -195,7 +195,7 @@ public class CatzElevatorSubsystem extends SubsystemBase {
 
 
 
-    public void elevatorManual(double pwr)
+    private void elevatorManual(double pwr)
     {
         double mtrPower;
 
@@ -204,7 +204,7 @@ public class CatzElevatorSubsystem extends SubsystemBase {
         io.elevatorManualIO(mtrPower);
     }
 
-    public void elevatorHoldingManual(double holdingEncPos)
+    private void elevatorHoldingManual(double holdingEncPos)
     {
         io.elevatorMtrSetPosIO(holdingEncPos);
     }

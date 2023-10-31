@@ -31,7 +31,10 @@ public class ElevatorManualCmd extends CommandBase {
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {}
+  public void initialize() 
+  {
+
+  }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
@@ -44,20 +47,20 @@ public class ElevatorManualCmd extends CommandBase {
       {
           if(isElevatorInManualMode) // Full manual
           {
-              elevator.elevatorManual(elevatorPwr);
+              elevator.elevatorManualCmd(elevatorPwr, true);
           }
           else // Hold Position
           {
               manualHoldTargetPos = elevator.getElevatorEncoder();
               manualHoldTargetPos = manualHoldTargetPos + (elevatorPwr * MANUAL_HOLD_STEP_SIZE);
-              elevator.elevatorHoldingManual(manualHoldTargetPos);
+              elevator.elevatorManualCmd(elevatorPwr, false);
           }
       }
       else
       {
           if (isElevatorInManualMode)
           {
-              elevator.elevatorManual(0.0);
+            elevator.elevatorManualCmd(0.0, false);
           }
       }
     }

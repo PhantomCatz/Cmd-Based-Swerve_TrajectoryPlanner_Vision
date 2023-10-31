@@ -61,7 +61,7 @@ public final class CatzConstants {
     private static final Translation2d SWERVE_RIGHT_FRONT_LOCATION = new Translation2d(MODULE_DISTANCE_FROM_CENTER, -MODULE_DISTANCE_FROM_CENTER);
 
     // calculates the orientation and speed of individual swerve modules when given the motion of the whole robot
-    //out of order due arrows looking weird on advantage scope
+    //out of order due arrows looking weird on advantage scope and in a visual perspective
     public static final SwerveDriveKinematics swerveDriveKinematics = new SwerveDriveKinematics(
         SWERVE_LEFT_FRONT_LOCATION,
         SWERVE_RIGHT_BACK_LOCATION,
