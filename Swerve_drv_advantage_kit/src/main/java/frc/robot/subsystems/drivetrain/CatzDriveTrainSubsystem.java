@@ -20,8 +20,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.CatzConstants;
 import frc.robot.Robot;
-import frc.robot.subsystems.vision.CatzAprilTag;
-import frc.robot.subsystems.vision.CatzRobotTracker;
+import frc.robot.subsystems.vision.CatzAprilTag;;
 
 
 public class CatzDriveTrainSubsystem extends SubsystemBase
@@ -150,15 +149,17 @@ public class CatzDriveTrainSubsystem extends SubsystemBase
         Logger.getInstance().processInputs("Drive/gyroinputs ", gyroInputs);
 
         poseEstimator.updateWithTime(Logger.getInstance().getTimestamp(), getRotation2d(), getModulePositions());
+        Pose2d aprilPose2d = aprilTag.getLimelightBotPose();
 
         if(aprilTag.aprilTagInView())
         {
-            poseEstimator.addVisionMeasurement(aprilTag.getLimelightBotPose(), Logger.getInstance().getTimestamp());
+            poseEstimator.addVisionMeasurement(aprilPose2d, Logger.getInstance().getTimestamp());
         }
 
         //logging
         Logger.getInstance().recordOutput("Obometry/pose", getPose());
         Logger.getInstance().recordOutput("Drive/rotationheading" , getHeading());
+        Logger.getInstance().recordOutput("Drive/VisionPose" , aprilPose2d);
     }
     
 

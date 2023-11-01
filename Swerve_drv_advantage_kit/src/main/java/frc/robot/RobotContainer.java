@@ -77,7 +77,7 @@ import frc.robot.subsystems.Arm.CatzArmSubsystem;
      intake = CatzIntakeSubsystem.getInstance();
 
      NamedCommands.registerCommand("autoBalance", new BalanceCmd(driveTrain));
-     NamedCommands.registerCommand("stateMachine high", new StateMachineCmd(SetMechanismState.SCORE_HIGH));
+     NamedCommands.registerCommand("stateMachineHigh", new StateMachineCmd(SetMechanismState.SCORE_HIGH));
 
      
 

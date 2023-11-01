@@ -14,13 +14,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "New Path"
+            "pathName": "DriveStraightFullTurn"
           }
         },
         {
           "type": "wait",
           "data": {
             "waitTime": 0
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "stateMachineHi"
           }
         }
       ]

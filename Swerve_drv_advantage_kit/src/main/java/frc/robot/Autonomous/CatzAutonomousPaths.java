@@ -38,6 +38,11 @@ public class CatzAutonomousPaths
         return null;
     }
 
+    public static Command testPathPlanner()
+    {
+        return new PathPlannerAuto("New Auto");
+    }
+
     public static SequentialCommandGroup parallelScoreCube()
     {
         return new SequentialCommandGroup(

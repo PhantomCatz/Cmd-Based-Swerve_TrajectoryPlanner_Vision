@@ -9,7 +9,6 @@ import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.subsystems.vision.CatzRobotTracker;
 import frc.robot.subsystems.drivetrain.CatzDriveTrainSubsystem;
 import frc.robot.CatzConstants;
 
@@ -19,7 +18,7 @@ public class TrajectoryFollowingCmd extends CommandBase{
 
     private final Timer timer = new Timer();
     private final HolonomicDriveController controller;
-    private final CatzRobotTracker robotTracker = CatzRobotTracker.getInstance();
+    //private final CatzRobotTracker robotTracker = CatzRobotTracker.getInstance();
     private final CatzDriveTrainSubsystem driveTrain = CatzDriveTrainSubsystem.getInstance();
 
     private final Trajectory trajectory;
@@ -58,7 +57,7 @@ public class TrajectoryFollowingCmd extends CommandBase{
         double currentTime = timer.get();
         Trajectory.State goal = trajectory.sample(currentTime);
         
-        ChassisSpeeds adjustedSpeed = controller.calculate(robotTracker.getEstimatedPosition(), goal, targetHeading);
+        ChassisSpeeds adjustedSpeed = controller.calculate(driveTrain.getPose(), goal, targetHeading);
 
         driveTrain.driveRobotRelative(adjustedSpeed);
     }
