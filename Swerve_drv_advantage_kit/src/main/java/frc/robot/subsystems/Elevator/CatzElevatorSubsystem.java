@@ -25,7 +25,7 @@ public class CatzElevatorSubsystem extends SubsystemBase {
 
   private static CatzElevatorSubsystem instance;
 
-  private static CatzArmSubsystem arm = CatzArmSubsystem.getInstance();
+  static CatzArmSubsystem arm = CatzArmSubsystem.getInstance();
 
   private final double ARM_ENCODER_THRESHOLD = 35000.0;
   private final double MANUAL_HOLD_STEP_SIZE = 10000.0; //5000.0;
@@ -56,6 +56,8 @@ public class CatzElevatorSubsystem extends SubsystemBase {
   private boolean elevatorInPosition = false;
 
   private int numConsectSamples = 0;
+
+  private double sharedElevatorEncoderUpdate;
 
 
 
@@ -99,6 +101,7 @@ public class CatzElevatorSubsystem extends SubsystemBase {
   {
     io.updateInputs(inputs);
     Logger.getInstance().processInputs("Elevator", inputs);
+    sharedElevatorEncoderUpdate = inputs.elevatorEncoderCnts;
     
     checkLimitSwitches();
     // This method will be called once per scheduler run
@@ -297,7 +300,7 @@ public class CatzElevatorSubsystem extends SubsystemBase {
 
     public double getElevatorEncoder()
     {
-        return inputs.elevatorEncoderCnts;
+        return sharedElevatorEncoderUpdate;
     }
 
     //Singleton implementation for instatiating subssytems(Every refrence to this method should be static)

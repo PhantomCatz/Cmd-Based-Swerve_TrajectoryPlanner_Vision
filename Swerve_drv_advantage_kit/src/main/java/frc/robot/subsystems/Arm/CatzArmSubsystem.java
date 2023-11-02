@@ -22,7 +22,7 @@ public class CatzArmSubsystem extends SubsystemBase
 
   private static CatzArmSubsystem instance;
 
-  private static CatzElevatorSubsystem elevator = CatzElevatorSubsystem.getInstance();
+  static CatzElevatorSubsystem elevator = CatzElevatorSubsystem.getInstance();
 
   private final double HIGH_EXTEND_THRESHOLD_ELEVATOR = 73000.0;
 
@@ -48,6 +48,9 @@ public class CatzArmSubsystem extends SubsystemBase
   private boolean armInPosition = false;
 
   private int numConsectSamples = 0;
+
+  private double sharedArmEncoderUpdate;
+  private boolean sharedArmControlModeUpdate;
 
   private boolean armAscent;
   private double armPower;
@@ -91,8 +94,9 @@ public class CatzArmSubsystem extends SubsystemBase
     //perform input updates
     io.updateInputs(inputs);
     Logger.getInstance().processInputs("Arm", inputs);
-
     checkLimitSwitches();
+    sharedArmEncoderUpdate = inputs.armMotorEncoder;
+    sharedArmControlModeUpdate = inputs.currentArmControlMode;
 
     //arm logic implementation requiring a loop
     if(DriverStation.isDisabled())
@@ -182,12 +186,12 @@ public class CatzArmSubsystem extends SubsystemBase
 
     public double getArmEncoder()
     {
-        return inputs.armMotorEncoder;
+        return sharedArmEncoderUpdate;
     }
 
     public boolean isArmControlModePercentOutput()
     {
-        return inputs.currentArmControlMode;
+        return sharedArmControlModeUpdate;
     }
 
     //Singleton implementation for instatiating subssytems(Every refrence to this method should be static)
