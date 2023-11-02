@@ -148,18 +148,22 @@ public class CatzDriveTrainSubsystem extends SubsystemBase
         gyroIO.updateInputs(gyroInputs);
         Logger.getInstance().processInputs("Drive/gyroinputs ", gyroInputs);
 
+        
         poseEstimator.updateWithTime(Logger.getInstance().getTimestamp(), getRotation2d(), getModulePositions());
-        Pose2d aprilPose2d = aprilTag.getLimelightBotPose();
 
         if(aprilTag.aprilTagInView())
         {
+            Pose2d aprilPose2d = aprilTag.getLimelightBotPose();
             poseEstimator.addVisionMeasurement(aprilPose2d, Logger.getInstance().getTimestamp());
+            
+            Logger.getInstance().recordOutput("Drive/VisionPose" , aprilPose2d);
         }
+        
 
         //logging
         Logger.getInstance().recordOutput("Obometry/pose", getPose());
         Logger.getInstance().recordOutput("Drive/rotationheading" , getHeading());
-        Logger.getInstance().recordOutput("Drive/VisionPose" , aprilPose2d);
+       // 
     }
     
 
@@ -172,10 +176,10 @@ public class CatzDriveTrainSubsystem extends SubsystemBase
     public void setModuleStates(SwerveModuleState[] desiredStates) 
     {
         SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, CatzConstants.DriveConstants.MAX_SPEED);
-        swerveModules[0].setDesiredState(desiredStates[0]);
+        swerveModules[0].setDesiredState(desiredStates[2]);
         swerveModules[1].setDesiredState(desiredStates[1]);
-        swerveModules[2].setDesiredState(desiredStates[2]);
-        swerveModules[3].setDesiredState(desiredStates[3]);
+        swerveModules[2].setDesiredState(desiredStates[3]);
+        swerveModules[3].setDesiredState(desiredStates[0]);
     }
 
     public void setBrakeMode() {
@@ -204,7 +208,7 @@ public class CatzDriveTrainSubsystem extends SubsystemBase
     }
 
     public double getGyroAngle(){
-        return - gyroInputs.gyroAngle;
+        return gyroInputs.gyroAngle;
     }
 
     public double getHeading() {

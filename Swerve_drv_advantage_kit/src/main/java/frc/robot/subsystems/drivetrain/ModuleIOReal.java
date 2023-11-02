@@ -34,6 +34,7 @@ public class ModuleIOReal implements ModuleIO
     private final boolean ENABLE_CURRENT_LIMIT          = true;
 
     private final int     STEER_CURRENT_LIMIT_AMPS      = 30;
+    private final double  NEUTRAL_TO_FULL_SECONDS       = 0.1;
 
     public ModuleIOReal(int driveMotorIDIO, int steerMotorIDIO, int magDIOPort)
     {
@@ -58,6 +59,7 @@ public class ModuleIOReal implements ModuleIO
         DRIVE_MOTOR.config_kP(0, 0.1);
         DRIVE_MOTOR.config_kI(0, 0.0);
         DRIVE_MOTOR.config_kD(0, 0.0);
+        DRIVE_MOTOR.configClosedloopRamp(NEUTRAL_TO_FULL_SECONDS);
     }
 
     @Override

@@ -59,9 +59,9 @@ public class TeleopDriveCmd extends CommandBase {
         double turningSpeed = supplierRightJoyX.get();
 
         // Apply deadbands to prevent modules from receiving unintentional pwr
-        xSpeed = Math.abs(xSpeed) > OIConstants.kDeadband ? xSpeed : 0.0;
-        ySpeed = Math.abs(ySpeed) > OIConstants.kDeadband ? ySpeed : 0.0;
-        turningSpeed = 1;//Math.abs(turningSpeed) > OIConstants.kDeadband ? turningSpeed : 0.0;//CatzMathUtils.getSwerveRotation(turningSpeed);
+        xSpeed = Math.abs(xSpeed) > OIConstants.kDeadband ? xSpeed * CatzConstants.DriveConstants.MAX_SPEED: 0.0;
+        ySpeed = Math.abs(ySpeed) > OIConstants.kDeadband ? ySpeed * CatzConstants.DriveConstants.MAX_SPEED: 0.0;
+        turningSpeed = Math.abs(turningSpeed) > OIConstants.kDeadband ? turningSpeed * CatzConstants.DriveConstants.MAX_ANGSPEED_RAD_PER_SEC: 0.0;//CatzMathUtils.getSwerveRotation(turningSpeed);
 
         //Construct desired chassis speeds
         ChassisSpeeds chassisSpeeds;

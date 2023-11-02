@@ -24,7 +24,7 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
  * constants are needed, to reduce verbosity.
  */
 public final class CatzConstants {
-  public static final Mode currentMode = Mode.REPLAY;
+  public static final Mode currentMode = Mode.REAL;
 
   public static enum Mode {
     /** Running on a real robot. */
@@ -69,7 +69,7 @@ public final class CatzConstants {
         SWERVE_LEFT_BACK_LOCATION
     );
 
-    public static final double MAX_SPEED = 3.0; // meters per second
+    public static final double MAX_SPEED = 4.0; // meters per second
     public static final double MAX_ANGSPEED_RAD_PER_SEC = 6.0; // radians per second
 
     public static final double SDS_L1_GEAR_RATIO = 8.14;       //SDS mk4i L1 ratio reduction

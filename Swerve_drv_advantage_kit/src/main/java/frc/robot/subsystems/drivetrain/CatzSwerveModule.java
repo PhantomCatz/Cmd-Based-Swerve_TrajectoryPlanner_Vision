@@ -36,7 +36,7 @@ public class CatzSwerveModule
     private final SimpleMotorFeedforward m_driveFeedforward = new SimpleMotorFeedforward(1, 3);
     private final SimpleMotorFeedforward m_turnFeedforward = new SimpleMotorFeedforward(1, 0.5);
 
-    private final double kP = 1.0; //cuz error is in tenths place so no need to mutiply kp value
+    private final double kP = 0.4; //cuz error is in tenths place so no need to mutiply kp value
     private final double kI = 0.0;
     private final double kD = 0.0;
 
@@ -207,21 +207,15 @@ public class CatzSwerveModule
      */
     public void setDesiredState(SwerveModuleState state) {
 
-        if (Math.abs(state.speedMetersPerSecond) < 0.001) 
-        {
-            setDrivePercent(0.0);
-            setSteerPower(0.0);
-            return;
-        }
 
         //optimize wheel angles
-        state = SwerveModuleState.optimize(state, getModuleState().angle);
+        state = SwerveModuleState.optimize(state, getCurrentRotation());
         
         //calculate pwrs 
         double drivePwrVelocity = Conversions.MPSToFalcon(state.speedMetersPerSecond, 
                                                           CatzConstants.DriveConstants.DRVTRAIN_WHEEL_CIRCUMFERENCE, 
-                                                          1/CatzConstants.DriveConstants.SDS_L2_GEAR_RATIO); //to set is as a gear reduction not an overdrive
-
+                                                          CatzConstants.DriveConstants.SDS_L2_GEAR_RATIO); //to set is as a gear reduction not an overdrive
+        
         double steerPIDpwr = pid.calculate(getAbsEncRadians(), state.angle.getRadians());
 
         //set powers
@@ -261,7 +255,7 @@ public class CatzSwerveModule
 
     public SwerveModuleState getModuleState()
     {
-        double velocity = Conversions.falconToMPS(inputs.driveMtrSensorPosition,CatzConstants.DriveConstants.DRVTRAIN_WHEEL_CIRCUMFERENCE, 1/CatzConstants.DriveConstants.SDS_L2_GEAR_RATIO);
+        double velocity = Conversions.falconToMPS(inputs.driveMtrVelocity,CatzConstants.DriveConstants.DRVTRAIN_WHEEL_CIRCUMFERENCE, CatzConstants.DriveConstants.SDS_L2_GEAR_RATIO);
         
         return new SwerveModuleState(velocity, getCurrentRotation());
     }
