@@ -107,7 +107,6 @@ public class CatzDriveTrainSubsystem extends SubsystemBase
                                                      getModulePositions(), 
                                                      new Pose2d(0,0,Rotation2d.fromDegrees(0)));
         
-
         new Thread(() -> {
             try {
                 Thread.sleep(1000);
@@ -145,20 +144,18 @@ public class CatzDriveTrainSubsystem extends SubsystemBase
         }
         gyroIO.updateInputs(gyroInputs);
         Logger.getInstance().processInputs("Drive/gyroinputs ", gyroInputs);
-
+        Pose2d aprilPose2d = null;
         
         poseEstimator.updateWithTime(Logger.getInstance().getTimestamp(), getRotation2d(), getModulePositions());
 
         if(aprilTag.aprilTagInView())
         {
-            Pose2d aprilPose2d = aprilTag.getLimelightBotPose();
+            aprilPose2d = aprilTag.getLimelightBotPose();
             poseEstimator.addVisionMeasurement(aprilPose2d, Logger.getInstance().getTimestamp());
-            
-            Logger.getInstance().recordOutput("Drive/VisionPose" , aprilPose2d);
         }
         
-
         //logging
+        Logger.getInstance().recordOutput("Drive/VisionPose" , aprilPose2d);
         Logger.getInstance().recordOutput("Obometry/pose", getPose());
         Logger.getInstance().recordOutput("Drive/rotationheading" , getHeading());
     }

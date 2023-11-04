@@ -4,8 +4,11 @@
 
 package frc.robot.Autonomous;
 
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.CatzConstants.DriveConstants;
 import frc.robot.Utils.CatzMathUtils;
 import frc.robot.subsystems.drivetrain.CatzDriveTrainSubsystem;
 
@@ -87,9 +90,12 @@ public class BalanceCmd extends CommandBase {
         }
     }
 
-    
-   //driveTrain.drive(0.0, -power, 0.0); 
-    
+    ChassisSpeeds chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
+                                            power, 0.0, 0.0, driveTrain.getRotation2d()
+                                                              );
+    SwerveModuleState[] moduleStates = DriveConstants.swerveDriveKinematics.toSwerveModuleStates(chassisSpeeds);
+    driveTrain.setModuleStates(moduleStates);
+
     prevBalanceAngle = balanceAngle;
     prevTime = time;
 }

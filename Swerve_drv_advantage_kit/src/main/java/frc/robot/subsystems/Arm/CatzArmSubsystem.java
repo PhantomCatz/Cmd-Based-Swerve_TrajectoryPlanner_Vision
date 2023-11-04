@@ -70,7 +70,6 @@ public class CatzArmSubsystem extends SubsystemBase
             io = new ArmIOReal() {};
             break;
     }
-
   }
 
   private static ArmAutoState armSetState = null;
@@ -95,8 +94,10 @@ public class CatzArmSubsystem extends SubsystemBase
     io.updateInputs(inputs);
     Logger.getInstance().processInputs("Arm", inputs);
     checkLimitSwitches();
+
+    //shoving input variables into class member variables for transfering to different java files
     sharedArmEncoderUpdate = inputs.armMotorEncoder;
-    sharedArmControlModeUpdate = inputs.currentArmControlMode;
+    sharedArmControlModeUpdate = inputs.currentArmControlMode; 
 
     //arm logic implementation requiring a loop
     if(DriverStation.isDisabled())

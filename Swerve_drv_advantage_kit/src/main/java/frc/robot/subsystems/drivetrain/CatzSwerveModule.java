@@ -211,19 +211,19 @@ public class CatzSwerveModule
         //optimize wheel angles
         state = SwerveModuleState.optimize(state, getCurrentRotation());
         
-        //calculate pwrs 
+        //calculate drive pwr
         double drivePwrVelocity = Conversions.MPSToFalcon(state.speedMetersPerSecond, 
                                                           CatzConstants.DriveConstants.DRVTRAIN_WHEEL_CIRCUMFERENCE, 
                                                           CatzConstants.DriveConstants.SDS_L2_GEAR_RATIO); //to set is as a gear reduction not an overdrive
-        
-        double steerPIDpwr = pid.calculate(getAbsEncRadians(), state.angle.getRadians());
+        //calculate turn pwr
+        //negative so the wheels spin in the right direction and to account for the xboxdrive controller error
+        double steerPIDpwr = -pid.calculate(getAbsEncRadians(), state.angle.getRadians()); 
 
         //set powers
         setDriveVelocity(drivePwrVelocity);// + driveFeedforward);
         setSteerPower(steerPIDpwr);// + turnFeedforward);
 
         //logging
-        
         Logger.getInstance().recordOutput("Drive/current roation" + Integer.toString(index), getAbsEncRadians());
         Logger.getInstance().recordOutput("Drive/target Angle" + Integer.toString(index), state.angle.getRadians());
         Logger.getInstance().recordOutput("Drive/drive velocity" + Integer.toString(index), drivePwrVelocity);

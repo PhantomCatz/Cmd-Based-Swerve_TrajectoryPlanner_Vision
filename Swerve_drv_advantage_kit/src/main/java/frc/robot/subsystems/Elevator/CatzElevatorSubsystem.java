@@ -96,6 +96,7 @@ public class CatzElevatorSubsystem extends SubsystemBase {
     FULLMANUAL,
   } 
 
+  //The periodic method will be used for any non stateset hardware implementation
   @Override
   public void periodic() 
   {

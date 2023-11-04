@@ -14,8 +14,11 @@
  package frc.robot;
 
 
- import com.pathplanner.lib.auto.NamedCommands;
+ import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
 
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
  import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
@@ -44,22 +47,22 @@ import frc.robot.subsystems.Arm.CatzArmSubsystem;
   * subsystems, commands, and trigger mappings) should be declared here.
   */
  public class RobotContainer {
-       private static CatzDriveTrainSubsystem driveTrain;
-       private static CatzElevatorSubsystem elevator;
-       private static CatzIntakeSubsystem intake;
-       private static CatzArmSubsystem arm;
-       //private final CatzRobotTracker robotTracker; //TBD need to test and modify swerve drive code for this
- 
-       private final CatzAutonomousSelection auton = new CatzAutonomousSelection();
- 
- 
-       //xbox controller
-       private CommandXboxController xboxDrv;
-       private CommandXboxController xboxAux;
-    
-       //RobotContainer Constants
-       private final int XBOX_DRV_PORT = 0;
-       private final int XBOX_AUX_PORT = 1;
+    private static CatzDriveTrainSubsystem driveTrain;
+    private static CatzElevatorSubsystem elevator;
+    private static CatzIntakeSubsystem intake;
+    private static CatzArmSubsystem arm;
+    //private final CatzRobotTracker robotTracker; //TBD need to test and modify swerve drive code for this
+
+    private final CatzAutonomousSelection auton = new CatzAutonomousSelection();
+
+
+    //xbox controller
+    private CommandXboxController xboxDrv;
+    private CommandXboxController xboxAux;
+
+    //RobotContainer Constants
+    private final int XBOX_DRV_PORT = 0;
+    private final int XBOX_AUX_PORT = 1;
  
        
     
@@ -89,6 +92,7 @@ import frc.robot.subsystems.Arm.CatzArmSubsystem;
      // Configure the trigger bindings and default cmds
      defaultCommands();
      configureBindings();
+
    }
  
    
@@ -109,9 +113,9 @@ import frc.robot.subsystems.Arm.CatzArmSubsystem;
      xboxAux.b().onTrue(new StateMachineCmd(SetMechanismState.SCORE_MID));
      xboxAux.a().onTrue(new StateMachineCmd(SetMechanismState.SCORE_LOW));
      xboxAux.x().or(xboxDrv.rightStick())
-       .onTrue(new StateMachineCmd(SetMechanismState.STOW));
+                .onTrue(new StateMachineCmd(SetMechanismState.STOW));
      xboxAux.start().or(xboxDrv.leftStick())
-       .onTrue(new StateMachineCmd(SetMechanismState.PICKUP_GROUND));
+                .onTrue(new StateMachineCmd(SetMechanismState.PICKUP_GROUND));
  
    
    //--------------------------------------------Manual Cmds---------------------------------------------------------------------------
