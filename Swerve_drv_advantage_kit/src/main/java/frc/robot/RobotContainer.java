@@ -55,7 +55,6 @@ import frc.robot.subsystems.Arm.CatzArmSubsystem;
 
     private final CatzAutonomousSelection auton = new CatzAutonomousSelection();
 
-
     //xbox controller
     private CommandXboxController xboxDrv;
     private CommandXboxController xboxAux;
@@ -207,6 +206,4 @@ import frc.robot.subsystems.Arm.CatzArmSubsystem;
      // An example command will be run in autonomous
      return auton.autoChooser.get();
    }
-   
  }
- 

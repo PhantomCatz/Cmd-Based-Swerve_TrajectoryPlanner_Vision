@@ -19,21 +19,18 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.CatzConstants;
 import frc.robot.Autonomous.Trajectory.TrajectoryFollowingCmd;
 import frc.robot.Autonomous.Trajectory.Paths.Trajectories;
-
-
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 
 public class CatzAutonomousSelection 
 {
-
-    public final LoggedDashboardChooser<Enum> chosenAllianceColor = new LoggedDashboardChooser<>("/alliance selector");
-    public final LoggedDashboardChooser<Command> autoChooser = new LoggedDashboardChooser<>("/Auto Routine");
+    public LoggedDashboardChooser<Enum> chosenAllianceColor = new LoggedDashboardChooser<>("alliance selector");
+    public LoggedDashboardChooser<Command> autoChooser = new LoggedDashboardChooser<>("Auto Routine");
 
     public CatzAutonomousCmds autonPaths = new CatzAutonomousCmds();
     public CatzAutonomousSelection()
     {
         chosenAllianceColor.addDefaultOption("Blue Alliance", CatzConstants.AllianceColor.BlUE_ALLIANCE);
         chosenAllianceColor.addOption       ("Red Alliance",  CatzConstants.AllianceColor.RED_ALLIANCE);
-
 
         autoChooser.addDefaultOption("Do Nothing", null);
 

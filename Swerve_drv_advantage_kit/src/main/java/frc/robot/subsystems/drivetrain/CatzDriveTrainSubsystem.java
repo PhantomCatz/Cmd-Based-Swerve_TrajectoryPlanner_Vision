@@ -60,10 +60,8 @@ public class CatzDriveTrainSubsystem extends SubsystemBase
 
     private final double NOT_FIELD_RELATIVE = 0.0;
 
-
     private boolean modifyDrvPwr = false;
     
-
     public double dataJoystickAngle;
     public double dataJoystickPower;
     private int index;
@@ -152,10 +150,11 @@ public class CatzDriveTrainSubsystem extends SubsystemBase
         {
             aprilPose2d = aprilTag.getLimelightBotPose();
             poseEstimator.addVisionMeasurement(aprilPose2d, Logger.getInstance().getTimestamp());
+
+            Logger.getInstance().recordOutput("Drive/VisionPose" , aprilPose2d);
         }
         
         //logging
-        Logger.getInstance().recordOutput("Drive/VisionPose" , aprilPose2d);
         Logger.getInstance().recordOutput("Obometry/pose", getPose());
         Logger.getInstance().recordOutput("Drive/rotationheading" , getHeading());
     }
@@ -174,6 +173,8 @@ public class CatzDriveTrainSubsystem extends SubsystemBase
         swerveModules[1].setDesiredState(desiredStates[1]);
         swerveModules[2].setDesiredState(desiredStates[3]);
         swerveModules[3].setDesiredState(desiredStates[0]);
+
+        Logger.getInstance().recordOutput("module states", desiredStates);
     }
 
     public void setBrakeMode() {

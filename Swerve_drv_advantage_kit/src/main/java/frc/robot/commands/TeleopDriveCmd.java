@@ -80,7 +80,7 @@ public class TeleopDriveCmd extends CommandBase {
 
         driveTrain.setModuleStates(moduleStates);
 
-        Logger.getInstance().recordOutput("module states", moduleStates);
+        //module states are recorded whenever they are set
         Logger.getInstance().recordOutput("robot xspeed", xSpeed);
         Logger.getInstance().recordOutput("robot yspeed", ySpeed);
         Logger.getInstance().recordOutput("robot turnspeed", turningSpeed);

@@ -141,18 +141,6 @@ public class CatzSwerveModule
         io.setSteerBrakeModeIO();
     }
 
-    public double getDrvDistance()
-    {
-        if(driveDirectionFlipped)
-        {
-            return inputs.driveMtrSensorPosition;
-        }
-        else
-        {
-            return -inputs.driveMtrSensorPosition;
-        }
-    }
-
     public void resetDrvDistance()
     {
         int i = 0;
@@ -167,12 +155,6 @@ public class CatzSwerveModule
             }
         }
     }
-
-    public double getDriveDistanceInch()
-    {
-        return inputs.driveMtrSensorPosition * CatzConstants.DriveConstants.SDS_L1_GEAR_RATIO * CatzConstants.DriveConstants.DRVTRAIN_WHEEL_CIRCUMFERENCE / 2048.0;
-    }
-
 
     public double getDrvVelocity()
     {
@@ -217,7 +199,7 @@ public class CatzSwerveModule
                                                           CatzConstants.DriveConstants.SDS_L2_GEAR_RATIO); //to set is as a gear reduction not an overdrive
         //calculate turn pwr
         //negative so the wheels spin in the right direction and to account for the xboxdrive controller error
-        double steerPIDpwr = -pid.calculate(getAbsEncRadians(), state.angle.getRadians()); 
+        double steerPIDpwr = pid.calculate(getAbsEncRadians(), state.angle.getRadians()); 
 
         //set powers
         setDriveVelocity(drivePwrVelocity);// + driveFeedforward);
@@ -234,7 +216,7 @@ public class CatzSwerveModule
 
     public void resetMagEnc()
     {
-        //tbd
+        
     }
 
     public void resetDriveEncs()

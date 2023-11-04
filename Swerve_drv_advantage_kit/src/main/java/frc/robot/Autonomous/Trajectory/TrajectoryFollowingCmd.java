@@ -1,5 +1,7 @@
 package frc.robot.Autonomous.Trajectory;
 
+import org.littletonrobotics.junction.Logger;
+
 import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -36,6 +38,7 @@ public class TrajectoryFollowingCmd extends CommandBase{
         // also, why is it called refheading? wouldn't something like targetOrientation be better
 
         controller = CatzConstants.DriveConstants.holonomicDriveController; // see catzconstants
+        addRequirements(driveTrain);
     }
 
     // reset and start timer
@@ -67,10 +70,16 @@ public class TrajectoryFollowingCmd extends CommandBase{
         Trajectory.State goal = trajectory.sample(currentTime);
         Pose2d currentPosition = driveTrain.getPose();
         
-        ChassisSpeeds adjustedSpeed = controller.calculate(currentPosition, goal, targetHeading);
+        //ChassisSpeeds adjustedSpeed = controller.calculate(currentPosition, goal, targetHeading);
         //adjustedSpeed.omegaRadiansPerSecond = - adjustedSpeed.omegaRadiansPerSecond;
+        ChassisSpeeds adjustedSpeed = new ChassisSpeeds(4, 0, 0);
         SwerveModuleState[] targetModuleStates = CatzConstants.DriveConstants.swerveDriveKinematics.toSwerveModuleStates(adjustedSpeed);
-        driveTrain.setModuleStates(targetModuleStates);
+        //driveTrain.setModuleStates(targetModuleStates);
+
+        CatzDriveTrainSubsystem.getInstance().LT_FRNT_MODULE.setDrivePercent(0.5);
+        CatzDriveTrainSubsystem.getInstance().LT_BACK_MODULE.setDrivePercent(0.5);
+        CatzDriveTrainSubsystem.getInstance().RT_FRNT_MODULE.setDrivePercent(0.5);
+        CatzDriveTrainSubsystem.getInstance().RT_BACK_MODULE.setDrivePercent(0.5);
     }
 
     // stop all robot motion
