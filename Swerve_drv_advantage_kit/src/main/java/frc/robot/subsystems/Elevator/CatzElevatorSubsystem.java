@@ -304,6 +304,11 @@ public class CatzElevatorSubsystem extends SubsystemBase {
         return sharedElevatorEncoderUpdate;
     }
 
+    public ElevatorControlState getElevatorControlState()
+    {
+        return elevatorControlState;
+    }
+
     //Singleton implementation for instatiating subssytems(Every refrence to this method should be static)
     public static CatzElevatorSubsystem getInstance()
     {

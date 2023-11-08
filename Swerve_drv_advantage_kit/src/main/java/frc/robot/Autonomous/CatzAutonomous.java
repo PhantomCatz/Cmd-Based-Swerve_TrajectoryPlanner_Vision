@@ -41,8 +41,8 @@ public class CatzAutonomous
     private final static CatzIntakeSubsystem intake = CatzIntakeSubsystem.getInstance();
     private final static CatzDriveTrainSubsystem driveTrain = CatzDriveTrainSubsystem.getInstance();
 
-    private PathPlannerPath driveStraighFullTurn = PathPlannerPath.fromPathFile("DriveStraightFullTurn");
-    private PathPlannerPath feildSideDriveBack = PathPlannerPath.fromPathFile("FeildSideDriveBack");
+    private static PathPlannerPath driveStraighFullTurn = PathPlannerPath.fromPathFile("DriveStraightFullTurn");
+    private static PathPlannerPath feildSideDriveBack = PathPlannerPath.fromPathFile("FeildSideDriveBack");
 
 
     public LoggedDashboardChooser<Enum> chosenAllianceColor = new LoggedDashboardChooser<>("alliance selector");
@@ -85,11 +85,6 @@ public class CatzAutonomous
         return new SequentialCommandGroup();
     }
 
-    public static Command testPathPlanner()
-    {
-        return new PathPlannerAuto("New Auto");
-    }
-
     public static SequentialCommandGroup parallelScoreCube()
     {
         return new SequentialCommandGroup(
@@ -98,7 +93,7 @@ public class CatzAutonomous
                         .raceWith(Commands.waitSeconds(1.0)),
 
                     new ParallelCommandGroup(
-                        //new DriveToPoseCmd(), 
+                        new PPTrajectoryFollowingCmd(driveStraighFullTurn), 
                         new SequentialCommandGroup(
                             new StateMachineCmd(SetMechanismState.STOW)
                                 .raceWith(Commands.waitSeconds(1.0)),
@@ -108,7 +103,7 @@ public class CatzAutonomous
                                             ),
 
                     new ParallelCommandGroup(
-                        //new DriveToPoseCmd(), 
+                        new PPTrajectoryFollowingCmd(feildSideDriveBack), 
                         new SequentialCommandGroup(
                             new StateMachineCmd(SetMechanismState.STOW)
                                 .raceWith(Commands.waitSeconds(1.0)),
@@ -124,9 +119,9 @@ public class CatzAutonomous
     {
         return new SequentialCommandGroup(
                     Commands.runOnce(() -> CatzStateUtil.newGamePieceState(GamePieceState.CONE)),
-                    new StateMachineCmd(SetMechanismState.SCORE_HIGH)
+                    new StateMachineCmd(SetMechanismState.SCORE_HIGH),
 
-                   // new DriveToPoseCmd()
+                   new PPTrajectoryFollowingCmd(driveStraighFullTurn)
             
         );
     }

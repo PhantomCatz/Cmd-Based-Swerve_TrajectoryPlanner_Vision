@@ -60,6 +60,14 @@ public class CatzIntakeSubsystem extends SubsystemBase {
 
     private int numConsectSamples = 0;
 
+    private static IntakeControlState intakeControlState = null;
+    public static enum IntakeControlState {
+      
+      AUTO,
+      SEMIMANUAL,
+      FULLMANUAL,
+    } 
+
   private CatzIntakeSubsystem() 
   {
     switch(CatzConstants.currentMode)
@@ -74,8 +82,6 @@ public class CatzIntakeSubsystem extends SubsystemBase {
             io = new IntakeIOReal() {};
             break;
     }
-
-
         intakePID = new PIDController(CatzConstants.IntakeConstants.GROSS_kP, CatzConstants.IntakeConstants.GROSS_kI, CatzConstants.IntakeConstants.GROSS_kD);
         
   }
@@ -186,6 +192,7 @@ public class CatzIntakeSubsystem extends SubsystemBase {
 
     public void manualHoldingFunction(double wristPwr)
     {
+        intakeControlState = IntakeControlState.SEMIMANUAL;
         if(wristPwr > 0)
         {
           targetPositionDeg = Math.min((targetPositionDeg + wristPwr * CatzConstants.IntakeConstants.MANUAL_HOLD_STEP_SIZE), CatzConstants.IntakeConstants.SOFT_LIMIT_FORWARD);
@@ -312,6 +319,11 @@ public class CatzIntakeSubsystem extends SubsystemBase {
     public void softLimitOverideEnabled() 
     {
         io.intakeConfigureSoftLimitOverride(true);
+    }
+
+    public IntakeControlState getIntakeControlState()
+    {
+        return intakeControlState;
     }
     
 

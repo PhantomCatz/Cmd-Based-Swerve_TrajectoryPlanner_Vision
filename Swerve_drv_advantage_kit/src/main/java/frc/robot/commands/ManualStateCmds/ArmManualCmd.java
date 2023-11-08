@@ -6,6 +6,7 @@ package frc.robot.commands.ManualStateCmds;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Arm.CatzArmSubsystem;
+import frc.robot.subsystems.Arm.CatzArmSubsystem.ArmControlState;
 
 public class ArmManualCmd extends CommandBase {
   private CatzArmSubsystem arm = CatzArmSubsystem.getInstance();
@@ -53,6 +54,6 @@ public class ArmManualCmd extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return false;
+    return (arm.getArmControlState() != ArmControlState.FULLMANUAL);
   }
 }

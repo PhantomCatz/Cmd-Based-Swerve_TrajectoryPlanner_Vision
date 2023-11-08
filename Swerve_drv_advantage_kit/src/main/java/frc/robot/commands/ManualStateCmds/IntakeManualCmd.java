@@ -8,6 +8,7 @@ import java.util.function.Supplier;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Intake.CatzIntakeSubsystem;
+import frc.robot.subsystems.Intake.CatzIntakeSubsystem.IntakeControlState;
 
 public class IntakeManualCmd extends CommandBase {
   CatzIntakeSubsystem intake = CatzIntakeSubsystem.getInstance();
@@ -74,6 +75,7 @@ public class IntakeManualCmd extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return false;
+    return ((intake.getIntakeControlState() != IntakeControlState.FULLMANUAL) && 
+            (intake.getPIDEnabled() == false));
   }
 }

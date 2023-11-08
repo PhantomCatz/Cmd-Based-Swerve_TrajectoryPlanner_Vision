@@ -8,6 +8,7 @@ import java.util.function.Supplier;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Elevator.CatzElevatorSubsystem;
+import frc.robot.subsystems.Elevator.CatzElevatorSubsystem.ElevatorControlState;
 
 public class ElevatorManualCmd extends CommandBase {
   CatzElevatorSubsystem elevator = CatzElevatorSubsystem.getInstance();
@@ -73,7 +74,9 @@ public class ElevatorManualCmd extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return false;
+    elevator.getElevatorControlState();
+    return ((elevator.getElevatorControlState() != ElevatorControlState.FULLMANUAL) && 
+            (elevator.getElevatorControlState() != ElevatorControlState.SEMIMANUAL));
   }
 }
 

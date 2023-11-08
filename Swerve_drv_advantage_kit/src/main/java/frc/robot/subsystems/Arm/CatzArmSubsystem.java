@@ -195,6 +195,11 @@ public class CatzArmSubsystem extends SubsystemBase
         return sharedArmControlModeUpdate;
     }
 
+    public ArmControlState getArmControlState()
+    {
+        return armControlState;
+    }
+
     //Singleton implementation for instatiating subssytems(Every refrence to this method should be static)
     public static CatzArmSubsystem getInstance()
     {
