@@ -54,7 +54,7 @@ public class CatzSwerveModule
     private double gyroAngle;
 
 
-    public CatzSwerveModule(int driveMotorID, int steerMotorID, int encoderDIOChannel, double offset, boolean isInverted, int index)
+    public CatzSwerveModule(int driveMotorID, int steerMotorID, int encoderDIOChannel, double offset, int index)
     {
         this.index = index;
 
@@ -161,7 +161,7 @@ public class CatzSwerveModule
         return inputs.driveMtrVelocity;
     }
     
-    public double getAbsEncRadians()
+    private double getAbsEncRadians()
     {
         return - (inputs.magEncoderValue - wheelOffset) * 2 * Math.PI;
     }
@@ -188,17 +188,11 @@ public class CatzSwerveModule
      * @param state Desired state with speed and angle.
      */
     public void setDesiredState(SwerveModuleState state) {
-
-
-        //optimize wheel angles
-        state = SwerveModuleState.optimize(state, getCurrentRotation());
-        
         //calculate drive pwr
         double drivePwrVelocity = Conversions.MPSToFalcon(state.speedMetersPerSecond, 
                                                           CatzConstants.DriveConstants.DRVTRAIN_WHEEL_CIRCUMFERENCE, 
                                                           CatzConstants.DriveConstants.SDS_L2_GEAR_RATIO); //to set is as a gear reduction not an overdrive
         //calculate turn pwr
-        //negative so the wheels spin in the right direction and to account for the xboxdrive controller error
         double steerPIDpwr = pid.calculate(getAbsEncRadians(), state.angle.getRadians()); 
 
         //set powers
@@ -230,7 +224,7 @@ public class CatzSwerveModule
     }
 
     //inputs the rotation object as radian conversion
-    private Rotation2d getCurrentRotation()
+    public Rotation2d getCurrentRotation()
     {
         return new Rotation2d(getAbsEncRadians());
     }

@@ -25,7 +25,7 @@ import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
  import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Autonomous.BalanceCmd;
-import frc.robot.Autonomous.CatzAutonomousSelection;
+import frc.robot.Autonomous.CatzAutonomous;
  import frc.robot.Utils.CatzStateUtil;
  import frc.robot.Utils.CatzStateUtil.GamePieceState;
  import frc.robot.Utils.CatzStateUtil.SetMechanismState;
@@ -53,7 +53,7 @@ import frc.robot.subsystems.Arm.CatzArmSubsystem;
     private static CatzArmSubsystem arm;
     //private final CatzRobotTracker robotTracker; //TBD need to test and modify swerve drive code for this
 
-    private final CatzAutonomousSelection auton = new CatzAutonomousSelection();
+    private final CatzAutonomous auton = new CatzAutonomous();
 
     //xbox controller
     private CommandXboxController xboxDrv;

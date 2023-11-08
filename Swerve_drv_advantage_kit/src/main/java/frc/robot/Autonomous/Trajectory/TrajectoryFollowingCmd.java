@@ -26,6 +26,7 @@ public class TrajectoryFollowingCmd extends CommandBase{
 
     private final Trajectory trajectory;
     private final Rotation2d targetHeading;
+    private Rotation2d initHeading;
 
     /**
      * @param trajectory The trajectory to follow
@@ -46,6 +47,7 @@ public class TrajectoryFollowingCmd extends CommandBase{
     public void initialize() {
         timer.reset();
         timer.start();
+        initHeading = driveTrain.getRotation2d();
     }
 
     // calculates if trajectory is finished
@@ -70,16 +72,9 @@ public class TrajectoryFollowingCmd extends CommandBase{
         Trajectory.State goal = trajectory.sample(currentTime);
         Pose2d currentPosition = driveTrain.getPose();
         
-        //ChassisSpeeds adjustedSpeed = controller.calculate(currentPosition, goal, targetHeading);
-        //adjustedSpeed.omegaRadiansPerSecond = - adjustedSpeed.omegaRadiansPerSecond;
-        ChassisSpeeds adjustedSpeed = new ChassisSpeeds(4, 0, 0);
-        SwerveModuleState[] targetModuleStates = CatzConstants.DriveConstants.swerveDriveKinematics.toSwerveModuleStates(adjustedSpeed);
-        //driveTrain.setModuleStates(targetModuleStates);
-
-        CatzDriveTrainSubsystem.getInstance().LT_FRNT_MODULE.setDrivePercent(0.5);
-        CatzDriveTrainSubsystem.getInstance().LT_BACK_MODULE.setDrivePercent(0.5);
-        CatzDriveTrainSubsystem.getInstance().RT_FRNT_MODULE.setDrivePercent(0.5);
-        CatzDriveTrainSubsystem.getInstance().RT_BACK_MODULE.setDrivePercent(0.5);
+        ChassisSpeeds adjustedSpeed = controller.calculate(currentPosition, goal, initHeading.interpolate(targetHeading, currentTime / trajectory.getTotalTimeSeconds()));
+        adjustedSpeed.omegaRadiansPerSecond = - adjustedSpeed.omegaRadiansPerSecond;
+        driveTrain.driveRobotRelative(adjustedSpeed);
     }
 
     // stop all robot motion

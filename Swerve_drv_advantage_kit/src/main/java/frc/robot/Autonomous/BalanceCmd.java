@@ -93,8 +93,7 @@ public class BalanceCmd extends CommandBase {
     ChassisSpeeds chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
                                             power, 0.0, 0.0, driveTrain.getRotation2d()
                                                               );
-    SwerveModuleState[] moduleStates = DriveConstants.swerveDriveKinematics.toSwerveModuleStates(chassisSpeeds);
-    driveTrain.setModuleStates(moduleStates);
+    driveTrain.driveRobotRelative(chassisSpeeds);
 
     prevBalanceAngle = balanceAngle;
     prevTime = time;

@@ -18,15 +18,9 @@
           }
         },
         {
-          "type": "wait",
+          "type": "path",
           "data": {
-            "waitTime": 0
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "stateMachineHi"
+            "pathName": "FeildSideDriveBack"
           }
         }
       ]

@@ -75,10 +75,6 @@ public class TeleopDriveCmd extends CommandBase {
                                                                  );
         }
 
-        // 5. Convert chassis speeds to individual module states
-        SwerveModuleState[] moduleStates = DriveConstants.swerveDriveKinematics.toSwerveModuleStates(chassisSpeeds);
-
-        driveTrain.setModuleStates(moduleStates);
 
         //module states are recorded whenever they are set
         Logger.getInstance().recordOutput("robot xspeed", xSpeed);
