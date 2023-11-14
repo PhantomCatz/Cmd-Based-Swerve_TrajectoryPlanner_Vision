@@ -78,11 +78,6 @@ import frc.robot.subsystems.Arm.CatzArmSubsystem;
      arm = CatzArmSubsystem.getInstance();
      intake = CatzIntakeSubsystem.getInstance();
 
-     NamedCommands.registerCommand("autoBalance", new BalanceCmd(driveTrain));
-     NamedCommands.registerCommand("stateMachineHigh", new StateMachineCmd(SetMechanismState.SCORE_HIGH));
-
-     
-
  
      xboxDrv = new CommandXboxController(XBOX_DRV_PORT); 
      xboxAux = new CommandXboxController(XBOX_AUX_PORT);
@@ -204,6 +199,6 @@ import frc.robot.subsystems.Arm.CatzArmSubsystem;
     */
    public Command getAutonomousCommand() {
      // An example command will be run in autonomous
-     return auton.autoChooser.get();
+     return null;//auton.autoChooser.get();
    }
  }

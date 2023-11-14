@@ -188,6 +188,8 @@ public class CatzSwerveModule
      * @param state Desired state with speed and angle.
      */
     public void setDesiredState(SwerveModuleState state) {
+
+        state = SwerveModuleState.optimize(state, getCurrentRotation());
         //calculate drive pwr
         double drivePwrVelocity = Conversions.MPSToFalcon(state.speedMetersPerSecond, 
                                                           CatzConstants.DriveConstants.DRVTRAIN_WHEEL_CIRCUMFERENCE, 

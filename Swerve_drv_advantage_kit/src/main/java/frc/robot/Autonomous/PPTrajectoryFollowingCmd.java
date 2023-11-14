@@ -4,7 +4,6 @@ import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.path.PathPlannerTrajectory;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 
-import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -44,7 +43,7 @@ public class PPTrajectoryFollowingCmd extends CommandBase {
     {
         this.trajectory = new PathPlannerTrajectory(newPath, new ChassisSpeeds());
         controller = CatzConstants.DriveConstants.ppholonomicDriveController;
-        addRequirements(driveTrain);
+       // addRequirements(driveTrain);
     }
 
     @Override

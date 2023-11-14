@@ -58,7 +58,7 @@ public final class CatzConstants {
   {
     private static final double MODULE_DISTANCE_FROM_CENTER = 0.298;
 
-/*
+
     private static final Translation2d SWERVE_LEFT_FRONT_LOCATION  = new Translation2d(MODULE_DISTANCE_FROM_CENTER, MODULE_DISTANCE_FROM_CENTER);
     private static final Translation2d SWERVE_LEFT_BACK_LOCATION   = new Translation2d(-MODULE_DISTANCE_FROM_CENTER, MODULE_DISTANCE_FROM_CENTER);
     private static final Translation2d SWERVE_RIGHT_BACK_LOCATION  = new Translation2d(-MODULE_DISTANCE_FROM_CENTER, -MODULE_DISTANCE_FROM_CENTER);
@@ -72,8 +72,8 @@ public final class CatzConstants {
         SWERVE_RIGHT_FRONT_LOCATION,
         SWERVE_LEFT_BACK_LOCATION
     );
-    */
-
+    
+/* 
     private static final Translation2d SWERVE_LEFT_FRONT_LOCATION  = new Translation2d(MODULE_DISTANCE_FROM_CENTER, MODULE_DISTANCE_FROM_CENTER);
     private static final Translation2d SWERVE_LEFT_BACK_LOCATION   = new Translation2d(-MODULE_DISTANCE_FROM_CENTER, MODULE_DISTANCE_FROM_CENTER);
     private static final Translation2d SWERVE_RIGHT_FRONT_LOCATION = new Translation2d(MODULE_DISTANCE_FROM_CENTER, -MODULE_DISTANCE_FROM_CENTER);
@@ -86,6 +86,7 @@ public final class CatzConstants {
         SWERVE_RIGHT_FRONT_LOCATION,
         SWERVE_RIGHT_BACK_LOCATION
     );
+    */
 
     public static final double MAX_SPEED = 4.0; // meters per second
     public static final double MAX_ANGSPEED_RAD_PER_SEC = 6.0; // radians per second

@@ -188,16 +188,12 @@ public class CatzDriveTrainSubsystem extends SubsystemBase
     private void setModuleStates(SwerveModuleState[] desiredStates) 
     {
         SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, CatzConstants.DriveConstants.MAX_SPEED);
-        /* 
+        
         swerveModules[0].setDesiredState(desiredStates[2]);
         swerveModules[1].setDesiredState(desiredStates[1]);
         swerveModules[2].setDesiredState(desiredStates[3]);
         swerveModules[3].setDesiredState(desiredStates[0]);
-        */
-        for(int i = 0; i < desiredStates.length; i++){
-            desiredStates[i] = SwerveModuleState.optimize(desiredStates[i], swerveModules[i].getCurrentRotation());
-            swerveModules[i].setDesiredState(desiredStates[i]);
-        }
+        
 
         Logger.getInstance().recordOutput("module states", desiredStates);
     }
