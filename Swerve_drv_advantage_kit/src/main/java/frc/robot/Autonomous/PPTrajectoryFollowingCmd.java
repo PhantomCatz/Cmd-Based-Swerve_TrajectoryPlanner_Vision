@@ -43,7 +43,7 @@ public class PPTrajectoryFollowingCmd extends CommandBase {
     {
         this.trajectory = new PathPlannerTrajectory(newPath, new ChassisSpeeds());
         controller = CatzConstants.DriveConstants.ppholonomicDriveController;
-       // addRequirements(driveTrain);
+       addRequirements(driveTrain);
     }
 
     @Override

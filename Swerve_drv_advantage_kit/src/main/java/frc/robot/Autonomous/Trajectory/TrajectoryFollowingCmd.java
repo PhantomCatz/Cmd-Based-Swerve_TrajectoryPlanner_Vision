@@ -39,7 +39,7 @@ public class TrajectoryFollowingCmd extends CommandBase{
         // also, why is it called refheading? wouldn't something like targetOrientation be better
 
         controller = CatzConstants.DriveConstants.holonomicDriveController; // see catzconstants
-       // addRequirements(driveTrain);
+       addRequirements(driveTrain);
     }
 
     // reset and start timer

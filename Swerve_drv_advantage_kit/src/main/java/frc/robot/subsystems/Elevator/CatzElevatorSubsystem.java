@@ -113,10 +113,6 @@ public class CatzElevatorSubsystem extends SubsystemBase {
         elevatorControlState = null;
         elevatorSetStateUpdate = null;
     }
-    else if(elevatorControlState == ElevatorControlState.FULLMANUAL)
-    {
-      elevatorManual(elevatorPwr);
-    }
     else if(elevatorControlState == ElevatorControlState.SEMIMANUAL)
     {
       manualHoldTargetPos = getElevatorEncoder();
@@ -154,7 +150,7 @@ public class CatzElevatorSubsystem extends SubsystemBase {
 
   public void elevatorManualCmd(double elevatorPwr, boolean isFullManualEnabled)
   {
-    this.elevatorPwr = elevatorPwr;
+    elevatorHoldingManual(elevatorPwr);
     
     if(isFullManualEnabled)
     {
@@ -172,11 +168,6 @@ public class CatzElevatorSubsystem extends SubsystemBase {
     this.elevatorSetStateUpdate = state;
     elevatorControlState = ElevatorControlState.AUTO;
 
-    if(elevatorSetStateUpdate != ElevatorAutoState.LOW)
-    {
-      elevatorDescent = false;
-    }
-
     switch(elevatorSetStateUpdate)
     {
       case HIGH:
@@ -192,7 +183,7 @@ public class CatzElevatorSubsystem extends SubsystemBase {
       break;
 
       case LOW:
-      elevatorDescent = true;
+      elevatorSetToLowPos();
       break;
     }
   }
@@ -208,7 +199,7 @@ public class CatzElevatorSubsystem extends SubsystemBase {
         io.elevatorManualIO(mtrPower);
     }
 
-    private void elevatorHoldingManual(double holdingEncPos)
+    public void elevatorHoldingManual(double holdingEncPos)
     {
         io.elevatorMtrSetPosIO(holdingEncPos);
     }
@@ -317,6 +308,5 @@ public class CatzElevatorSubsystem extends SubsystemBase {
             instance = new CatzElevatorSubsystem();
         }
         return instance;
-    
     }
   }

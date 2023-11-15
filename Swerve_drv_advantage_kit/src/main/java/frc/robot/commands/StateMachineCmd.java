@@ -4,6 +4,8 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.math.estimator.ExtendedKalmanFilter;
+import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import frc.robot.Utils.CatzStateUtil;
@@ -19,7 +21,7 @@ import frc.robot.subsystems.Intake.CatzIntakeSubsystem;
 
 
 
-public class StateMachineCmd extends InstantCommand {
+public class StateMachineCmd extends CommandBase {
   private static CatzElevatorSubsystem elevator = CatzElevatorSubsystem.getInstance();
   private static CatzIntakeSubsystem intake     = CatzIntakeSubsystem.getInstance();
   private static CatzArmSubsystem arm           = CatzArmSubsystem.getInstance();
@@ -111,6 +113,21 @@ public class StateMachineCmd extends InstantCommand {
             //TBD
             break;
     }
+  }
+
+  @Override
+  public void execute() {
+      
+  }
+
+  @Override
+  public void end(boolean interrupted) {
+      
+  }
+
+  @Override
+  public boolean isFinished() {
+      return false;
   }
   
 }
