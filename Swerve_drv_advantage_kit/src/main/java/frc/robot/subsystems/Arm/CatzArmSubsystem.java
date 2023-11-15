@@ -11,6 +11,8 @@ import org.littletonrobotics.junction.Logger;
 
 
 import frc.robot.*;
+import frc.robot.CatzConstants.ArmConstants;
+import frc.robot.Utils.CatzManipulatorPositions;
 //import frc.robot.Robot.mechMode;
 import frc.robot.subsystems.Elevator.CatzElevatorSubsystem;
 
@@ -54,6 +56,8 @@ public class CatzArmSubsystem extends SubsystemBase
 
   private boolean armAscent;
   private double armPower;
+
+  private CatzManipulatorPositions targetPose;
 
 
   private CatzArmSubsystem() 
@@ -99,6 +103,11 @@ public class CatzArmSubsystem extends SubsystemBase
     sharedArmEncoderUpdate = inputs.armMotorEncoder;
     sharedArmControlModeUpdate = inputs.currentArmControlMode; 
 
+    if(DriverStation.isEnabled())
+    {
+        System.out.println(elevator.getElevatorEncoder());
+    }
+
     //arm logic implementation requiring a loop
     if(DriverStation.isDisabled())
     {
@@ -106,15 +115,16 @@ public class CatzArmSubsystem extends SubsystemBase
         armControlState = null;
         armSetState = null;
     }
-    else if(armControlState == ArmControlState.FULLMANUAL)
+    else if(targetPose != null)
     {
-        io.setArmPwrIO(armPower);
-    }
-    else if(armControlState == ArmControlState.AUTO)
-    {
-        if((armAscent == true) && (elevator.getElevatorEncoder() >= HIGH_EXTEND_THRESHOLD_ELEVATOR))
+        if(elevator.getElevatorEncoder() >= HIGH_EXTEND_THRESHOLD_ELEVATOR)
         {
-            io.armSetFullExtendPosIO();
+            io.setArmPosEncIO(targetPose.getArmPosEnc());
+        }
+    
+        if(targetPose.getArmPosEnc() <= ArmConstants.POS_ENC_CNTS_PICKUP)
+        {
+            io.setArmPosEncIO(targetPose.getArmPosEnc());
         }
     }
 
@@ -150,38 +160,16 @@ public class CatzArmSubsystem extends SubsystemBase
   }
 
   //updates the arm statemachine to auto and does auto cmds
-  public void cmdUpdateArm(ArmAutoState state)
+  public void cmdUpdateArm(CatzManipulatorPositions targetPose)
   {
-    armControlState = ArmControlState.AUTO;
-    armSetState = state;   
-
-    if(armSetState != ArmAutoState.EXTEND)
-    {
-        armAscent = false;
-    }
-
-    switch(armSetState)
-    {
-        case EXTEND:
-        armAscent = true;
-        break;
-
-
-        case RETRACT:
-        io.armSetRetractPosIO();
-        break;
-
-
-        case PICKUP:
-        io.armSetPickupPosIO();
-
-        break;
-    }
+    armControlState = ArmControlState.AUTO; 
+    this.targetPose = targetPose;
   }
 
   public void setArmPwr(double pwr)
   {        
       io.setArmPwrIO(pwr);
+      this.targetPose = null;
       armControlState = ArmControlState.FULLMANUAL;
   }
 

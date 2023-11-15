@@ -7,11 +7,16 @@ package frc.robot.commands.ManualStateCmds;
 import java.util.function.Supplier;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.Utils.CatzManipulatorPositions;
+import frc.robot.subsystems.Arm.CatzArmSubsystem;
 import frc.robot.subsystems.Elevator.CatzElevatorSubsystem;
 import frc.robot.subsystems.Elevator.CatzElevatorSubsystem.ElevatorControlState;
+import frc.robot.subsystems.Intake.CatzIntakeSubsystem;
 
 public class ElevatorManualCmd extends CommandBase {
   CatzElevatorSubsystem elevator = CatzElevatorSubsystem.getInstance();
+  CatzArmSubsystem arm = CatzArmSubsystem.getInstance();
+  CatzIntakeSubsystem intake = CatzIntakeSubsystem.getInstance();
       
   Supplier<Double> supplierElevatorPwr;
   Supplier<Boolean> supplierManualMode;
@@ -43,6 +48,7 @@ public class ElevatorManualCmd extends CommandBase {
   {
     boolean isElevatorInManualMode = supplierManualMode.get();
     double  elevatorPwr = -supplierElevatorPwr.get(); //reverse elevator pwr so up = up on joystick
+    CatzManipulatorPositions targetPosition;
     
       if(Math.abs(elevatorPwr) >= MANUAL_CONTROL_DEADBAND)
       {
@@ -52,9 +58,8 @@ public class ElevatorManualCmd extends CommandBase {
           }
           else // Hold Position
           {
-              manualHoldTargetPos = elevator.getElevatorEncoder();
-              manualHoldTargetPos = manualHoldTargetPos + (elevatorPwr * MANUAL_HOLD_STEP_SIZE);
-              elevator.elevatorManualCmd(elevatorPwr, false);
+            manualHoldTargetPos = elevator.getElevatorEncoder();
+            manualHoldTargetPos = manualHoldTargetPos + (elevatorPwr * MANUAL_HOLD_STEP_SIZE);
           }
       }
       else
@@ -64,6 +69,9 @@ public class ElevatorManualCmd extends CommandBase {
             elevator.elevatorManualCmd(0.0, false);
           }
       }
+      
+      targetPosition = new CatzManipulatorPositions(manualHoldTargetPos, arm.getArmEncoder(), intake.getWristPosition());
+      elevator.cmdUpdateElevator(targetPosition);
     }
   
 

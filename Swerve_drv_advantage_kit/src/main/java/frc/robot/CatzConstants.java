@@ -18,6 +18,7 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import frc.robot.Utils.CatzManipulatorPositions;
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
  * constants. This class should not be used for any other purpose. All constants should be declared
@@ -64,6 +65,7 @@ public final class CatzConstants {
     private static final Translation2d SWERVE_RIGHT_BACK_LOCATION  = new Translation2d(-MODULE_DISTANCE_FROM_CENTER, -MODULE_DISTANCE_FROM_CENTER);
     private static final Translation2d SWERVE_RIGHT_FRONT_LOCATION = new Translation2d(MODULE_DISTANCE_FROM_CENTER, -MODULE_DISTANCE_FROM_CENTER);
 
+    /* 
     // calculates the orientation and speed of individual swerve modules when given the motion of the whole robot
     //out of order due arrows looking weird on advantage scope and in a visual perspective
     public static final SwerveDriveKinematics swerveDriveKinematics = new SwerveDriveKinematics(
@@ -72,21 +74,17 @@ public final class CatzConstants {
         SWERVE_RIGHT_FRONT_LOCATION,
         SWERVE_LEFT_BACK_LOCATION
     );
+    */
     
-/* 
-    private static final Translation2d SWERVE_LEFT_FRONT_LOCATION  = new Translation2d(MODULE_DISTANCE_FROM_CENTER, MODULE_DISTANCE_FROM_CENTER);
-    private static final Translation2d SWERVE_LEFT_BACK_LOCATION   = new Translation2d(-MODULE_DISTANCE_FROM_CENTER, MODULE_DISTANCE_FROM_CENTER);
-    private static final Translation2d SWERVE_RIGHT_FRONT_LOCATION = new Translation2d(MODULE_DISTANCE_FROM_CENTER, -MODULE_DISTANCE_FROM_CENTER);
-    private static final Translation2d SWERVE_RIGHT_BACK_LOCATION  = new Translation2d(-MODULE_DISTANCE_FROM_CENTER, -MODULE_DISTANCE_FROM_CENTER);
 
     // calculates the orientation and speed of individual swerve modules when given the motion of the whole robot
     public static final SwerveDriveKinematics swerveDriveKinematics = new SwerveDriveKinematics(
         SWERVE_LEFT_FRONT_LOCATION,
         SWERVE_LEFT_BACK_LOCATION,
-        SWERVE_RIGHT_FRONT_LOCATION,
-        SWERVE_RIGHT_BACK_LOCATION
+        SWERVE_RIGHT_BACK_LOCATION,
+        SWERVE_RIGHT_FRONT_LOCATION
     );
-    */
+    
 
     public static final double MAX_SPEED = 4.0; // meters per second
     public static final double MAX_ANGSPEED_RAD_PER_SEC = 6.0; // radians per second
@@ -134,6 +132,19 @@ public final class CatzConstants {
   public static final double kDeadband = 0.1;
 }
 
+public static final class ManipulatorPoseConstants
+{
+  public static final CatzManipulatorPositions SCORE_HIGH_CONE = new CatzManipulatorPositions(ElevatorConstants.ELEVATOR_POS_ENC_CNTS_HIGH,
+                                                                                              ArmConstants.POS_ENC_INCH_EXTEND,
+                                                                                              IntakeConstants.SCORE_CONE_HIGH_ENC_POS_TELOP);
+
+  public static final CatzManipulatorPositions SCORE_MID_CONE = new CatzManipulatorPositions(ElevatorConstants.ELEVATOR_POS_ENC_CNTS_MID_CONE,
+                                                                                              ArmConstants.POS_ENC_CNTS_RETRACT,
+                                                                                              IntakeConstants.SCORE_CONE_MID_ENC_POS);
+  public static final CatzManipulatorPositions STOW = new CatzManipulatorPositions(ElevatorConstants.ELEVATOR_POS_ENC_CNTS_LOW,
+                                                                                              ArmConstants.POS_ENC_CNTS_RETRACT,
+                                                                                              IntakeConstants.STOW_ENC_POS);
+}
 
   //-----------------------------Intake------------------------------------------
 
@@ -159,25 +170,19 @@ public final class CatzConstants {
     public static final double STOW_ENC_POS = -20.0;
     public static final double STOW_CUTOFF = -30.232;
 
-    public static final double INTAKE_CUBE_ENC_POS = -140.000 + WRIST_ABS_ENC_OFFSET_DEG;// 1324.0 + WRIST_ABS_ENC_OFFSET;
-                                                                                   // //-335
-    public static final double INTAKE_CONE_ENC_POS_GROUND = -170.524 + WRIST_ABS_ENC_OFFSET_DEG;// -306.0 +
-                                                                                          // WRIST_ABS_ENC_OFFSET;
-                                                                                          // //-1295
-    public static final double INTAKE_CONE_ENC_POS_SINGLE = -100.400 + WRIST_ABS_ENC_OFFSET_DEG;// 2089.0 +
-                                                                                          // WRIST_ABS_ENC_OFFSET;
-                                                                                          // //1100
+    public static final double INTAKE_CUBE_ENC_POS = -140.000;
+    public static final double INTAKE_CONE_ENC_POS_GROUND = -170.524;
+    public static final double INTAKE_CONE_ENC_POS_SINGLE = -100.400;
 
-    public static final double INTAKE_CONE_ENC_POS_SINGLE_UPRIGHT = -80.000 + WRIST_ABS_ENC_OFFSET_DEG; //lc                                                                                          
+    public static final double INTAKE_CONE_ENC_POS_SINGLE_UPRIGHT = -80.000;                                                                                        
 
-    public static final double SCORE_CUBE_ENC_POS = -90.000 + WRIST_ABS_ENC_OFFSET_DEG;// //prev -80
-                                                                                 // // Applies to low-mid-high
+    public static final double SCORE_CUBE_ENC_POS = -90.000;
 
-    public static final double SCORE_CONE_HIGH_ENC_POS_AUTON = -140.000 + WRIST_ABS_ENC_OFFSET_DEG;// 289.0 + WRIST_ABS_ENC_OFFSET;
+    public static final double SCORE_CONE_HIGH_ENC_POS_AUTON = -140.000;
     public static final double SCORE_CONE_HIGH_ENC_POS_TELOP = -139.000;
-                                                                                       // //-700
-    public static final double SCORE_CONE_MID_ENC_POS = -170.000;//INTAKE_CONE_ENC_POS_GROUND; // TBD verify if its the same as high
-    public static final double SCORE_CONE_LOW_ENC_POS = -130.00;//INTAKE_CONE_ENC_POS_GROUND; // TBD
+
+    public static final double SCORE_CONE_MID_ENC_POS = -170.000;
+    public static final double SCORE_CONE_LOW_ENC_POS = -130.00;
 
     public static final double SOFT_LIMIT_FORWARD = -160.0; // 4876 + WRIST_ABS_ENC_OFFSET; //3887
     public static final double SOFT_LIMIT_REVERSE = -8900.0; // -798.0 + WRIST_ABS_ENC_OFFSET; //-1787 //TBD

@@ -55,10 +55,16 @@ public class CatzDriveTrainSubsystem extends SubsystemBase
     private final int RT_BACK_ENC_PORT = 7;
     private final int RT_FRNT_ENC_PORT = 8;
 
+    /* 
     private final double LT_FRNT_OFFSET =  0.0100; //0.073 //-0.0013; //MC ID 2
     private final double LT_BACK_OFFSET =  0.0439; //0.0431 //0.0498; //MC ID 4
     private final double RT_BACK_OFFSET =  0.2588; //0.2420 //0.2533; //MC ID 6
     private final double RT_FRNT_OFFSET =  0.0280; //0.0238 //0.0222; //MC ID 8
+    */
+    private final double LT_FRNT_OFFSET = 0.007371500184287522;
+    private final double LT_BACK_OFFSET = 0.04736465118411634;
+    private final double RT_BACK_OFFSET = 0.2542108938552728;
+    private final double RT_FRNT_OFFSET = 0.0351528633788208;
 
     private final double NOT_FIELD_RELATIVE = 0.0;
 
@@ -86,29 +92,18 @@ public class CatzDriveTrainSubsystem extends SubsystemBase
             gyroIO = null; // new GyroIOSim();
         break;
         }
-        /*
+        
         LT_FRNT_MODULE = new CatzSwerveModule(LT_FRNT_DRIVE_ID, LT_FRNT_STEER_ID, LT_FRNT_ENC_PORT, LT_FRNT_OFFSET, 0);
         LT_BACK_MODULE = new CatzSwerveModule(LT_BACK_DRIVE_ID, LT_BACK_STEER_ID, LT_BACK_ENC_PORT, LT_BACK_OFFSET, 1);
         RT_BACK_MODULE = new CatzSwerveModule(RT_BACK_DRIVE_ID, RT_BACK_STEER_ID, RT_BACK_ENC_PORT, RT_BACK_OFFSET, 2);
         RT_FRNT_MODULE = new CatzSwerveModule(RT_FRNT_DRIVE_ID, RT_FRNT_STEER_ID, RT_FRNT_ENC_PORT, RT_FRNT_OFFSET, 3);
-        */
 
-        LT_FRNT_MODULE = new CatzSwerveModule(LT_FRNT_DRIVE_ID, LT_FRNT_STEER_ID, LT_FRNT_ENC_PORT, LT_FRNT_OFFSET, 0);
-        LT_BACK_MODULE = new CatzSwerveModule(LT_BACK_DRIVE_ID, LT_BACK_STEER_ID, LT_BACK_ENC_PORT, LT_BACK_OFFSET, 1);
-        RT_FRNT_MODULE = new CatzSwerveModule(RT_FRNT_DRIVE_ID, RT_FRNT_STEER_ID, RT_FRNT_ENC_PORT, RT_FRNT_OFFSET, 2);
-        RT_BACK_MODULE = new CatzSwerveModule(RT_BACK_DRIVE_ID, RT_BACK_STEER_ID, RT_BACK_ENC_PORT, RT_BACK_OFFSET, 3);
-
-        /* 
+        
         swerveModules[0] = LT_FRNT_MODULE;
         swerveModules[1] = LT_BACK_MODULE;
         swerveModules[2] = RT_BACK_MODULE;
         swerveModules[3] = RT_FRNT_MODULE;
-        */
-
-        swerveModules[0] = LT_FRNT_MODULE;
-        swerveModules[1] = LT_BACK_MODULE;
-        swerveModules[2] = RT_FRNT_MODULE;
-        swerveModules[3] = RT_BACK_MODULE;
+        
 
         LT_FRNT_MODULE.resetMagEnc();
         LT_BACK_MODULE.resetMagEnc();
@@ -164,6 +159,7 @@ public class CatzDriveTrainSubsystem extends SubsystemBase
         //apply second order kinematics
         chassisSpeeds = correctForDynamics(chassisSpeeds);
 
+        
         //Convert chassis speeds to individual module states
         SwerveModuleState[] moduleStates = CatzConstants.DriveConstants.swerveDriveKinematics.toSwerveModuleStates(chassisSpeeds);
         setModuleStates(moduleStates);
@@ -172,11 +168,18 @@ public class CatzDriveTrainSubsystem extends SubsystemBase
     private void setModuleStates(SwerveModuleState[] desiredStates) 
     {
         SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, CatzConstants.DriveConstants.MAX_SPEED);
-        
+       /*  
         swerveModules[0].setDesiredState(desiredStates[2]);
         swerveModules[1].setDesiredState(desiredStates[1]);
         swerveModules[2].setDesiredState(desiredStates[3]);
         swerveModules[3].setDesiredState(desiredStates[0]);
+        */
+
+        LT_FRNT_MODULE.setDesiredState(desiredStates[0]);
+        LT_BACK_MODULE.setDesiredState(desiredStates[1]);
+        RT_BACK_MODULE.setDesiredState(desiredStates[2]);
+        RT_FRNT_MODULE.setDesiredState(desiredStates[3]);
+
         
 
         Logger.getInstance().recordOutput("module states", desiredStates);
@@ -234,7 +237,7 @@ public class CatzDriveTrainSubsystem extends SubsystemBase
 
     public double getGyroAngle()
     {
-        double gyroAngle = gyroInputs.gyroAngle;
+        double gyroAngle = -gyroInputs.gyroAngle;
         return gyroAngle;
     }
 

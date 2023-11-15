@@ -116,8 +116,8 @@ public class ElevatorIOReal implements ElevatorIO
     @Override
     public void elevatorMtrSetPosIO( double setPositionEnc) 
     {
-        elevatorMtr.set(ControlMode.Position, setPositionEnc,  DemandType.ArbitraryFeedForward, CatzConstants.ElevatorConstants.ELEVATOR_HOLDING_FF);
-        elevatorMtr.set(ControlMode.MotionMagic, setPositionEnc);
+        //elevatorMtr.set(ControlMode.Position, setPositionEnc,  DemandType.ArbitraryFeedForward, CatzConstants.ElevatorConstants.ELEVATOR_HOLDING_FF);
+        elevatorMtr.set(ControlMode.MotionMagic, setPositionEnc,  DemandType.ArbitraryFeedForward, CatzConstants.ElevatorConstants.ELEVATOR_HOLDING_FF);
     }
     @Override
     public void configAllowableClosedloopErrorIO(int slotID, double closeloopErrorThreshold) 

@@ -5,6 +5,7 @@
 package frc.robot.commands.ManualStateCmds;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.Utils.CatzManipulatorPositions;
 import frc.robot.subsystems.Arm.CatzArmSubsystem;
 import frc.robot.subsystems.Arm.CatzArmSubsystem.ArmControlState;
 

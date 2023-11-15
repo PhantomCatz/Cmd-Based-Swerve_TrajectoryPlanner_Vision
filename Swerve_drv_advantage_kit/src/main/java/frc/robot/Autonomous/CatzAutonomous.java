@@ -24,6 +24,8 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.CatzConstants;
 import frc.robot.Autonomous.Trajectory.TrajectoryFollowingCmd;
 import frc.robot.Autonomous.Trajectory.Paths.Trajectories;
+import frc.robot.CatzConstants.ManipulatorPoseConstants;
+import frc.robot.Utils.CatzManipulatorPositions;
 import frc.robot.Utils.CatzStateUtil;
 import frc.robot.Utils.CatzStateUtil.GamePieceState;
 import frc.robot.Utils.CatzStateUtil.SetMechanismState;
@@ -88,29 +90,29 @@ public class CatzAutonomous
     {
         return new SequentialCommandGroup(
                     Commands.runOnce(() -> CatzStateUtil.newGamePieceState(GamePieceState.CUBE)),
-                    new StateMachineCmd(SetMechanismState.SCORE_HIGH)
+                    new StateMachineCmd(ManipulatorPoseConstants.SCORE_HIGH_CONE)
                         .raceWith(Commands.waitSeconds(1.0)),
 
                     new ParallelCommandGroup(
                        // new PPTrajectoryFollowingCmd(driveStraighFullTurn), 
                         new SequentialCommandGroup(
-                            new StateMachineCmd(SetMechanismState.STOW)
+                            new StateMachineCmd(ManipulatorPoseConstants.STOW)
                                 .raceWith(Commands.waitSeconds(1.0)),
-                            new StateMachineCmd(SetMechanismState.PICKUP_GROUND)
-                                .raceWith(Commands.waitSeconds(1.0)),
+                           // new StateMachineCmd(SetMechanismState.PICKUP_GROUND)
+                          //      .raceWith(Commands.waitSeconds(1.0)),
                             intakeSequenceCommandGroup())
                                             ),
 
                     new ParallelCommandGroup(
                        // new PPTrajectoryFollowingCmd(feildSideDriveBack), 
                         new SequentialCommandGroup(
-                            new StateMachineCmd(SetMechanismState.STOW)
+                            new StateMachineCmd(ManipulatorPoseConstants.STOW)
                                 .raceWith(Commands.waitSeconds(1.0)),
-                            new StateMachineCmd(SetMechanismState.SCORE_HIGH)
+                            new StateMachineCmd(ManipulatorPoseConstants.SCORE_HIGH_CONE)
                                 .raceWith(Commands.waitSeconds(1.0)))
                                             ),
                     intakeSequenceCommandGroup(),
-                    new StateMachineCmd(SetMechanismState.STOW)
+                    new StateMachineCmd(ManipulatorPoseConstants.STOW)
                                          );       
     }
 
@@ -118,7 +120,7 @@ public class CatzAutonomous
     {
         return new SequentialCommandGroup(
                     Commands.runOnce(() -> CatzStateUtil.newGamePieceState(GamePieceState.CONE)),
-                    new StateMachineCmd(SetMechanismState.SCORE_HIGH)
+                    new StateMachineCmd(CatzConstants.ManipulatorPoseConstants.SCORE_HIGH_CONE)
 
                    //new PPTrajectoryFollowingCmd(driveStraighFullTurn)
             

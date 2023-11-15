@@ -26,7 +26,9 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
  import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Autonomous.BalanceCmd;
 import frc.robot.Autonomous.CatzAutonomous;
- import frc.robot.Utils.CatzStateUtil;
+import frc.robot.CatzConstants.ManipulatorPoseConstants;
+import frc.robot.Utils.CatzManipulatorPositions;
+import frc.robot.Utils.CatzStateUtil;
  import frc.robot.Utils.CatzStateUtil.GamePieceState;
  import frc.robot.Utils.CatzStateUtil.SetMechanismState;
 import frc.robot.commands.StateMachineCmd;
@@ -91,25 +93,17 @@ import frc.robot.subsystems.Arm.CatzArmSubsystem;
  
    
 
-   /**
-    * Use this method to define your trigger->command mappings. Triggers can be created via the
-    * {@link Trigger#Trigger(java.util.function.BooleanSupplier)} constructor with an arbitrary
-    * predicate, or via the named factories in {@link
-    * edu.wpi.first.wpilibj2.command.button.CommandGenericHID}'s subclasses for {@link
-    * CommandXboxController Xbox}/{@link edu.wpi.first.wpilibj2.command.button.CommandPS4Controller
-    * PS4} controllers or {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight
-    * joysticks}.
-    */
+   
    private void configureBindings() 
    {
    //---------------------------------------Button mechanism cmds-----------------------------------------------------------------
-     xboxAux.y().onTrue(new StateMachineCmd(SetMechanismState.SCORE_HIGH));
-     xboxAux.b().onTrue(new StateMachineCmd(SetMechanismState.SCORE_MID));
-     xboxAux.a().onTrue(new StateMachineCmd(SetMechanismState.SCORE_LOW));
+     xboxAux.y().onTrue(new StateMachineCmd(ManipulatorPoseConstants.SCORE_HIGH_CONE));
+     //xboxAux.b().onTrue(new StateMachineCmd(SetMechanismState.SCORE_MID));
+     //xboxAux.a().onTrue(new StateMachineCmd(SetMechanismState.SCORE_LOW));
      xboxAux.x().or(xboxDrv.rightStick())
-                .onTrue(new StateMachineCmd(SetMechanismState.STOW));
-     xboxAux.start().or(xboxDrv.leftStick())
-                .onTrue(new StateMachineCmd(SetMechanismState.PICKUP_GROUND));
+                .onTrue(new StateMachineCmd(ManipulatorPoseConstants.STOW));
+     //xboxAux.start().or(xboxDrv.leftStick())
+      //          .onTrue(new StateMachineCmd(SetMechanismState.PICKUP_GROUND));
  
    
    //--------------------------------------------Manual Cmds---------------------------------------------------------------------------

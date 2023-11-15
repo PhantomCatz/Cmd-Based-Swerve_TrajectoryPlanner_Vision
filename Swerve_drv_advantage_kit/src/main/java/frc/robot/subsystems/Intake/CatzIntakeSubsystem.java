@@ -11,6 +11,7 @@ import org.littletonrobotics.junction.Logger;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.CatzConstants;
+import frc.robot.Utils.CatzManipulatorPositions;
 import frc.robot.Utils.CatzStateUtil;
 
 
@@ -60,6 +61,8 @@ public class CatzIntakeSubsystem extends SubsystemBase {
 
     private int numConsectSamples = 0;
 
+    private CatzManipulatorPositions targetPos;
+
     private static IntakeControlState intakeControlState = null;
     public static enum IntakeControlState {
       
@@ -98,8 +101,9 @@ public class CatzIntakeSubsystem extends SubsystemBase {
             wristSetPercentOuput(0.0);
             pidEnable = false;
         }
-        else if(pidEnable)
+        else if(targetPos != null)
         {
+            targetPositionDeg = targetPos.getWristAngleDeg();
             //----------------------------------------------------------------------------------
             //  Chk if at final position
             //----------------------------------------------------------------------------------
@@ -164,9 +168,9 @@ public class CatzIntakeSubsystem extends SubsystemBase {
         }
     }
 
-    public void cmdUpdateIntake(double stateSetTargetPositionDeg)
+    public void cmdUpdateIntake(CatzManipulatorPositions targetPos)
     {
-        targetPositionDeg = stateSetTargetPositionDeg;
+        this.targetPos = targetPos;
         pidEnable = true;
     }
 

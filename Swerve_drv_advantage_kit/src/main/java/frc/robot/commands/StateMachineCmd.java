@@ -4,10 +4,13 @@
 
 package frc.robot.commands;
 
+import java.util.function.Supplier;
+
 import edu.wpi.first.math.estimator.ExtendedKalmanFilter;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import frc.robot.Utils.CatzManipulatorPositions;
 import frc.robot.Utils.CatzStateUtil;
 import frc.robot.Utils.CatzStateUtil.GamePieceState;
 import frc.robot.Utils.CatzStateUtil.SetMechanismState;
@@ -25,99 +28,34 @@ public class StateMachineCmd extends CommandBase {
   private static CatzElevatorSubsystem elevator = CatzElevatorSubsystem.getInstance();
   private static CatzIntakeSubsystem intake     = CatzIntakeSubsystem.getInstance();
   private static CatzArmSubsystem arm           = CatzArmSubsystem.getInstance();
+  Supplier<CatzManipulatorPositions> targetPoseSupplier;
+  CatzManipulatorPositions targetPose;
   private SetMechanismState currentMechanismState;
 
   /** Creates a new SetStateCommand. */
-  public StateMachineCmd(CatzStateUtil.SetMechanismState currentMechanismState) 
+  public StateMachineCmd(Supplier<CatzManipulatorPositions> targetPoseSupplier) 
   {
-    this.currentMechanismState = currentMechanismState;
+    this.targetPoseSupplier = targetPoseSupplier;
     addRequirements(elevator, intake, arm);
+  }
+  public StateMachineCmd(CatzManipulatorPositions targetPose) 
+  {
+    this(()-> targetPose);
   }
   @Override
   public void initialize() 
   {
-    switch(currentMechanismState)
-    {
-        case  STOW:
-        arm.cmdUpdateArm(ArmAutoState.RETRACT);
-        intake.cmdUpdateIntake(CatzConstants.IntakeConstants.STOW_ENC_POS);
-        elevator.cmdUpdateElevator(ElevatorAutoState.LOW);
-        break;
-            
-        case PICKUP_GROUND :
-        arm.cmdUpdateArm(ArmAutoState.PICKUP);
-        elevator.cmdUpdateElevator(ElevatorAutoState.LOW);
-          if(CatzStateUtil.currentGamePieceState == GamePieceState.CUBE)
-            {
-              intake.cmdUpdateIntake(CatzConstants.IntakeConstants.INTAKE_CUBE_ENC_POS);
-            }
-          else
-            {
-              intake.cmdUpdateIntake(CatzConstants.IntakeConstants.INTAKE_CONE_ENC_POS_GROUND);
-            }
-        break;
 
-        case PICKUP_SINGLE :
-          if(CatzStateUtil.currentGamePieceState == GamePieceState.CUBE)
-            {
-
-            }
-          else
-            {
-              arm.cmdUpdateArm(ArmAutoState.PICKUP);
-              elevator.cmdUpdateElevator(ElevatorAutoState.LOW);
-              intake.cmdUpdateIntake(IntakeConstants.INTAKE_CONE_ENC_POS_SINGLE_UPRIGHT);
-            }
-        break;
-            
-        case SCORE_LOW :
-        arm.cmdUpdateArm(ArmAutoState.PICKUP);
-        elevator.cmdUpdateElevator(ElevatorAutoState.LOW);
-          if(CatzStateUtil.currentGamePieceState == GamePieceState.CUBE)
-            {
-              intake.cmdUpdateIntake(IntakeConstants.SCORE_CUBE_ENC_POS);
-            }
-          else
-            {
-              intake.cmdUpdateIntake(IntakeConstants.SCORE_CONE_LOW_ENC_POS);
-            }
-        break;
-
-        case SCORE_MID :
-        arm.cmdUpdateArm(ArmAutoState.RETRACT);
-        elevator.cmdUpdateElevator(ElevatorAutoState.MIDCUBE);
-          if(CatzStateUtil.currentGamePieceState == GamePieceState.CUBE)
-            {
-              intake.cmdUpdateIntake(IntakeConstants.SCORE_CUBE_ENC_POS);
-            }
-          else
-            {
-              intake.cmdUpdateIntake(IntakeConstants.SCORE_CONE_MID_ENC_POS);
-            }
-        break;
-            
-        case SCORE_HIGH :
-        arm.cmdUpdateArm(ArmAutoState.EXTEND);
-        elevator.cmdUpdateElevator(ElevatorAutoState.HIGH);
-          if(CatzStateUtil.currentGamePieceState == GamePieceState.CUBE)
-            {
-              intake.cmdUpdateIntake(IntakeConstants.SCORE_CUBE_ENC_POS);
-            }
-          else
-            {
-              intake.cmdUpdateIntake(IntakeConstants.SCORE_CONE_HIGH_ENC_POS_AUTON);
-            }
-        break;
-
-        default:
-            //TBD
-            break;
-    }
   }
 
   @Override
-  public void execute() {
-      
+  public void execute() 
+  {
+    CatzManipulatorPositions targetPose;
+    targetPose =  targetPoseSupplier.get();
+    elevator.cmdUpdateElevator(targetPose);
+    arm.cmdUpdateArm(targetPose);
+    intake.cmdUpdateIntake(targetPose);
   }
 
   @Override

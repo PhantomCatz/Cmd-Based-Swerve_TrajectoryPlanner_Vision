@@ -61,7 +61,7 @@ public class TeleopDriveCmd extends CommandBase {
         // Apply deadbands to prevent modules from receiving unintentional pwr
         xSpeed = Math.abs(xSpeed) > OIConstants.kDeadband ? xSpeed * CatzConstants.DriveConstants.MAX_SPEED: 0.0;
         ySpeed = Math.abs(ySpeed) > OIConstants.kDeadband ? ySpeed * CatzConstants.DriveConstants.MAX_SPEED: 0.0;
-        turningSpeed = Math.abs(turningSpeed) > OIConstants.kDeadband ? turningSpeed * CatzConstants.DriveConstants.MAX_ANGSPEED_RAD_PER_SEC: 0.0;//CatzMathUtils.getSwerveRotation(turningSpeed);
+        turningSpeed = Math.abs(turningSpeed) > OIConstants.kDeadband ? turningSpeed * CatzConstants.DriveConstants.MAX_ANGSPEED_RAD_PER_SEC: 0.0;
 
         //Construct desired chassis speeds
         ChassisSpeeds chassisSpeeds;
@@ -74,7 +74,7 @@ public class TeleopDriveCmd extends CommandBase {
                                                 xSpeed, ySpeed, turningSpeed, driveTrain.getRotation2d()
                                                                  );
         }
-
+        driveTrain.driveRobotRelative(chassisSpeeds);
 
         //module states are recorded whenever they are set
         Logger.getInstance().recordOutput("robot xspeed", xSpeed);

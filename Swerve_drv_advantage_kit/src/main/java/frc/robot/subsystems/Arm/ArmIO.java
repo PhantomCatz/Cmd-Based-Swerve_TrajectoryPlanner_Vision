@@ -20,6 +20,7 @@ public interface ArmIO
 
     public default void setArmPwrIO(double pwr) {}
 
+    public default void setArmPosEncIO(double targetEncPos) {}
     
     public default void armSetFullExtendPosIO() {}
 

@@ -90,6 +90,12 @@ public class ArmIOReal implements ArmIO
     }
 
     @Override
+    public void setArmPosEncIO(double targetEncPos)
+    {
+        armMtr.set(ControlMode.Position, targetEncPos);
+    }
+
+    @Override
     public void armSetFullExtendPosIO()
     {
         armMtr.set(ControlMode.Position, CatzConstants.ArmConstants.POS_ENC_CNTS_EXTEND);

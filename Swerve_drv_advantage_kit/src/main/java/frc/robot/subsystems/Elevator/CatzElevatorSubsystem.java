@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.CatzConstants;
+import frc.robot.Utils.CatzManipulatorPositions;
 import frc.robot.Utils.CatzStateUtil;
 import frc.robot.Utils.CatzStateUtil.GamePieceState;
 //import frc.robot.Robot.mechMode;
@@ -58,6 +59,8 @@ public class CatzElevatorSubsystem extends SubsystemBase {
   private int numConsectSamples = 0;
 
   private double sharedElevatorEncoderUpdate;
+
+  private CatzManipulatorPositions targetPose;
 
 
 
@@ -113,17 +116,11 @@ public class CatzElevatorSubsystem extends SubsystemBase {
         elevatorControlState = null;
         elevatorSetStateUpdate = null;
     }
-    else if(elevatorControlState == ElevatorControlState.SEMIMANUAL)
+    else if(targetPose != null)
     {
-      manualHoldTargetPos = getElevatorEncoder();
-      manualHoldTargetPos = manualHoldTargetPos + (elevatorPwr * MANUAL_HOLD_STEP_SIZE);
-      elevatorHoldingManual(manualHoldTargetPos);
-    }
-    else
-    {
-      if((elevatorDescent == true) && (arm.getArmEncoder() <= ARM_ENCODER_THRESHOLD))
+      if(arm.getArmEncoder() < ARM_ENCODER_THRESHOLD)
       {
-        elevatorSetToLowPos();
+        io.elevatorMtrSetPosIO(targetPose.getElevatorPosEnc());
       }
     }
 
@@ -163,29 +160,11 @@ public class CatzElevatorSubsystem extends SubsystemBase {
 
   }
 
-  public void cmdUpdateElevator(ElevatorAutoState state)
+  public void cmdUpdateElevator(CatzManipulatorPositions targetPosition)
   {
-    this.elevatorSetStateUpdate = state;
     elevatorControlState = ElevatorControlState.AUTO;
-
-    switch(elevatorSetStateUpdate)
-    {
-      case HIGH:
-      elevatorSetToHighPos();
-      break;
-
-      case MIDCONE:
-      elevatorSetToMidPosCone();
-      break;
-
-      case MIDCUBE:
-      elevatorSetToMidPosCube();
-      break;
-
-      case LOW:
-      elevatorSetToLowPos();
-      break;
-    }
+    this.targetPose = targetPosition;
+    //TBD add motor configs with if statments
   }
 
 
@@ -202,61 +181,6 @@ public class CatzElevatorSubsystem extends SubsystemBase {
     public void elevatorHoldingManual(double holdingEncPos)
     {
         io.elevatorMtrSetPosIO(holdingEncPos);
-    }
-
-    private void elevatorSetToLowPos()
-    {
-        io.configAllowableClosedloopErrorIO(0, CatzConstants.ElevatorConstants.ELEVATOR_CLOSELOOP_ERROR_THRESHOLD_LOW);
-
-
-        io.elevatorConfig_kPIO(0, CatzConstants.ElevatorConstants.ELEVATOR_KP_LOW);
-        io.elevatorConfig_kIIO(0, CatzConstants.ElevatorConstants.ELEVATOR_KI_LOW);
-        io.elevatorConfig_kDIO(0, CatzConstants.ElevatorConstants.ELEVATOR_KD_LOW);
-        io.elevatorMtrSetPosIO(CatzConstants.ElevatorConstants.ELEVATOR_POS_ENC_CNTS_LOW);
-    }
-
-    private void elevatorSetToMidPosCone()
-    {
-        io.configAllowableClosedloopErrorIO(0, CatzConstants.ElevatorConstants.ELEVATOR_CLOSELOOP_ERROR_THRESHOLD_HIGH_MID);
-
-
-        io.elevatorConfig_kPIO(0, CatzConstants.ElevatorConstants.ELEVATOR_KP_MID);
-        io.elevatorConfig_kIIO(0, CatzConstants.ElevatorConstants.ELEVATOR_KI_MID);
-        io.elevatorConfig_kDIO(0, CatzConstants.ElevatorConstants.ELEVATOR_KD_MID);
-        io.elevatorMtrSetPosIO(CatzConstants.ElevatorConstants.ELEVATOR_POS_ENC_CNTS_MID_CONE);
-    }
-
-    private void elevatorSetToMidPosCube()
-    {
-        io.configAllowableClosedloopErrorIO(0, CatzConstants.ElevatorConstants.ELEVATOR_CLOSELOOP_ERROR_THRESHOLD_HIGH_MID);
-
-
-        io.elevatorConfig_kPIO(0, CatzConstants.ElevatorConstants.ELEVATOR_KP_MID);
-        io.elevatorConfig_kIIO(0, CatzConstants.ElevatorConstants.ELEVATOR_KI_MID);
-        io.elevatorConfig_kDIO(0, CatzConstants.ElevatorConstants.ELEVATOR_KD_MID);
-        io.elevatorMtrSetPosIO(CatzConstants.ElevatorConstants.ELEVATOR_POS_ENC_CNTS_MID_CUBE);
-    }
-
-    private void elevatorSetToHighPos()
-    {
-        io.configAllowableClosedloopErrorIO(0, CatzConstants.ElevatorConstants.ELEVATOR_CLOSELOOP_ERROR_THRESHOLD_HIGH_MID);
-
-
-        io.elevatorConfig_kPIO(0, CatzConstants.ElevatorConstants.ELEVATOR_KP_HIGH);
-        io.elevatorConfig_kIIO(0, CatzConstants.ElevatorConstants.ELEVATOR_KI_HIGH);
-        io.elevatorConfig_kDIO(0, CatzConstants.ElevatorConstants.ELEVATOR_KD_HIGH);
-        io.elevatorMtrSetPosIO(CatzConstants.ElevatorConstants.ELEVATOR_POS_ENC_CNTS_HIGH);
-    }
-
-    private void elevatorSetToSinglePickup()
-    {
-        io.configAllowableClosedloopErrorIO(0, CatzConstants.ElevatorConstants.ELEVATOR_CLOSELOOP_ERROR_THRESHOLD_LOW);
-
-
-        io.elevatorConfig_kPIO(0, CatzConstants.ElevatorConstants.ELEVATOR_KP_LOW);
-        io.elevatorConfig_kIIO(0, CatzConstants.ElevatorConstants.ELEVATOR_KI_LOW);
-        io.elevatorConfig_kDIO(0, CatzConstants.ElevatorConstants.ELEVATOR_KD_LOW);
-        io.elevatorMtrSetPosIO(CatzConstants.ElevatorConstants.ELEVATOR_POS_ENC_CNTS_SINGLE_PICKUP);
     }
 
     
@@ -292,6 +216,7 @@ public class CatzElevatorSubsystem extends SubsystemBase {
 
     public double getElevatorEncoder()
     {
+      System.out.println(sharedElevatorEncoderUpdate);
         return sharedElevatorEncoderUpdate;
     }
 
