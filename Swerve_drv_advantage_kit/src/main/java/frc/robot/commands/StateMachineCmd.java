@@ -6,6 +6,8 @@ package frc.robot.commands;
 
 import java.util.function.Supplier;
 
+import org.littletonrobotics.junction.Logger;
+
 import edu.wpi.first.math.estimator.ExtendedKalmanFilter;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -45,7 +47,7 @@ public class StateMachineCmd extends CommandBase {
   @Override
   public void initialize() 
   {
-
+    System.out.println("initstatemachine");
   }
 
   @Override
@@ -54,8 +56,10 @@ public class StateMachineCmd extends CommandBase {
     CatzManipulatorPositions targetPose;
     targetPose =  targetPoseSupplier.get();
     elevator.cmdUpdateElevator(targetPose);
-    arm.cmdUpdateArm(targetPose);
-    intake.cmdUpdateIntake(targetPose);
+    //arm.cmdUpdateArm(targetPose);
+    //intake.cmdUpdateIntake(targetPose);
+
+    Logger.getInstance().recordOutput("Commands/targetposeElevator", targetPose.getElevatorPosEnc());
   }
 
   @Override

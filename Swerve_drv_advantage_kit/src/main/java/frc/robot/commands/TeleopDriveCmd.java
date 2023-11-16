@@ -54,7 +54,7 @@ public class TeleopDriveCmd extends CommandBase {
   public void execute() 
   {
         //obtain realtime joystick inputs with supplier methods
-        double xSpeed = supplierLeftJoyX.get();
+        double xSpeed = -supplierLeftJoyX.get();
         double ySpeed = supplierLeftJoyY.get();
         double turningSpeed = supplierRightJoyX.get();
 

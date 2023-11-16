@@ -118,10 +118,7 @@ public class CatzElevatorSubsystem extends SubsystemBase {
     }
     else if(targetPose != null)
     {
-      if(arm.getArmEncoder() < ARM_ENCODER_THRESHOLD)
-      {
         io.elevatorMtrSetPosIO(targetPose.getElevatorPosEnc());
-      }
     }
 
     //checking elevator is in position
@@ -216,7 +213,7 @@ public class CatzElevatorSubsystem extends SubsystemBase {
 
     public double getElevatorEncoder()
     {
-      System.out.println(sharedElevatorEncoderUpdate);
+      //System.out.println(sharedElevatorEncoderUpdate);
         return sharedElevatorEncoderUpdate;
     }
 

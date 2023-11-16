@@ -81,7 +81,7 @@ public class ModuleIOReal implements ModuleIO
     @Override
     public void setDriveVelocityIO(double velocity)
     {
-        DRIVE_MOTOR.set(ControlMode.Velocity, velocity);
+        DRIVE_MOTOR.set(ControlMode.Velocity, - velocity);
     }
 
     @Override

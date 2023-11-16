@@ -105,7 +105,7 @@ public class CatzArmSubsystem extends SubsystemBase
 
     if(DriverStation.isEnabled())
     {
-        System.out.println(elevator.getElevatorEncoder());
+        //System.out.println(elevator.getElevatorEncoder());
     }
 
     //arm logic implementation requiring a loop

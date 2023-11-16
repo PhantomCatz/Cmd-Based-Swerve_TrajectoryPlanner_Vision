@@ -163,7 +163,7 @@ public class CatzSwerveModule
     
     private double getAbsEncRadians()
     {
-        return - (inputs.magEncoderValue - wheelOffset) * 2 * Math.PI;
+        return (inputs.magEncoderValue - wheelOffset) * 2 * Math.PI;
     }
 
     public double getError()
@@ -189,13 +189,13 @@ public class CatzSwerveModule
      */
     public void setDesiredState(SwerveModuleState state) {
 
-        state = SwerveModuleState.optimize(state, getCurrentRotation());
+        state = CatzMathUtils.optimize(state, getCurrentRotation());
         //calculate drive pwr
         double drivePwrVelocity = Conversions.MPSToFalcon(state.speedMetersPerSecond, 
                                                           CatzConstants.DriveConstants.DRVTRAIN_WHEEL_CIRCUMFERENCE, 
                                                           CatzConstants.DriveConstants.SDS_L2_GEAR_RATIO); //to set is as a gear reduction not an overdrive
         //calculate turn pwr
-        double steerPIDpwr = pid.calculate(getAbsEncRadians(), state.angle.getRadians()); 
+        double steerPIDpwr = - pid.calculate(getAbsEncRadians(), state.angle.getRadians()); 
 
         //set powers
         setDriveVelocity(drivePwrVelocity);// + driveFeedforward);

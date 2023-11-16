@@ -43,7 +43,7 @@ public class CatzAutonomous
     private final static CatzIntakeSubsystem intake = CatzIntakeSubsystem.getInstance();
     private final static CatzDriveTrainSubsystem driveTrain = CatzDriveTrainSubsystem.getInstance();
 
-    private static PathPlannerPath driveStraighFullTurn = PathPlannerPath.fromPathFile("DriveStraightFullTurn");
+    //private static PathPlannerPath driveStraighFullTurn = PathPlannerPath.fromPathFile("DriveStraightFullTurn");
     //private static PathPlannerPath feildSideDriveBack = PathPlannerPath.fromPathFile("FeildSideDriveBack");
 
 
@@ -66,6 +66,7 @@ public class CatzAutonomous
     public Command testPath()
     {
         return new SequentialCommandGroup(
+
                new TrajectoryFollowingCmd(Trajectories.testTrajectoryStraight, Rotation2d.fromDegrees(180))
                                         );
 
