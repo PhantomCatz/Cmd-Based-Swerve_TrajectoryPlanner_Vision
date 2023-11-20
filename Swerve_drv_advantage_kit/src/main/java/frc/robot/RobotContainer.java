@@ -13,12 +13,11 @@
 
  package frc.robot;
 
-
- import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.auto.NamedCommands;
-
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
  import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
@@ -28,10 +27,12 @@ import frc.robot.Autonomous.BalanceCmd;
 import frc.robot.Autonomous.CatzAutonomous;
 import frc.robot.CatzConstants.ManipulatorPoseConstants;
 import frc.robot.Utils.CatzManipulatorPositions;
-import frc.robot.Utils.CatzStateUtil;
- import frc.robot.Utils.CatzStateUtil.GamePieceState;
- import frc.robot.Utils.CatzStateUtil.SetMechanismState;
-import frc.robot.commands.StateMachineCmd;
+import frc.robot.Utils.CatzAbstractStateUtil;
+ import frc.robot.Utils.CatzAbstractStateUtil.GamePieceState;
+ import frc.robot.Utils.CatzAbstractStateUtil.SetMechanismState;
+import frc.robot.Utils.led.CatzRGB;
+import frc.robot.Utils.led.ColorMethod;
+import frc.robot.commands.ManipulatorToPoseCmd;
 import frc.robot.commands.TeleopDriveCmd;
 import frc.robot.commands.ManualStateCmds.ArmManualCmd;
 import frc.robot.commands.ManualStateCmds.ElevatorManualCmd;
@@ -53,9 +54,9 @@ import frc.robot.subsystems.Arm.CatzArmSubsystem;
     private static CatzElevatorSubsystem elevator;
     private static CatzIntakeSubsystem intake;
     private static CatzArmSubsystem arm;
-    //private final CatzRobotTracker robotTracker; //TBD need to test and modify swerve drive code for this
 
     private final CatzAutonomous auton = new CatzAutonomous();
+    public static CatzRGB        led = new CatzRGB();
 
     //xbox controller
     private CommandXboxController xboxDrv;
@@ -66,8 +67,6 @@ import frc.robot.subsystems.Arm.CatzArmSubsystem;
     private final int XBOX_AUX_PORT = 1;
  
        
-    
- 
    /** The container for the robot. Contains subsystems, OI devices, and commands. 
     *    -since multiple classes are referencing these mechansims, 
     *         mechanisms are instantiated inside mechanism class(singleton)
@@ -92,18 +91,16 @@ import frc.robot.subsystems.Arm.CatzArmSubsystem;
    }
  
    
-
-   
    private void configureBindings() 
    {
    //---------------------------------------Button mechanism cmds-----------------------------------------------------------------
-     xboxAux.y().onTrue(new StateMachineCmd(ManipulatorPoseConstants.SCORE_HIGH_CONE));
-     //xboxAux.b().onTrue(new StateMachineCmd(SetMechanismState.SCORE_MID));
-     //xboxAux.a().onTrue(new StateMachineCmd(SetMechanismState.SCORE_LOW));
+     xboxAux.y().onTrue(new ManipulatorToPoseCmd(SetMechanismState.SCORE_HIGH));
+     xboxAux.b().onTrue(new ManipulatorToPoseCmd(SetMechanismState.SCORE_MID));
+     xboxAux.a().onTrue(new ManipulatorToPoseCmd(SetMechanismState.SCORE_LOW));
      xboxAux.x().or(xboxDrv.rightStick())
-                .onTrue(new StateMachineCmd(ManipulatorPoseConstants.STOW));
-     //xboxAux.start().or(xboxDrv.leftStick())
-      //          .onTrue(new StateMachineCmd(SetMechanismState.PICKUP_GROUND));
+                .onTrue(new ManipulatorToPoseCmd(ManipulatorPoseConstants.STOW));
+     xboxAux.start().or(xboxDrv.leftStick())
+                    .onTrue(new ManipulatorToPoseCmd(SetMechanismState.PICKUP_GROUND));
  
    
    //--------------------------------------------Manual Cmds---------------------------------------------------------------------------
@@ -135,17 +132,17 @@ import frc.robot.subsystems.Arm.CatzArmSubsystem;
    //-----------------------------------commands with no subsystem--------------------------------------------------------------------
      xboxAux.back()
      .onTrue(Commands.runOnce(
-         () -> CatzStateUtil.newGamePieceState(GamePieceState.NONE)
+         () -> CatzAbstractStateUtil.newGamePieceState(GamePieceState.NONE)
                              ));
  
      xboxAux.povLeft()
      .onTrue(Commands.runOnce(
-         () -> CatzStateUtil.newGamePieceState(GamePieceState.CUBE)
+         () -> CatzAbstractStateUtil.newGamePieceState(GamePieceState.CUBE)
                              ));
  
      xboxAux.povRight()
      .onTrue(Commands.runOnce(
-        () -> CatzStateUtil.newGamePieceState(GamePieceState.CONE)
+        () -> CatzAbstractStateUtil.newGamePieceState(GamePieceState.CONE)
                              ));
  
       //disabling softlimits only when both bumpers are pressed
@@ -193,6 +190,78 @@ import frc.robot.subsystems.Arm.CatzArmSubsystem;
     */
    public Command getAutonomousCommand() {
      // An example command will be run in autonomous
-     return null;//auton.autoChooser.get();
+     return auton.getCommand(this);
    }
+
+   public static enum mechMode {
+    AutoMode(Color.kGreen),
+    ManualHoldMode(Color.kCyan),
+    ManualMode(Color.kRed);
+
+    public Color color;
+    mechMode(Color color){
+      this.color = color;
+    }
+  }
+
+  public enum gamePiece{
+    Cube(Color.kPurple),
+    Cone(Color.kYellow),
+    None(Color.kGhostWhite);
+
+    public Color color;
+    gamePiece(Color color){
+      this.color = color;
+    }
+  }
+
+  public enum gameModeLED{
+    Autobalancing(led.oneColorFill, Color.kGreen),
+    InAutonomous(led.startFlowing, led.PHANTOM_SAPPHIRE, Color.kWhite),
+    MatchEnd(led.startFlowingRainbow),
+    EndgameWheelLock(led.oneColorFillAllianceColor), 
+    TeleOp(led.doNothing);
+
+    public ColorMethod method;
+    public Color[] color;
+    private gameModeLED(ColorMethod method, Color... color) {
+      this.method = method;
+      this.color = color;
+    }
+  }
+
+  public static mechMode intakeControlMode = mechMode.AutoMode;
+  public static mechMode elevatorControlMode = mechMode.AutoMode;
+  public static mechMode armControlMode = mechMode.AutoMode;
+  public static gameModeLED currentGameModeLED = gameModeLED.MatchEnd;
+  public static gamePiece currentGamePiece = gamePiece.None;
+
+   public void startLEDSchedulingThread() {
+       Thread LEDThread = new Thread(() -> {
+
+          //driverstation mode leds
+          if(DriverStation.isAutonomous()) {
+            currentGameModeLED = gameModeLED.InAutonomous;
+          }
+          else if(DriverStation.isTeleop()) {
+            currentGameModeLED = gameModeLED.TeleOp;
+          }
+
+          //gamepiece mode leds
+          if(CatzAbstractStateUtil.currentGamePieceState == GamePieceState.CONE) {
+            currentGamePiece = gamePiece.Cone;
+          }
+          else if(CatzAbstractStateUtil.currentGamePieceState == GamePieceState.CUBE) {
+            currentGamePiece = gamePiece.Cube;
+          }
+          else {
+            currentGamePiece = gamePiece.None;
+          }
+
+          
+          Timer.delay(0.02);
+       });
+       LEDThread.start();
+   }
+
  }

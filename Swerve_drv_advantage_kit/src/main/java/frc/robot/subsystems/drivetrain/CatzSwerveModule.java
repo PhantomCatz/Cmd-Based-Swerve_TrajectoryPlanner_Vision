@@ -17,6 +17,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.CatzConstants;
 import frc.robot.CatzConstants.DriveConstants;
 import frc.robot.Utils.CatzMathUtils;
@@ -86,6 +87,8 @@ public class CatzSwerveModule
 
         //Logging outputs
         Logger.getInstance().recordOutput("absenctorad" + Integer.toString(index) , getAbsEncRadians());
+
+        SmartDashboard.putNumber("absenctorad" + Integer.toString(index) , getAbsEncRadians());
     }
 
 

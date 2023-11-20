@@ -3,6 +3,7 @@ package frc.robot.subsystems.Elevator;
 import frc.robot.CatzConstants;
 import frc.robot.Robot;
 //import frc.robot.Robot.mechMode;
+import frc.robot.Utils.CatzSharedDataUtil;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.DemandType;
@@ -85,6 +86,7 @@ public class ElevatorIOReal implements ElevatorIO
     public void updateInputs(ElevatorIOInputs inputs)
     {
         inputs.elevatorEncoderCnts = elevatorMtr.getSelectedSensorPosition();
+        CatzSharedDataUtil.sharedElevatorEncCnts = inputs.elevatorEncoderCnts;
         inputs.isRevLimitSwitchClosed = (elevatorMtr.getSensorCollection().isRevLimitSwitchClosed() == SWITCH_CLOSED);
         inputs.isFwdLimitSwitchClosed = (elevatorMtr.getSensorCollection().isFwdLimitSwitchClosed() == SWITCH_CLOSED);
     }

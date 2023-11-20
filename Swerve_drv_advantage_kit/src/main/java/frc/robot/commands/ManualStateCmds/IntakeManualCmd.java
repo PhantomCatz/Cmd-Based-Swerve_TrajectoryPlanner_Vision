@@ -7,8 +7,8 @@ package frc.robot.commands.ManualStateCmds;
 import java.util.function.Supplier;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.CatzConstants;
 import frc.robot.subsystems.Intake.CatzIntakeSubsystem;
-import frc.robot.subsystems.Intake.CatzIntakeSubsystem.IntakeControlState;
 
 public class IntakeManualCmd extends CommandBase {
   CatzIntakeSubsystem intake = CatzIntakeSubsystem.getInstance();
@@ -28,6 +28,7 @@ public class IntakeManualCmd extends CommandBase {
   {
     this.supplierWristPwr = wristPwr;
     this.supplierManualMode = supplierManualMode;
+    addRequirements(intake);
   }
 
   // Called when the command is initially scheduled.
@@ -41,29 +42,24 @@ public class IntakeManualCmd extends CommandBase {
     boolean fullManualModeCmd = supplierManualMode.get();
     double wristPwrCmd   = supplierWristPwr.get();
   
-      if(fullManualModeCmd)
-      {              
-        intake.setPIDEnable(false);  
-      }
-  
       if(Math.abs(wristPwrCmd) >= 0.1)//if we are apply wrist power manually
       {
-          if (intake.getPIDEnabled() == true)//check if in manual holding state
+          if (fullManualModeCmd) //check if in full manual mode
+          {
+            targetPowerCmd = wristPwrCmd * WRIST_MAX_PWR;   
+            intake.wristFullManual(targetPowerCmd); 
+          }
+          else //manual holding
           {
             intake.manualHoldingFunction(wristPwrCmd);
-          }
-          else //in full manual mode
-          {
-              targetPowerCmd = wristPwrCmd * WRIST_MAX_PWR;    
-              intake.wristSetPercentOuput(targetPowerCmd);
           }
       }
       else //Manual power is OFF
       {
-          if(intake.getPIDEnabled() == false)//if we are still in manual mode and want to hold intake in place
+          if(fullManualModeCmd)//if we are still in manual mode and want to hold intake in place
           {
               targetPowerCmd = 0.0;
-              intake.wristSetPercentOuput(targetPowerCmd);
+              intake.wristFullManual(targetPowerCmd);
           }
       }
   }
@@ -75,7 +71,6 @@ public class IntakeManualCmd extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return ((intake.getIntakeControlState() != IntakeControlState.FULLMANUAL) && 
-            (intake.getPIDEnabled() == false));
+    return false;
   }
 }

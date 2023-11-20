@@ -6,6 +6,8 @@ import com.revrobotics.CANSparkMax;
 
 import frc.robot.CatzConstants;
 import frc.robot.Robot;
+import frc.robot.Utils.CatzSharedDataUtil;
+
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.LimitSwitchNormal;
 import com.ctre.phoenix.motorcontrol.LimitSwitchSource;
@@ -74,8 +76,10 @@ public class ArmIOReal implements ArmIO
     public void updateInputs(ArmIOInputs inputs)
     {
         inputs.armMotorEncoder        = armMtr.getSelectedSensorPosition();
+        CatzSharedDataUtil.sharedArmEncCnts = inputs.armMotorEncoder;
         inputs.isRevLimitSwitchClosed = (armMtr.getSensorCollection().isRevLimitSwitchClosed() == SWITCH_CLOSED);
         inputs.currentArmControlMode  = (ControlMode.PercentOutput == armMtr.getControlMode());
+        CatzSharedDataUtil.sharedArmInControlMode =inputs.currentArmControlMode;
     }
     @Override
     public void setSelectedSensorPositionIO(double encoderResetPos) 

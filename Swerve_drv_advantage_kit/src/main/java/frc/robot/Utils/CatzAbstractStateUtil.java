@@ -8,9 +8,9 @@
  **/
 package frc.robot.Utils;
 
-public class CatzStateUtil 
+public class CatzAbstractStateUtil 
 {
-public static SetMechanismState currentMechState = null;
+public static SetMechanismState currentAbstractMechState = null;
 
   public static enum SetMechanismState {
 
@@ -21,17 +21,14 @@ public static SetMechanismState currentMechState = null;
     PICKUP_SINGLE,
     PICKUP_DOUBLE,
     STOW
-
   }  
 
   public static GamePieceState currentGamePieceState = null;
 
-  public static enum GamePieceState {
-    
+  public static enum GamePieceState {  
     CONE,
     CUBE,
     NONE
-    
   }  
 
   public static void newGamePieceState(GamePieceState newGamePieceState)

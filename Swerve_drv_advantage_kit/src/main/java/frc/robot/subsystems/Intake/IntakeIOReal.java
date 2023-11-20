@@ -7,6 +7,8 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.ctre.phoenix.sensors.AbsoluteSensorRange;
 import com.ctre.phoenix.sensors.SensorInitializationStrategy;
 
+import frc.robot.Utils.CatzSharedDataUtil;
+
 public class IntakeIOReal implements IntakeIO 
 {
 
@@ -146,6 +148,7 @@ public class IntakeIOReal implements IntakeIO
     public void updateInputs(IntakeIOInputs inputs) 
     {
         inputs.wristPosEnc = wristMtr.getSelectedSensorPosition();
+        CatzSharedDataUtil.sharedWristEncCnts = inputs.wristPosEnc;
         inputs.wristTemp = wristMtr.getTemperature();
     }
 

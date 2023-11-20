@@ -8,9 +8,9 @@ import java.util.function.Supplier;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Utils.CatzManipulatorPositions;
+import frc.robot.Utils.CatzSharedDataUtil;
 import frc.robot.subsystems.Arm.CatzArmSubsystem;
 import frc.robot.subsystems.Elevator.CatzElevatorSubsystem;
-import frc.robot.subsystems.Elevator.CatzElevatorSubsystem.ElevatorControlState;
 import frc.robot.subsystems.Intake.CatzIntakeSubsystem;
 
 public class ElevatorManualCmd extends CommandBase {
@@ -33,6 +33,7 @@ public class ElevatorManualCmd extends CommandBase {
   {
     this.supplierElevatorPwr = supplierElevatorPwr;
     this.supplierManualMode = supplierManualMode;
+    addRequirements(elevator);
   }
 
   // Called when the command is initially scheduled.
@@ -54,24 +55,24 @@ public class ElevatorManualCmd extends CommandBase {
       {
           if(isElevatorInManualMode) // Full manual
           {
-              elevator.elevatorManualCmd(elevatorPwr, true);
+              elevator.elevatorFullManualCmd(elevatorPwr);
           }
           else // Hold Position
           {
-            manualHoldTargetPos = elevator.getElevatorEncoder();
+            manualHoldTargetPos = CatzSharedDataUtil.sharedElevatorEncCnts;
             manualHoldTargetPos = manualHoldTargetPos + (elevatorPwr * MANUAL_HOLD_STEP_SIZE);
+            targetPosition = new CatzManipulatorPositions(manualHoldTargetPos, CatzSharedDataUtil.sharedArmEncCnts, CatzSharedDataUtil.sharedWristEncCnts);
+            elevator.cmdUpdateElevator(targetPosition);
           }
       }
       else
       {
           if (isElevatorInManualMode)
           {
-            elevator.elevatorManualCmd(0.0, false);
+            elevator.elevatorFullManualCmd(0.0);
           }
       }
-      
-      targetPosition = new CatzManipulatorPositions(manualHoldTargetPos, arm.getArmEncoder(), intake.getWristPosition());
-      elevator.cmdUpdateElevator(targetPosition);
+  
     }
   
 
@@ -82,9 +83,7 @@ public class ElevatorManualCmd extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    elevator.getElevatorControlState();
-    return ((elevator.getElevatorControlState() != ElevatorControlState.FULLMANUAL) && 
-            (elevator.getElevatorControlState() != ElevatorControlState.SEMIMANUAL));
+    return false;
   }
 }
 

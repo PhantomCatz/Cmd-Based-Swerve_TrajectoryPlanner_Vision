@@ -9,6 +9,16 @@ public class CatzAprilTag {
 
     private static CatzAprilTag instance = null;
 
+    NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
+
+    NetworkTableEntry tx = table.getEntry("tx");
+    NetworkTableEntry ty = table.getEntry("ty");
+    NetworkTableEntry ta = table.getEntry("ta");
+
+    double x = tx.getDouble(0.0);
+    double y = ty.getDouble(0.0);
+    double area = ta.getDouble(0.0);
+
     private final double METER_TO_INCH = 39.37;
     private final int REQUIRED_ARRAY_LENGTH = 6;
     private final int NUMBER_OF_LINEAR_DIMENSIONS = 3;
@@ -31,23 +41,23 @@ public class CatzAprilTag {
     }
 
     //grab botpos from limelight load into this class, load INVALID_POSE_ENTY if no apriltag is seeing
-    private void botPoseUpdate()
+    public void botPoseUpdate()
     {
-        if(aprilTagInView() && NetworkTableInstance.getDefault().getTable("limelight").getEntry("botpose").getDoubleArray(botPose).length == REQUIRED_ARRAY_LENGTH)
+        if(aprilTagInView() && table.getEntry("botpose").getDoubleArray(botPose).length == REQUIRED_ARRAY_LENGTH)
         {
             for(int i = 0; i < REQUIRED_ARRAY_LENGTH; i++)
             {
                 if (i  < NUMBER_OF_LINEAR_DIMENSIONS && alliance == RED_ALLIANCE)
                 {
-                    botPose[i] = NetworkTableInstance.getDefault().getTable("limelight").getEntry("botpose").getDoubleArray(botPose)[i]*METER_TO_INCH;
+                    botPose[i] = table.getEntry("botpose").getDoubleArray(botPose)[i]*METER_TO_INCH;
                 }
                 else if(i  < NUMBER_OF_LINEAR_DIMENSIONS)
                 {
-                    botPose[i] = -NetworkTableInstance.getDefault().getTable("limelight").getEntry("botpose").getDoubleArray(botPose)[i]*METER_TO_INCH;
+                    botPose[i] = -table.getEntry("botpose").getDoubleArray(botPose)[i]*METER_TO_INCH;
                 }
                 else if (i == ROT_Z_INDEX && alliance == RED_ALLIANCE)
                 {
-                    botPose[i] = NetworkTableInstance.getDefault().getTable("limelight").getEntry("botpose").getDoubleArray(botPose)[i]-180.0;
+                    botPose[i] = table.getEntry("botpose").getDoubleArray(botPose)[i]-180.0;
                     botPose[i] = -Math.signum(botPose[i])*180.0 - (botPose[i] % 180.0);
                 }
                 else
@@ -64,7 +74,7 @@ public class CatzAprilTag {
 
     public boolean aprilTagInView()
     {
-        return (NetworkTableInstance.getDefault().getTable("limelight").getEntry("tid").getInteger(-1) != -1);
+        return (NetworkTableInstance.getDefault().getTable("limelight").getEntry("tv").getDouble(0) == 1);
     }
 
     public Pose2d getLimelightBotPose()
@@ -93,5 +103,10 @@ public class CatzAprilTag {
         SmartDashboard.putNumber("botpos Px", botPose[POS_X_INDEX]);
         SmartDashboard.putNumber("botpos Py", botPose[POS_Y_INDEX]);
         SmartDashboard.putNumber("botpos Rz", botPose[ROT_Z_INDEX]);
+        
+        SmartDashboard.putNumber("LimelightX", x);
+        SmartDashboard.putNumber("LimelightY", y);
+        SmartDashboard.putNumber("LimelightArea", area);
     }
+
 }

@@ -5,16 +5,13 @@
 package frc.robot.subsystems.Elevator;
 
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.CatzConstants;
+import frc.robot.CatzConstants.ElevatorConstants;
 import frc.robot.Utils.CatzManipulatorPositions;
-import frc.robot.Utils.CatzStateUtil;
-import frc.robot.Utils.CatzStateUtil.GamePieceState;
+import frc.robot.Utils.CatzSharedDataUtil;
 //import frc.robot.Robot.mechMode;
 import frc.robot.subsystems.Arm.CatzArmSubsystem;
-
-import java.util.function.Supplier;
 
 import org.littletonrobotics.junction.Logger;
 
@@ -26,161 +23,107 @@ public class CatzElevatorSubsystem extends SubsystemBase {
 
   private static CatzElevatorSubsystem instance;
 
-  static CatzArmSubsystem arm = CatzArmSubsystem.getInstance();
-
   private final double ARM_ENCODER_THRESHOLD = 35000.0;
-  private final double MANUAL_HOLD_STEP_SIZE = 10000.0; //5000.0;
-
- //limit switch
-
-  private final int SWITCH_CLOSED = 1;
-
-  private boolean lowSwitchState  = false;
-  private boolean highSwitchState = false;
-
-
-
-  private final boolean LIMIT_SWITCH_IGNORED   = false;
-  private final boolean LIMIT_SWITCH_MONITORED = true;  // limit switches will shut off the motor
-
-  private boolean elevatorDescent = false;
-  private double manualHoldTargetPos;
-  private double elevatorPwr;
-  private double targetPosition = -999.0;
-  private double currentPosition = -999.0;
-  private double positionError = -999.0;
-
   private final double ELEVATOR_POS_ERROR_THRESHOLD = 1000.0; //0.424 inches
-
   private final double NO_TARGET_POSITION = -999999.0;
 
-  private boolean elevatorInPosition = false;
+ //limit switch
+  private boolean m_lowSwitchState  = false;
+  private boolean m_highSwitchState = false;
 
-  private int numConsectSamples = 0;
+  private boolean m_elevatorDescent = false;
+  private double m_elevatorPwr;
 
-  private double sharedElevatorEncoderUpdate;
+  private boolean m_elevatorInPosition = false;
+  private int m_numConsectSamples = 0;
 
-  private CatzManipulatorPositions targetPose;
-
-
-
+  //manipulator target pose object
+  private CatzManipulatorPositions m_targetPose;
 
   /** Creates a new CatzElevatorSubsystem. */
-  private CatzElevatorSubsystem() 
-  {
-    switch(CatzConstants.currentMode)
-    {
-        case REAL:
-            io = new ElevatorIOReal();
+  private CatzElevatorSubsystem() {
+    switch(CatzConstants.currentMode) {
+        case REAL:io = new ElevatorIOReal();
             break;
-        case SIM :
-            io = null; //new ElevatorIOSim();
+        case SIM :io = null; //new ElevatorIOSim();
             break;
-        default:
-            io = new ElevatorIOReal() {};
+        default: io = new ElevatorIOReal() {};
             break;
     }
   }
 
-  private static ElevatorAutoState elevatorSetStateUpdate = null;
-  public static enum ElevatorAutoState {
 
-    HIGH,
-    MIDCONE,
-    MIDCUBE,
-    LOW,
-  }  
-
-  private static ElevatorControlState elevatorControlState = null;
-  public static enum ElevatorControlState {
-    
-    AUTO,
-    SEMIMANUAL,
-    FULLMANUAL,
-  } 
-
-  //The periodic method will be used for any non stateset hardware implementation
+  //The periodic method will be used for any hardware calls to set motor power
   @Override
-  public void periodic() 
-  {
+  public void periodic() {
+    //updating inputs
     io.updateInputs(inputs);
-    Logger.getInstance().processInputs("Elevator", inputs);
-    sharedElevatorEncoderUpdate = inputs.elevatorEncoderCnts;
-    
+    Logger.getInstance().processInputs("Elevator", inputs);  
     checkLimitSwitches();
-    // This method will be called once per scheduler run
 
-    if(DriverStation.isDisabled())
-    {
+    //determining whether to set power to motor
+    if(DriverStation.isDisabled()) {
         io.elevatorManualIO(0.0);
-        elevatorControlState = null;
-        elevatorSetStateUpdate = null;
     }
-    else if(targetPose != null)
-    {
-        io.elevatorMtrSetPosIO(targetPose.getElevatorPosEnc());
+    else if(m_targetPose != null) {
+      //watching if the elevator acting in a area where the arm position needs to be watched
+      if(m_elevatorDescent) {
+        if(CatzSharedDataUtil.sharedArmEncCnts < ARM_ENCODER_THRESHOLD) {
+          io.elevatorMtrSetPosIO(m_targetPose.getElevatorPosEnc());
+        }
+      }
+      else {
+         io.elevatorMtrSetPosIO(m_targetPose.getElevatorPosEnc());
+      }
+    }
+    else { //full manual
+      m_elevatorPwr = m_elevatorPwr * CatzConstants.ElevatorConstants.ELEVATOR_MAX_MANUAL_SCALED_POWER;
+      io.elevatorManualIO(m_elevatorPwr);
     }
 
     //checking elevator is in position
-    currentPosition = getElevatorEncoder();
-    positionError = currentPosition - targetPosition;
-    if  ((Math.abs(positionError) <= ELEVATOR_POS_ERROR_THRESHOLD) && targetPosition != NO_TARGET_POSITION) 
-    {
-
-        targetPosition = NO_TARGET_POSITION;
-        numConsectSamples++;
-            if(numConsectSamples >= 10) 
-            {   
-                elevatorInPosition = true;
+    double currentPosition = inputs.elevatorEncoderCnts;
+    double positionError = currentPosition - m_targetPose.getElevatorPosEnc();
+    if  ((Math.abs(positionError) <= ELEVATOR_POS_ERROR_THRESHOLD) && m_targetPose.getElevatorPosEnc() != NO_TARGET_POSITION) {
+        m_numConsectSamples++;
+            if(m_numConsectSamples >= 10) {   
+                CatzSharedDataUtil.sharedElevatorInPos = true;
             }
     }
-    else 
-    {
-        numConsectSamples = 0;
+    else {
+        m_numConsectSamples = 0;
+        CatzSharedDataUtil.sharedElevatorInPos = false;
     }
-
-
   }
 
-  public void elevatorManualCmd(double elevatorPwr, boolean isFullManualEnabled)
-  {
-    elevatorHoldingManual(elevatorPwr);
-    
-    if(isFullManualEnabled)
-    {
-      elevatorControlState = ElevatorControlState.FULLMANUAL;
-    }
-    else
-    {
-      elevatorControlState = ElevatorControlState.SEMIMANUAL;
-    }
-
+  public void elevatorFullManualCmd(double elevatorPwr) {
+    this.m_elevatorPwr = elevatorPwr;
+    m_targetPose = null;
   }
 
-  public void cmdUpdateElevator(CatzManipulatorPositions targetPosition)
-  {
-    elevatorControlState = ElevatorControlState.AUTO;
-    this.targetPose = targetPosition;
-    //TBD add motor configs with if statments
+  public void cmdUpdateElevator(CatzManipulatorPositions targetPosition) {
+    this.m_targetPose = targetPosition;
+
+    //setting different pid values depending on going up or down
+    if(targetPosition.getElevatorPosEnc() > inputs.elevatorEncoderCnts) {
+      io.elevatorConfig_kPIO(0, ElevatorConstants.ELEVATOR_KP_HIGH);
+      io.elevatorConfig_kIIO(0, ElevatorConstants.ELEVATOR_KI_HIGH);
+      io.elevatorConfig_kDIO(0, ElevatorConstants.ELEVATOR_KD_HIGH);
+    }
+    else {
+      io.elevatorConfig_kPIO(0, ElevatorConstants.ELEVATOR_KP_LOW);
+      io.elevatorConfig_kIIO(0, ElevatorConstants.ELEVATOR_KI_LOW);
+      io.elevatorConfig_kDIO(0, ElevatorConstants.ELEVATOR_KD_LOW);
+    }
+
+    //if the target position is lower than High elevator needs to be aware of the arm position
+    if(targetPosition.getElevatorPosEnc() < ElevatorConstants.ELEVATOR_POS_ENC_CNTS_HIGH) {
+      m_elevatorDescent = true;
+    }
+    else {
+      m_elevatorDescent = false;
+    }
   }
-
-
-
-    private void elevatorManual(double pwr)
-    {
-        double mtrPower;
-
-        mtrPower = pwr * CatzConstants.ElevatorConstants.ELEVATOR_MAX_MANUAL_SCALED_POWER;
-
-        io.elevatorManualIO(mtrPower);
-    }
-
-    public void elevatorHoldingManual(double holdingEncPos)
-    {
-        io.elevatorMtrSetPosIO(holdingEncPos);
-    }
-
-    
 
     /*----------------------------------------------------------------------------------------------
     *
@@ -189,44 +132,27 @@ public class CatzElevatorSubsystem extends SubsystemBase {
     *---------------------------------------------------------------------------------------------*/
     public void checkLimitSwitches()
     {
-        if(inputs.isRevLimitSwitchClosed)
-        {
-            io.setSelectedSensorPositionIO(CatzConstants.ElevatorConstants.ELEVATOR_POS_ENC_CNTS_LOW);
-            lowSwitchState = true;
-        }
-        else
-        {
-            lowSwitchState = false;
-        }
-
-        if(inputs.isFwdLimitSwitchClosed)
-        {
-            io.setSelectedSensorPositionIO(CatzConstants.ElevatorConstants.ELEVATOR_POS_ENC_CNTS_HIGH);
-            highSwitchState = true;
-        }
-        else
-        {
-            highSwitchState = false;
-        }
-    }
-
-
-    public double getElevatorEncoder()
-    {
-      //System.out.println(sharedElevatorEncoderUpdate);
-        return sharedElevatorEncoderUpdate;
-    }
-
-    public ElevatorControlState getElevatorControlState()
-    {
-        return elevatorControlState;
+      //recalibrate position to low if the rev limit switch is triggered
+      if(inputs.isRevLimitSwitchClosed) {
+          io.setSelectedSensorPositionIO(CatzConstants.ElevatorConstants.ELEVATOR_POS_ENC_CNTS_LOW);
+          m_lowSwitchState = true;
+      }
+      else {
+          m_lowSwitchState = false;
+      }
+      //recalibrate position to high if the high limit switch is triggered
+      if(inputs.isFwdLimitSwitchClosed) {
+          io.setSelectedSensorPositionIO(CatzConstants.ElevatorConstants.ELEVATOR_POS_ENC_CNTS_HIGH);
+          m_highSwitchState = true;
+      }
+      else {
+          m_highSwitchState = false;
+      }
     }
 
     //Singleton implementation for instatiating subssytems(Every refrence to this method should be static)
-    public static CatzElevatorSubsystem getInstance()
-    {
-        if(instance == null)
-        {
+    public static CatzElevatorSubsystem getInstance() {
+        if(instance == null) {
             instance = new CatzElevatorSubsystem();
         }
         return instance;

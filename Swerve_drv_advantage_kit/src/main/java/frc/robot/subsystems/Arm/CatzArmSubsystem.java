@@ -12,7 +12,10 @@ import org.littletonrobotics.junction.Logger;
 
 import frc.robot.*;
 import frc.robot.CatzConstants.ArmConstants;
+import frc.robot.CatzConstants.ElevatorConstants;
 import frc.robot.Utils.CatzManipulatorPositions;
+import frc.robot.Utils.CatzSharedDataUtil;
+import frc.robot.Utils.CatzAbstractStateUtil;
 //import frc.robot.Robot.mechMode;
 import frc.robot.subsystems.Elevator.CatzElevatorSubsystem;
 
@@ -27,23 +30,13 @@ public class CatzArmSubsystem extends SubsystemBase
   static CatzElevatorSubsystem elevator = CatzElevatorSubsystem.getInstance();
 
   private final double HIGH_EXTEND_THRESHOLD_ELEVATOR = 73000.0;
-
-  private final boolean LIMIT_SWITCH_IGNORED = false;
-  private final boolean LIMIT_SWITCH_MONITORED = true;
-
+  private final double ARM_POS_ERROR_THRESHOLD = 2700.0; //0.5 inches    previously 500 enc counts
 
   private boolean extendSwitchState = false;
 
-  private int SWITCH_CLOSED = 1;
-
-
   private final double ARM_CLOSELOOP_ERROR = 3000;
 
-  private double targetPosition = -999.0;
-  private double currentPosition = -999.0;
-  private double positionError = -999.0;
 
-  private final double ARM_POS_ERROR_THRESHOLD = 2700.0; //0.5 inches    previously 500 enc counts
 
   private final double NO_TARGET_POSITION = -999999.0;
 
@@ -51,148 +44,98 @@ public class CatzArmSubsystem extends SubsystemBase
 
   private int numConsectSamples = 0;
 
-  private double sharedArmEncoderUpdate;
-  private boolean sharedArmControlModeUpdate;
+  private double m_armPwr = -999.0;
+  private boolean m_isArmInExtension = false;
 
-  private boolean armAscent;
-  private double armPower;
-
-  private CatzManipulatorPositions targetPose;
+  private CatzManipulatorPositions m_targetPose;
 
 
-  private CatzArmSubsystem() 
-  {
-    switch(CatzConstants.currentMode)
-    {
-        case REAL:
-            io = new ArmIOReal();
+  private CatzArmSubsystem() {
+    switch(CatzConstants.currentMode) {
+        case REAL: io = new ArmIOReal();
             break;
-        case SIM :
-            io = null;// new ArmIOSim();
+        case SIM : io = null;// new ArmIOSim();
             break;
-        default:
-            io = new ArmIOReal() {};
+        default: io = new ArmIOReal() {};
             break;
     }
   }
 
-  private static ArmAutoState armSetState = null;
-  public static enum ArmAutoState {
-    
-    EXTEND,
-    RETRACT,
-    PICKUP,
-  }  
-  private static ArmControlState armControlState = null;
-  public static enum ArmControlState {
-    
-    AUTO,
-    FULLMANUAL,
-  } 
-
-
   @Override
-  public void periodic() 
-  {
+  public void periodic() {
     //perform input updates
     io.updateInputs(inputs);
     Logger.getInstance().processInputs("Arm", inputs);
     checkLimitSwitches();
 
-    //shoving input variables into class member variables for transfering to different java files
-    sharedArmEncoderUpdate = inputs.armMotorEncoder;
-    sharedArmControlModeUpdate = inputs.currentArmControlMode; 
-
-    if(DriverStation.isEnabled())
-    {
-        //System.out.println(elevator.getElevatorEncoder());
-    }
-
     //arm logic implementation requiring a loop
-    if(DriverStation.isDisabled())
-    {
+    if(DriverStation.isDisabled()) {
         io.setArmPwrIO(0.0);
-        armControlState = null;
-        armSetState = null;
     }
-    else if(targetPose != null)
-    {
-        if(elevator.getElevatorEncoder() >= HIGH_EXTEND_THRESHOLD_ELEVATOR)
-        {
-            io.setArmPosEncIO(targetPose.getArmPosEnc());
+    else if(m_targetPose != null) {
+        if(m_isArmInExtension) {
+            if(CatzSharedDataUtil.sharedElevatorEncCnts > HIGH_EXTEND_THRESHOLD_ELEVATOR)
+            io.setArmPosEncIO(m_targetPose.getArmPosEnc());
         }
-    
-        if(targetPose.getArmPosEnc() <= ArmConstants.POS_ENC_CNTS_PICKUP)
-        {
-            io.setArmPosEncIO(targetPose.getArmPosEnc());
+        else {
+            io.setArmPosEncIO(m_targetPose.getArmPosEnc());
         }
+    }
+    else {
+        io.setArmPwrIO(m_armPwr);
     }
 
     //checking if arm has reached position
-    currentPosition = getArmEncoder();
-    positionError = currentPosition - targetPosition;
-    if  ((Math.abs(positionError) <= ARM_POS_ERROR_THRESHOLD) && targetPosition != NO_TARGET_POSITION) 
-    {
-        targetPosition = NO_TARGET_POSITION;
+    double currentPosition = inputs.armMotorEncoder;
+    double positionError = currentPosition - m_targetPose.getArmPosEnc();
+    if  ((Math.abs(positionError) <= ARM_POS_ERROR_THRESHOLD)) {
         numConsectSamples++;
-            if(numConsectSamples >= 10) 
-            {   
-                armInPosition = true;
+            if(numConsectSamples >= 10) {   
+                CatzSharedDataUtil.sharedArmInPos = true;
             }
     }
-    else 
-    {
+    else {
         numConsectSamples = 0;
+        CatzSharedDataUtil.sharedArmInPos = false;
     }
   }
-
-  public void checkLimitSwitches() 
-  {
-    if(inputs.isRevLimitSwitchClosed) 
+    //updates the arm statemachine to auto and does auto cmds
+    public void cmdUpdateArm(CatzManipulatorPositions targetPose)
     {
+      this.m_targetPose = targetPose;
+      if(m_targetPose.getArmPosEnc() > ArmConstants.POS_ENC_CNTS_PICKUP) {
+          m_isArmInExtension = true;
+      }
+      else {
+          m_isArmInExtension = false;
+      }
+    }
+  
+    public void setArmPwr(double pwr) {        
+        this.m_armPwr = pwr;
+        this.m_targetPose = null;
+    }
+
+    /*----------------------------------------------------------------------------------------------
+    *
+    *  Utilities - 
+    *
+    *---------------------------------------------------------------------------------------------*/
+
+    public void checkLimitSwitches() {
+    //recalibrating arm position with the rev limit switch is triggered
+    if(inputs.isRevLimitSwitchClosed) {
         io.setSelectedSensorPositionIO(CatzConstants.ArmConstants.POS_ENC_CNTS_RETRACT);
         extendSwitchState = true;
     }
-    else 
-    {
+    else {
         extendSwitchState = false;
     }
   }
 
-  //updates the arm statemachine to auto and does auto cmds
-  public void cmdUpdateArm(CatzManipulatorPositions targetPose)
-  {
-    armControlState = ArmControlState.AUTO; 
-    this.targetPose = targetPose;
-  }
-
-  public void setArmPwr(double pwr)
-  {        
-      io.setArmPwrIO(pwr);
-      this.targetPose = null;
-      armControlState = ArmControlState.FULLMANUAL;
-  }
-
-    public double getArmEncoder()
-    {
-        return sharedArmEncoderUpdate;
-    }
-
-    public boolean isArmControlModePercentOutput()
-    {
-        return sharedArmControlModeUpdate;
-    }
-
-    public ArmControlState getArmControlState()
-    {
-        return armControlState;
-    }
-
     //Singleton implementation for instatiating subssytems(Every refrence to this method should be static)
-    public static CatzArmSubsystem getInstance()
-    {
-        if(instance == null)
-        {
+    public static CatzArmSubsystem getInstance() {
+        if(instance == null) {
             instance = new CatzArmSubsystem();
         }
         return instance;

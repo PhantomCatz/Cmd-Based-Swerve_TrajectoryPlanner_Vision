@@ -39,7 +39,7 @@ public class PPTrajectoryFollowingCmd extends CommandBase {
      * @param drivetrain The coordinator between the gyro and the swerve modules.
      * @param trajectory          The trajectory to follow.
      */
-    public PPTrajectoryFollowingCmd(PathPlannerPath newPath) 
+    public PPTrajectoryFollowingCmd(CatzDriveTrainSubsystem driveTrain, PathPlannerPath newPath) 
     {
         this.trajectory = new PathPlannerTrajectory(newPath, new ChassisSpeeds());
         controller = CatzConstants.DriveConstants.ppholonomicDriveController;

@@ -60,23 +60,12 @@ public final class CatzConstants {
     private static final double MODULE_DISTANCE_FROM_CENTER = 0.298;
 
 
-    private static final Translation2d SWERVE_LEFT_FRONT_LOCATION  = new Translation2d(MODULE_DISTANCE_FROM_CENTER, MODULE_DISTANCE_FROM_CENTER);
-    private static final Translation2d SWERVE_LEFT_BACK_LOCATION   = new Translation2d(-MODULE_DISTANCE_FROM_CENTER, MODULE_DISTANCE_FROM_CENTER);
-    private static final Translation2d SWERVE_RIGHT_BACK_LOCATION  = new Translation2d(-MODULE_DISTANCE_FROM_CENTER, -MODULE_DISTANCE_FROM_CENTER);
-    private static final Translation2d SWERVE_RIGHT_FRONT_LOCATION = new Translation2d(MODULE_DISTANCE_FROM_CENTER, -MODULE_DISTANCE_FROM_CENTER);
-
-    /* 
-    // calculates the orientation and speed of individual swerve modules when given the motion of the whole robot
-    //out of order due arrows looking weird on advantage scope and in a visual perspective
-    public static final SwerveDriveKinematics swerveDriveKinematics = new SwerveDriveKinematics(
-        SWERVE_LEFT_FRONT_LOCATION,
-        SWERVE_RIGHT_BACK_LOCATION,
-        SWERVE_RIGHT_FRONT_LOCATION,
-        SWERVE_LEFT_BACK_LOCATION
-    );
-    */
+    //not following the original coordinate system since the robot coordinate system is inverted
+    private static final Translation2d SWERVE_LEFT_FRONT_LOCATION  = new Translation2d(-MODULE_DISTANCE_FROM_CENTER, MODULE_DISTANCE_FROM_CENTER);
+    private static final Translation2d SWERVE_LEFT_BACK_LOCATION   = new Translation2d(MODULE_DISTANCE_FROM_CENTER, MODULE_DISTANCE_FROM_CENTER);
+    private static final Translation2d SWERVE_RIGHT_BACK_LOCATION  = new Translation2d(MODULE_DISTANCE_FROM_CENTER, -MODULE_DISTANCE_FROM_CENTER);
+    private static final Translation2d SWERVE_RIGHT_FRONT_LOCATION = new Translation2d(-MODULE_DISTANCE_FROM_CENTER, -MODULE_DISTANCE_FROM_CENTER);
     
-
     // calculates the orientation and speed of individual swerve modules when given the motion of the whole robot
     public static final SwerveDriveKinematics swerveDriveKinematics = new SwerveDriveKinematics(
         SWERVE_LEFT_FRONT_LOCATION,
@@ -137,13 +126,38 @@ public static final class ManipulatorPoseConstants
   public static final CatzManipulatorPositions SCORE_HIGH_CONE = new CatzManipulatorPositions(ElevatorConstants.ELEVATOR_POS_ENC_CNTS_HIGH,
                                                                                               ArmConstants.POS_ENC_INCH_EXTEND,
                                                                                               IntakeConstants.SCORE_CONE_HIGH_ENC_POS_TELOP);
+  public static final CatzManipulatorPositions SCORE_HIGH_CUBE = new CatzManipulatorPositions(ElevatorConstants.ELEVATOR_POS_ENC_CNTS_HIGH,
+                                                                                              ArmConstants.POS_ENC_INCH_EXTEND,
+                                                                                              IntakeConstants.SCORE_CUBE_ENC_POS);
 
   public static final CatzManipulatorPositions SCORE_MID_CONE = new CatzManipulatorPositions(ElevatorConstants.ELEVATOR_POS_ENC_CNTS_MID_CONE,
                                                                                               ArmConstants.POS_ENC_CNTS_RETRACT,
                                                                                               IntakeConstants.SCORE_CONE_MID_ENC_POS);
+  public static final CatzManipulatorPositions SCORE_MID_CUBE = new CatzManipulatorPositions(ElevatorConstants.ELEVATOR_POS_ENC_CNTS_MID_CUBE,
+                                                                                              ArmConstants.POS_ENC_INCH_RETRACT,
+                                                                                              IntakeConstants.SCORE_CUBE_ENC_POS);                                                                                            
+                                                                                              
+  public static final CatzManipulatorPositions SCORE_LOW_CONE = new CatzManipulatorPositions(ElevatorConstants.ELEVATOR_POS_ENC_CNTS_LOW,
+                                                                                              ArmConstants.POS_ENC_CNTS_PICKUP,
+                                                                                              IntakeConstants.SCORE_CONE_LOW_ENC_POS);
+  public static final CatzManipulatorPositions SCORE_LOW_CUBE = new CatzManipulatorPositions(ElevatorConstants.ELEVATOR_POS_ENC_CNTS_LOW,
+                                                                                              ArmConstants.POS_ENC_INCH_PICKUP,
+                                                                                              IntakeConstants.SCORE_CUBE_ENC_POS); 
+
   public static final CatzManipulatorPositions STOW = new CatzManipulatorPositions(ElevatorConstants.ELEVATOR_POS_ENC_CNTS_LOW,
                                                                                               ArmConstants.POS_ENC_CNTS_RETRACT,
                                                                                               IntakeConstants.STOW_ENC_POS);
+
+  public static final CatzManipulatorPositions PICKUP_CONE_GROUND = new CatzManipulatorPositions(ElevatorConstants.ELEVATOR_POS_ENC_CNTS_LOW,
+                                                                                                  ArmConstants.POS_ENC_CNTS_PICKUP,
+                                                                                                  IntakeConstants.INTAKE_CONE_ENC_POS_GROUND);
+  public static final CatzManipulatorPositions PICKUP_CUBE_GROUND = new CatzManipulatorPositions(ElevatorConstants.ELEVATOR_POS_ENC_CNTS_LOW,
+                                                                                                  ArmConstants.POS_ENC_INCH_PICKUP,
+                                                                                                  IntakeConstants.INTAKE_CUBE_ENC_POS);
+
+  public static final CatzManipulatorPositions PICKUP_CONE_SINGLE = new CatzManipulatorPositions(ElevatorConstants.ELEVATOR_POS_ENC_CNTS_SINGLE_PICKUP,
+                                                                                                  ArmConstants.POS_ENC_INCH_PICKUP,
+                                                                                                  IntakeConstants.INTAKE_CONE_ENC_POS_SINGLE_UPRIGHT); 
 }
 
   //-----------------------------Intake------------------------------------------
@@ -283,27 +297,28 @@ public static final class ElevatorConstants
     //-----------------------------------ARM---------------------------------------
     public static final class ArmConstants
     {
-    //gear ratio
-    private static final double ARM_VERSA_RATIO  = 7.0/1.0;
+      //gear ratio
+      private static final double ARM_VERSA_RATIO  = 7.0/1.0;
 
-    private static final double PUILEY_1      = 24.0;
-    private static final double PUILEY_2      = 18.0;
-    private static final double PUILEY_RATIO  = PUILEY_1 / PUILEY_2;
-      
-    private static final double ARM_FINAL_RATIO   = ARM_VERSA_RATIO * PUILEY_RATIO;
-    private static final double FINAL_CIRCUMFERENCE = 3.54; 
+      private static final double PUILEY_1      = 24.0;
+      private static final double PUILEY_2      = 18.0;
+      private static final double PUILEY_RATIO  = PUILEY_1 / PUILEY_2;
+        
+      private static final double ARM_FINAL_RATIO   = ARM_VERSA_RATIO * PUILEY_RATIO;
+      private static final double FINAL_CIRCUMFERENCE = 3.54; 
 
-    private static final double CNTS_OVER_REV = 2048.0 / 1.0;
+      private static final double CNTS_OVER_REV = 2048.0 / 1.0;
 
-    private static final double CNTS_PER_INCH_CONVERSION_FACTOR = CNTS_OVER_REV/FINAL_CIRCUMFERENCE;
-  
-    private static final double POS_ENC_INCH_RETRACT = 0.0;
-    private static final double POS_ENC_INCH_EXTEND = 8.157;
-    private static final double POS_ENC_INCH_PICKUP = 4.157;
-  
-    public static final double POS_ENC_CNTS_RETRACT  = POS_ENC_INCH_RETRACT * CNTS_PER_INCH_CONVERSION_FACTOR;// 0.0
-    public static final double POS_ENC_CNTS_EXTEND  = POS_ENC_INCH_EXTEND * CNTS_PER_INCH_CONVERSION_FACTOR; //44000
-    public static final double POS_ENC_CNTS_PICKUP = POS_ENC_INCH_PICKUP * CNTS_PER_INCH_CONVERSION_FACTOR; //22000
+      private static final double CNTS_PER_INCH_CONVERSION_FACTOR = CNTS_OVER_REV/FINAL_CIRCUMFERENCE;
+    
+      //Encoder Positions
+      private static final double POS_ENC_INCH_RETRACT = 0.0;
+      private static final double POS_ENC_INCH_EXTEND = 8.157;
+      private static final double POS_ENC_INCH_PICKUP = 4.157;
+    
+      public static final double POS_ENC_CNTS_RETRACT  = POS_ENC_INCH_RETRACT * CNTS_PER_INCH_CONVERSION_FACTOR;// 0.0
+      public static final double POS_ENC_CNTS_EXTEND  = POS_ENC_INCH_EXTEND * CNTS_PER_INCH_CONVERSION_FACTOR; //44000
+      public static final double POS_ENC_CNTS_PICKUP = POS_ENC_INCH_PICKUP * CNTS_PER_INCH_CONVERSION_FACTOR; //22000
     }
   
 }

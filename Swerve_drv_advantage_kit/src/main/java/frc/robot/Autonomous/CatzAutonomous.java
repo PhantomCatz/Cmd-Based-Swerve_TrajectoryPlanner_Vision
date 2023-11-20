@@ -22,14 +22,16 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.CatzConstants;
+import frc.robot.RobotContainer;
 import frc.robot.Autonomous.Trajectory.TrajectoryFollowingCmd;
 import frc.robot.Autonomous.Trajectory.Paths.Trajectories;
+import frc.robot.CatzConstants.AllianceColor;
 import frc.robot.CatzConstants.ManipulatorPoseConstants;
 import frc.robot.Utils.CatzManipulatorPositions;
-import frc.robot.Utils.CatzStateUtil;
-import frc.robot.Utils.CatzStateUtil.GamePieceState;
-import frc.robot.Utils.CatzStateUtil.SetMechanismState;
-import frc.robot.commands.StateMachineCmd;
+import frc.robot.Utils.CatzAbstractStateUtil;
+import frc.robot.Utils.CatzAbstractStateUtil.GamePieceState;
+import frc.robot.Utils.CatzAbstractStateUtil.SetMechanismState;
+import frc.robot.commands.ManipulatorToPoseCmd;
 import frc.robot.subsystems.Arm.CatzArmSubsystem;
 import frc.robot.subsystems.Elevator.CatzElevatorSubsystem;
 import frc.robot.subsystems.Intake.CatzIntakeSubsystem;
@@ -47,8 +49,14 @@ public class CatzAutonomous
     //private static PathPlannerPath feildSideDriveBack = PathPlannerPath.fromPathFile("FeildSideDriveBack");
 
 
-    public LoggedDashboardChooser<Enum> chosenAllianceColor = new LoggedDashboardChooser<>("alliance selector");
-    public LoggedDashboardChooser<Command> autoChooser = new LoggedDashboardChooser<>("Auto Routine");
+    public static LoggedDashboardChooser<AllianceColor> chosenAllianceColor = new LoggedDashboardChooser<>("alliance selector");
+    private static LoggedDashboardChooser<AutoModes> autoChooser = new LoggedDashboardChooser<>("Auto Routine");
+
+    private enum AutoModes {
+        TEST,
+        DRIVE_STRAIGHT,
+        TRANSLATE_DRIVE_STRAIGHT
+    }
 
     public CatzAutonomous()
     {
@@ -57,19 +65,27 @@ public class CatzAutonomous
 
         autoChooser.addDefaultOption("Do Nothing", null);
 
-        autoChooser.addOption       ("TEST PATH",  testPath());
-        autoChooser.addOption       ("start from wall", startWall());
-        autoChooser.addOption       ("start from feild", startField());
-        autoChooser.addOption       ("start from Center", startField());
+        autoChooser.addOption       ("TEST PATH",  AutoModes.TEST);
+        autoChooser.addOption       ("Drivestright", AutoModes.DRIVE_STRAIGHT);
+        autoChooser.addOption       ("TranslateDriveStraight", AutoModes.TRANSLATE_DRIVE_STRAIGHT);
     }
 
-    public Command testPath()
+    public Command getCommand(RobotContainer container)
+    {
+        switch(autoChooser.get())
+        {
+            case TEST: return testPath(container);
+            default: 
+            return new InstantCommand();
+        }
+    }
+
+    public Command testPath(RobotContainer container)
     {
         return new SequentialCommandGroup(
 
                new TrajectoryFollowingCmd(Trajectories.testTrajectoryStraight, Rotation2d.fromDegrees(180))
                                         );
-
     }
 
     public Command startWall()
@@ -90,14 +106,14 @@ public class CatzAutonomous
     public static SequentialCommandGroup parallelScoreCube()
     {
         return new SequentialCommandGroup(
-                    Commands.runOnce(() -> CatzStateUtil.newGamePieceState(GamePieceState.CUBE)),
-                    new StateMachineCmd(ManipulatorPoseConstants.SCORE_HIGH_CONE)
+                    Commands.runOnce(() -> CatzAbstractStateUtil.newGamePieceState(GamePieceState.CUBE)),
+                    new ManipulatorToPoseCmd(ManipulatorPoseConstants.SCORE_HIGH_CONE)
                         .raceWith(Commands.waitSeconds(1.0)),
 
                     new ParallelCommandGroup(
                        // new PPTrajectoryFollowingCmd(driveStraighFullTurn), 
                         new SequentialCommandGroup(
-                            new StateMachineCmd(ManipulatorPoseConstants.STOW)
+                            new ManipulatorToPoseCmd(ManipulatorPoseConstants.STOW)
                                 .raceWith(Commands.waitSeconds(1.0)),
                            // new StateMachineCmd(SetMechanismState.PICKUP_GROUND)
                           //      .raceWith(Commands.waitSeconds(1.0)),
@@ -107,21 +123,21 @@ public class CatzAutonomous
                     new ParallelCommandGroup(
                        // new PPTrajectoryFollowingCmd(feildSideDriveBack), 
                         new SequentialCommandGroup(
-                            new StateMachineCmd(ManipulatorPoseConstants.STOW)
+                            new ManipulatorToPoseCmd(ManipulatorPoseConstants.STOW)
                                 .raceWith(Commands.waitSeconds(1.0)),
-                            new StateMachineCmd(ManipulatorPoseConstants.SCORE_HIGH_CONE)
+                            new ManipulatorToPoseCmd(ManipulatorPoseConstants.SCORE_HIGH_CONE)
                                 .raceWith(Commands.waitSeconds(1.0)))
                                             ),
                     intakeSequenceCommandGroup(),
-                    new StateMachineCmd(ManipulatorPoseConstants.STOW)
+                    new ManipulatorToPoseCmd(ManipulatorPoseConstants.STOW)
                                          );       
     }
 
     public static SequentialCommandGroup RightScore1HighConeBalance()
     {
         return new SequentialCommandGroup(
-                    Commands.runOnce(() -> CatzStateUtil.newGamePieceState(GamePieceState.CONE)),
-                    new StateMachineCmd(CatzConstants.ManipulatorPoseConstants.SCORE_HIGH_CONE)
+                    Commands.runOnce(() -> CatzAbstractStateUtil.newGamePieceState(GamePieceState.CONE)),
+                    new ManipulatorToPoseCmd(CatzConstants.ManipulatorPoseConstants.SCORE_HIGH_CONE)
 
                    //new PPTrajectoryFollowingCmd(driveStraighFullTurn)
             

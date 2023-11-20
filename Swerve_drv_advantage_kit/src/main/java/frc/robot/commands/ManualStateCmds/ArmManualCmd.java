@@ -5,9 +5,10 @@
 package frc.robot.commands.ManualStateCmds;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.RobotContainer;
 import frc.robot.Utils.CatzManipulatorPositions;
+import frc.robot.Utils.CatzSharedDataUtil;
 import frc.robot.subsystems.Arm.CatzArmSubsystem;
-import frc.robot.subsystems.Arm.CatzArmSubsystem.ArmControlState;
 
 public class ArmManualCmd extends CommandBase {
   private CatzArmSubsystem arm = CatzArmSubsystem.getInstance();
@@ -24,6 +25,7 @@ public class ArmManualCmd extends CommandBase {
   {
     this.armExtend = armExtend;
     this.armRetract = armRetract;
+    addRequirements(arm);
   }
 
   // Called when the command is initially scheduled.
@@ -42,7 +44,7 @@ public class ArmManualCmd extends CommandBase {
     {
         arm.setArmPwr(RETRACT_PWR);
     }
-    else if(arm.isArmControlModePercentOutput())
+    else if(CatzSharedDataUtil.sharedArmInControlMode)
     {
         arm.setArmPwr(MANUAL_CONTROL_PWR_OFF);
     }
@@ -55,6 +57,6 @@ public class ArmManualCmd extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return (arm.getArmControlState() != ArmControlState.FULLMANUAL);
+    return false;
   }
 }

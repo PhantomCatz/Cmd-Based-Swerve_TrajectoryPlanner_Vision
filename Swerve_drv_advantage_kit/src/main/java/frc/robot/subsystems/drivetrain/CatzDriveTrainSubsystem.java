@@ -16,6 +16,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.CatzConstants;
 import frc.robot.Robot;
@@ -55,12 +56,6 @@ public class CatzDriveTrainSubsystem extends SubsystemBase
     private final int RT_BACK_ENC_PORT = 7;
     private final int RT_FRNT_ENC_PORT = 8;
 
-    /* 
-    private final double LT_FRNT_OFFSET =  0.0100; //0.073 //-0.0013; //MC ID 2
-    private final double LT_BACK_OFFSET =  0.0439; //0.0431 //0.0498; //MC ID 4
-    private final double RT_BACK_OFFSET =  0.2588; //0.2420 //0.2533; //MC ID 6
-    private final double RT_FRNT_OFFSET =  0.0280; //0.0238 //0.0222; //MC ID 8
-    */
     private final double LT_FRNT_OFFSET = 0.007371500184287522;
     private final double LT_BACK_OFFSET = 0.04736465118411634;
     private final double RT_BACK_OFFSET = 0.2542108938552728;
@@ -114,17 +109,7 @@ public class CatzDriveTrainSubsystem extends SubsystemBase
                                                      Rotation2d.fromDegrees(0), 
                                                      getModulePositions(), 
                                                      new Pose2d(0,0,Rotation2d.fromDegrees(0)));
-        
-        new Thread(() -> {
-            try {
-                Thread.sleep(1000);
-                zeroGyro();
-            } catch (Exception e) {
-            }
-        }).start();
     }   
-    
-
 
     @Override
     public void periodic() 
@@ -136,12 +121,12 @@ public class CatzDriveTrainSubsystem extends SubsystemBase
         }
         gyroIO.updateInputs(gyroInputs);
         Logger.getInstance().processInputs("Drive/gyroinputs ", gyroInputs);
-        Pose2d aprilPose2d = null;
+        Pose2d aprilPose2d;
         
         poseEstimator.updateWithTime(Logger.getInstance().getTimestamp(), getRotation2d(), getModulePositions());
 
         if(aprilTag.aprilTagInView())
-        {
+        {         
             aprilPose2d = aprilTag.getLimelightBotPose();
             poseEstimator.addVisionMeasurement(aprilPose2d, Logger.getInstance().getTimestamp());
 
@@ -150,7 +135,11 @@ public class CatzDriveTrainSubsystem extends SubsystemBase
         
         //logging
         Logger.getInstance().recordOutput("Obometry/pose", getPose());
-        Logger.getInstance().recordOutput("Drive/rotationheading" , getHeading());
+        Logger.getInstance().recordOutput("Drive/rotationheading" , getHeadingRadians());
+        aprilTag.smartDashboardAprilTag();
+
+        SmartDashboard.putNumber("gyroAngle", getGyroAngle());
+        SmartDashboard.putNumber("HeadingRad", getHeadingRadians());
     }
     
 
@@ -159,7 +148,6 @@ public class CatzDriveTrainSubsystem extends SubsystemBase
         //apply second order kinematics
         chassisSpeeds = correctForDynamics(chassisSpeeds);
 
-        
         //Convert chassis speeds to individual module states
         SwerveModuleState[] moduleStates = CatzConstants.DriveConstants.swerveDriveKinematics.toSwerveModuleStates(chassisSpeeds);
         setModuleStates(moduleStates);
@@ -168,19 +156,11 @@ public class CatzDriveTrainSubsystem extends SubsystemBase
     private void setModuleStates(SwerveModuleState[] desiredStates) 
     {
         SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, CatzConstants.DriveConstants.MAX_SPEED);
-       /*  
-        swerveModules[0].setDesiredState(desiredStates[2]);
-        swerveModules[1].setDesiredState(desiredStates[1]);
-        swerveModules[2].setDesiredState(desiredStates[3]);
-        swerveModules[3].setDesiredState(desiredStates[0]);
-        */
 
         LT_FRNT_MODULE.setDesiredState(desiredStates[0]);
         LT_BACK_MODULE.setDesiredState(desiredStates[1]);
         RT_BACK_MODULE.setDesiredState(desiredStates[2]);
         RT_FRNT_MODULE.setDesiredState(desiredStates[3]);
-
-        
 
         Logger.getInstance().recordOutput("module states", desiredStates);
     }
@@ -237,7 +217,7 @@ public class CatzDriveTrainSubsystem extends SubsystemBase
 
     public double getGyroAngle()
     {
-        double gyroAngle = -gyroInputs.gyroAngle;
+        double gyroAngle = - gyroInputs.gyroAngle;
         return gyroAngle;
     }
 
@@ -318,10 +298,8 @@ public class CatzDriveTrainSubsystem extends SubsystemBase
     }
     
     //Singleton implementation for instatiating subssytems(Every refrence to this method should be static)
-    public static CatzDriveTrainSubsystem getInstance()
-    {
-        if(instance == null)
-        {
+    public static CatzDriveTrainSubsystem getInstance() {
+        if(instance == null) {
             instance = new CatzDriveTrainSubsystem();
         }
         return instance;
