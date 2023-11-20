@@ -7,8 +7,6 @@ import com.revrobotics.CANSparkMax;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 
-import javax.naming.ldap.Control;
-
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.revrobotics.CANSparkMax.IdleMode;
@@ -69,7 +67,6 @@ public class ModuleIOReal implements ModuleIO
         inputs.driveMtrSensorPosition = DRIVE_MOTOR.getSelectedSensorPosition();
         inputs.magEncoderValue = magEnc.get();
         inputs.driveMtrPercentOutput = DRIVE_MOTOR.getMotorOutputPercent();
-        inputs.turnMtrEnc = -999.9;
     }
 
     @Override

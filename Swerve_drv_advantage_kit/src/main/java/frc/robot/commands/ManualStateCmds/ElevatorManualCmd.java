@@ -7,6 +7,8 @@ package frc.robot.commands.ManualStateCmds;
 import java.util.function.Supplier;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.RobotContainer;
+import frc.robot.RobotContainer.mechMode;
 import frc.robot.Utils.CatzManipulatorPositions;
 import frc.robot.Utils.CatzSharedDataUtil;
 import frc.robot.subsystems.Arm.CatzArmSubsystem;
@@ -29,8 +31,7 @@ public class ElevatorManualCmd extends CommandBase {
 
   /** Creates a new ManualElevatorCmd. */
   public ElevatorManualCmd(Supplier<Double> supplierElevatorPwr, 
-                           Supplier<Boolean> supplierManualMode) 
-  {
+                           Supplier<Boolean> supplierManualMode) {
     this.supplierElevatorPwr = supplierElevatorPwr;
     this.supplierManualMode = supplierManualMode;
     addRequirements(elevator);
@@ -38,9 +39,8 @@ public class ElevatorManualCmd extends CommandBase {
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() 
-  {
-
+  public void initialize() {
+    RobotContainer.elevatorControlMode = mechMode.AutoMode;
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -61,7 +61,7 @@ public class ElevatorManualCmd extends CommandBase {
           {
             manualHoldTargetPos = CatzSharedDataUtil.sharedElevatorEncCnts;
             manualHoldTargetPos = manualHoldTargetPos + (elevatorPwr * MANUAL_HOLD_STEP_SIZE);
-            targetPosition = new CatzManipulatorPositions(manualHoldTargetPos, CatzSharedDataUtil.sharedArmEncCnts, CatzSharedDataUtil.sharedWristEncCnts);
+            targetPosition = new CatzManipulatorPositions(manualHoldTargetPos, -999.0, -999.0);
             elevator.cmdUpdateElevator(targetPosition);
           }
       }

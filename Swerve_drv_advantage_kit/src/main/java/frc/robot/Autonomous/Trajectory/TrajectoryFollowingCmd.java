@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.drivetrain.CatzDriveTrainSubsystem;
+import frc.robot.subsystems.drivetrain.CatzDriveTrainSubsystem.DriveConstants;
 import frc.robot.CatzConstants;
 
 // Follows a trajectory
@@ -38,7 +39,7 @@ public class TrajectoryFollowingCmd extends CommandBase{
         this.targetHeading = targetHeading; // this returns the desired orientation when given the current position (the function itself is given as an argument). But most of the times, it will just give a constant desired orientation.
         // also, why is it called refheading? wouldn't something like targetOrientation be better
 
-        controller = CatzConstants.DriveConstants.holonomicDriveController; // see catzconstants
+        controller = DriveConstants.holonomicDriveController; // see catzconstants
        addRequirements(driveTrain);
     }
 

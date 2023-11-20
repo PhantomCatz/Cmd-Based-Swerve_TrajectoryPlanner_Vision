@@ -19,7 +19,7 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.CatzConstants;
-import frc.robot.CatzConstants.DriveConstants;
+import frc.robot.subsystems.drivetrain.CatzDriveTrainSubsystem.DriveConstants;
 import frc.robot.Utils.CatzMathUtils;
 import frc.robot.Utils.Conversions;
 import frc.robot.subsystems.drivetrain.ModuleIOInputsAutoLogged;
@@ -195,8 +195,8 @@ public class CatzSwerveModule
         state = CatzMathUtils.optimize(state, getCurrentRotation());
         //calculate drive pwr
         double drivePwrVelocity = Conversions.MPSToFalcon(state.speedMetersPerSecond, 
-                                                          CatzConstants.DriveConstants.DRVTRAIN_WHEEL_CIRCUMFERENCE, 
-                                                          CatzConstants.DriveConstants.SDS_L2_GEAR_RATIO); //to set is as a gear reduction not an overdrive
+                                                          DriveConstants.DRVTRAIN_WHEEL_CIRCUMFERENCE, 
+                                                          DriveConstants.SDS_L2_GEAR_RATIO); //to set is as a gear reduction not an overdrive
         //calculate turn pwr
         double steerPIDpwr = - pid.calculate(getAbsEncRadians(), state.angle.getRadians()); 
 
@@ -236,7 +236,7 @@ public class CatzSwerveModule
 
     public SwerveModuleState getModuleState()
     {
-        double velocity = Conversions.falconToMPS(inputs.driveMtrVelocity,CatzConstants.DriveConstants.DRVTRAIN_WHEEL_CIRCUMFERENCE, CatzConstants.DriveConstants.SDS_L2_GEAR_RATIO);
+        double velocity = Conversions.falconToMPS(inputs.driveMtrVelocity, DriveConstants.DRVTRAIN_WHEEL_CIRCUMFERENCE, DriveConstants.SDS_L2_GEAR_RATIO);
         
         return new SwerveModuleState(velocity, getCurrentRotation());
     }
@@ -248,6 +248,6 @@ public class CatzSwerveModule
     
     public double getDriveDistanceMeters()
     {
-        return  ((inputs.driveMtrSensorPosition / 2048)/ CatzConstants.DriveConstants.SDS_L2_GEAR_RATIO) * CatzConstants.DriveConstants.DRVTRAIN_WHEEL_CIRCUMFERENCE;
+        return  ((inputs.driveMtrSensorPosition / 2048)/ DriveConstants.SDS_L2_GEAR_RATIO) * DriveConstants.DRVTRAIN_WHEEL_CIRCUMFERENCE;
     }
 }

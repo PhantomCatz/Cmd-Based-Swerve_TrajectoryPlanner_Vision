@@ -53,63 +53,6 @@ public final class CatzConstants {
 
   }
 
- //Saving for finished trajectory planner
-  //----------------------Catz auton Constants---------------------------
-  public static final class DriveConstants
-  {
-    private static final double MODULE_DISTANCE_FROM_CENTER = 0.298;
-
-
-    //not following the original coordinate system since the robot coordinate system is inverted
-    private static final Translation2d SWERVE_LEFT_FRONT_LOCATION  = new Translation2d(-MODULE_DISTANCE_FROM_CENTER, MODULE_DISTANCE_FROM_CENTER);
-    private static final Translation2d SWERVE_LEFT_BACK_LOCATION   = new Translation2d(MODULE_DISTANCE_FROM_CENTER, MODULE_DISTANCE_FROM_CENTER);
-    private static final Translation2d SWERVE_RIGHT_BACK_LOCATION  = new Translation2d(MODULE_DISTANCE_FROM_CENTER, -MODULE_DISTANCE_FROM_CENTER);
-    private static final Translation2d SWERVE_RIGHT_FRONT_LOCATION = new Translation2d(-MODULE_DISTANCE_FROM_CENTER, -MODULE_DISTANCE_FROM_CENTER);
-    
-    // calculates the orientation and speed of individual swerve modules when given the motion of the whole robot
-    public static final SwerveDriveKinematics swerveDriveKinematics = new SwerveDriveKinematics(
-        SWERVE_LEFT_FRONT_LOCATION,
-        SWERVE_LEFT_BACK_LOCATION,
-        SWERVE_RIGHT_BACK_LOCATION,
-        SWERVE_RIGHT_FRONT_LOCATION
-    );
-    
-
-    public static final double MAX_SPEED = 4.0; // meters per second
-    public static final double MAX_ANGSPEED_RAD_PER_SEC = 6.0; // radians per second
-
-    public static final double SDS_L1_GEAR_RATIO = 8.14;       //SDS mk4i L1 ratio reduction
-    public static final double SDS_L2_GEAR_RATIO = 6.75;       //SDS mk4i L2 ratio reduction
-    
-    public static final double DRVTRAIN_WHEEL_DIAMETER             = 0.095;
-    public static final double DRVTRAIN_WHEEL_CIRCUMFERENCE        = (Math.PI * DRVTRAIN_WHEEL_DIAMETER);
-
-    //uses a trapezoidal velocity/time graph enforced with a PID loop
-    private static ProfiledPIDController autoTurnPIDController
-            = new ProfiledPIDController(2, 0, 0, new TrapezoidProfile.Constraints(MAX_ANGSPEED_RAD_PER_SEC, MAX_ANGSPEED_RAD_PER_SEC));
-
-    static{
-        autoTurnPIDController.enableContinuousInput(-Math.PI, Math.PI); //offset clamped between these two values
-        autoTurnPIDController.setTolerance(Math.toRadians(0.1)); //tolerable error
-    }
-
-    // calculates target chassis motion when given current position and desired trajectory
-    public static final HolonomicDriveController holonomicDriveController = new HolonomicDriveController(
-        new PIDController(0.35, 0, 0), // PID values for x offset
-        new PIDController(0.35, 0, 0), // PID values for y offset
-        autoTurnPIDController // PID values for orientation offset
-    );
-
-    // calculates target chassis motion when given current position and desired trajectory
-    public static final PPHolonomicDriveController ppholonomicDriveController = new PPHolonomicDriveController(
-      new PIDConstants(0.35, 0, 0), // PID values for x offset
-      new PIDConstants(0.35, 0, 0), // PID values for rotation 
-      MAX_SPEED,
-      MODULE_DISTANCE_FROM_CENTER
-    );
-
- }
-
  public static final class OIConstants {
   public static final int kDriverControllerPort = 0;
 

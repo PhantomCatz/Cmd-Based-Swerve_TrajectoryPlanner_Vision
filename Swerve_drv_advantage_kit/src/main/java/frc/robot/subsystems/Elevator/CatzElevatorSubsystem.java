@@ -10,8 +10,6 @@ import frc.robot.CatzConstants;
 import frc.robot.CatzConstants.ElevatorConstants;
 import frc.robot.Utils.CatzManipulatorPositions;
 import frc.robot.Utils.CatzSharedDataUtil;
-//import frc.robot.Robot.mechMode;
-import frc.robot.subsystems.Arm.CatzArmSubsystem;
 
 import org.littletonrobotics.junction.Logger;
 

@@ -20,7 +20,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
  import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
  import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Autonomous.BalanceCmd;
@@ -87,7 +86,8 @@ import frc.robot.subsystems.Arm.CatzArmSubsystem;
      // Configure the trigger bindings and default cmds
      defaultCommands();
      configureBindings();
-
+    //start led scheduling thread
+    startLEDSchedulingThread();
    }
  
    
@@ -172,7 +172,6 @@ import frc.robot.subsystems.Arm.CatzArmSubsystem;
  
    }
    //mechanisms with default commands revert back to these cmds if no other cmd requiring the subsystem is active
-   //
    private void defaultCommands() 
    {  
       driveTrain.setDefaultCommand(new TeleopDriveCmd(() -> xboxDrv.getLeftX(),
@@ -193,6 +192,7 @@ import frc.robot.subsystems.Arm.CatzArmSubsystem;
      return auton.getCommand(this);
    }
 
+   //--------------------------------------------LEDs------------------------------------------------
    public static enum mechMode {
     AutoMode(Color.kGreen),
     ManualHoldMode(Color.kCyan),
@@ -204,7 +204,7 @@ import frc.robot.subsystems.Arm.CatzArmSubsystem;
     }
   }
 
-  public enum gamePiece{
+  public static enum gamePiece{
     Cube(Color.kPurple),
     Cone(Color.kYellow),
     None(Color.kGhostWhite);
@@ -215,7 +215,7 @@ import frc.robot.subsystems.Arm.CatzArmSubsystem;
     }
   }
 
-  public enum gameModeLED{
+  public static enum gameModeLED{
     Autobalancing(led.oneColorFill, Color.kGreen),
     InAutonomous(led.startFlowing, led.PHANTOM_SAPPHIRE, Color.kWhite),
     MatchEnd(led.startFlowingRainbow),

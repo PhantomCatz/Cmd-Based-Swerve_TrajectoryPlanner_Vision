@@ -15,7 +15,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.CatzConstants;
-import frc.robot.CatzConstants.DriveConstants;
+import frc.robot.subsystems.drivetrain.CatzDriveTrainSubsystem.DriveConstants;
 import frc.robot.CatzConstants.OIConstants;
 import frc.robot.Utils.CatzMathUtils;
 import frc.robot.subsystems.drivetrain.CatzDriveTrainSubsystem;
@@ -59,9 +59,9 @@ public class TeleopDriveCmd extends CommandBase {
         double turningSpeed = supplierRightJoyX.get();
 
         // Apply deadbands to prevent modules from receiving unintentional pwr
-        xSpeed = Math.abs(xSpeed) > OIConstants.kDeadband ? xSpeed * CatzConstants.DriveConstants.MAX_SPEED: 0.0;
-        ySpeed = Math.abs(ySpeed) > OIConstants.kDeadband ? ySpeed * CatzConstants.DriveConstants.MAX_SPEED: 0.0;
-        turningSpeed = Math.abs(turningSpeed) > OIConstants.kDeadband ? turningSpeed * CatzConstants.DriveConstants.MAX_ANGSPEED_RAD_PER_SEC: 0.0;
+        xSpeed = Math.abs(xSpeed) > OIConstants.kDeadband ? xSpeed * DriveConstants.MAX_SPEED: 0.0;
+        ySpeed = Math.abs(ySpeed) > OIConstants.kDeadband ? ySpeed * DriveConstants.MAX_SPEED: 0.0;
+        turningSpeed = Math.abs(turningSpeed) > OIConstants.kDeadband ? turningSpeed * DriveConstants.MAX_ANGSPEED_RAD_PER_SEC: 0.0;
 
         //Construct desired chassis speeds
         ChassisSpeeds chassisSpeeds;

@@ -4,7 +4,6 @@
 
 package frc.robot.commands;
 
-import java.util.function.Supplier;
 
 import org.littletonrobotics.junction.Logger;
 
@@ -14,7 +13,9 @@ import frc.robot.Utils.CatzSharedDataUtil;
 import frc.robot.Utils.CatzAbstractStateUtil;
 import frc.robot.Utils.CatzAbstractStateUtil.GamePieceState;
 import frc.robot.Utils.CatzAbstractStateUtil.SetMechanismState;
+import frc.robot.RobotContainer;
 import frc.robot.CatzConstants.ManipulatorPoseConstants;
+import frc.robot.RobotContainer.mechMode;
 import frc.robot.subsystems.Arm.CatzArmSubsystem;
 import frc.robot.subsystems.Elevator.CatzElevatorSubsystem;
 import frc.robot.subsystems.Intake.CatzIntakeSubsystem;
@@ -22,15 +23,15 @@ import frc.robot.subsystems.Intake.CatzIntakeSubsystem;
 
 
 public class ManipulatorToPoseCmd extends CommandBase {
-  private static CatzElevatorSubsystem elevator = CatzElevatorSubsystem.getInstance();
-  private static CatzIntakeSubsystem intake     = CatzIntakeSubsystem.getInstance();
-  private static CatzArmSubsystem arm           = CatzArmSubsystem.getInstance();
-  CatzManipulatorPositions targetPose;
+  private static CatzElevatorSubsystem m_elevator = CatzElevatorSubsystem.getInstance();
+  private static CatzIntakeSubsystem m_intake     = CatzIntakeSubsystem.getInstance();
+  private static CatzArmSubsystem m_arm           = CatzArmSubsystem.getInstance();
+  CatzManipulatorPositions m_targetPose;
 
   /** Creates a new SetStateCommand. */
   public ManipulatorToPoseCmd(CatzManipulatorPositions targetPose) {
-    this.targetPose = targetPose;
-    addRequirements(elevator, intake, arm);
+    this.m_targetPose = targetPose;
+    addRequirements(m_elevator, m_intake, m_arm);
   }
 
 
@@ -38,67 +39,70 @@ public class ManipulatorToPoseCmd extends CommandBase {
     switch(currentMechansimState) {
       case SCORE_HIGH:
       if(CatzAbstractStateUtil.currentGamePieceState == GamePieceState.CONE) {
-        targetPose = ManipulatorPoseConstants.SCORE_HIGH_CONE;
+        m_targetPose = ManipulatorPoseConstants.SCORE_HIGH_CONE;
       }
       else{
-        targetPose = ManipulatorPoseConstants.SCORE_HIGH_CUBE;
+        m_targetPose = ManipulatorPoseConstants.SCORE_HIGH_CUBE;
       }
       break;
 
       case SCORE_MID:
       if(CatzAbstractStateUtil.currentGamePieceState == GamePieceState.CONE) {
-        targetPose = ManipulatorPoseConstants.SCORE_MID_CONE;
+        m_targetPose = ManipulatorPoseConstants.SCORE_MID_CONE;
       }
       else{
-        targetPose = ManipulatorPoseConstants.SCORE_MID_CUBE;
+        m_targetPose = ManipulatorPoseConstants.SCORE_MID_CUBE;
       }
       break;
 
       case SCORE_LOW:
       if(CatzAbstractStateUtil.currentGamePieceState == GamePieceState.CONE) {
-        targetPose = ManipulatorPoseConstants.SCORE_LOW_CONE;
+        m_targetPose = ManipulatorPoseConstants.SCORE_LOW_CONE;
       }
       else{
-        targetPose = ManipulatorPoseConstants.SCORE_LOW_CUBE;
+        m_targetPose = ManipulatorPoseConstants.SCORE_LOW_CUBE;
       }
       break;
 
       case PICKUP_GROUND:
       if(CatzAbstractStateUtil.currentGamePieceState == GamePieceState.CONE) {
-        targetPose = ManipulatorPoseConstants.PICKUP_CONE_GROUND;
+        m_targetPose = ManipulatorPoseConstants.PICKUP_CONE_GROUND;
       }
       else{
-        targetPose = ManipulatorPoseConstants.PICKUP_CUBE_GROUND;
+        m_targetPose = ManipulatorPoseConstants.PICKUP_CUBE_GROUND;
       }
       break;
 
       case PICKUP_SINGLE:
-        targetPose = ManipulatorPoseConstants.PICKUP_CONE_SINGLE;
+        m_targetPose = ManipulatorPoseConstants.PICKUP_CONE_SINGLE;
       break;
 
       default:
-        targetPose = ManipulatorPoseConstants.STOW;
+        m_targetPose = ManipulatorPoseConstants.STOW;
       break;
     }
-    addRequirements(elevator, intake, arm);
+    addRequirements(m_elevator, m_intake, m_arm);
   }
 
   @Override
   public void initialize() 
   {
     System.out.println("initstatemachine");
+    RobotContainer.armControlMode = mechMode.AutoMode;
+    RobotContainer.elevatorControlMode = mechMode.AutoMode;
+    RobotContainer.intakeControlMode = mechMode.AutoMode;
   }
 
   @Override
   public void execute() 
   {
-    elevator.cmdUpdateElevator(targetPose);
-    arm.cmdUpdateArm(targetPose);
-    intake.cmdUpdateIntake(targetPose);
+    m_elevator.cmdUpdateElevator(m_targetPose);
+    m_arm.cmdUpdateArm(m_targetPose);
+    m_intake.cmdUpdateIntake(m_targetPose);
 
-    Logger.getInstance().recordOutput("Commands/targetposeElevator", targetPose.getElevatorPosEnc());
-    Logger.getInstance().recordOutput("Commands/targetposeArm", targetPose.getArmPosEnc());
-    Logger.getInstance().recordOutput("Commands/targetposeIntake", targetPose.getWristAngleDeg());
+    Logger.getInstance().recordOutput("Commands/targetposeElevator", m_targetPose.getElevatorPosEnc());
+    Logger.getInstance().recordOutput("Commands/targetposeArm", m_targetPose.getArmPosEnc());
+    Logger.getInstance().recordOutput("Commands/targetposeIntake", m_targetPose.getWristAngleDeg());
   }
 
   @Override

@@ -32,17 +32,13 @@ public class CatzArmSubsystem extends SubsystemBase
   private final double HIGH_EXTEND_THRESHOLD_ELEVATOR = 73000.0;
   private final double ARM_POS_ERROR_THRESHOLD = 2700.0; //0.5 inches    previously 500 enc counts
 
-  private boolean extendSwitchState = false;
+  private boolean m_extendSwitchState = false;
 
   private final double ARM_CLOSELOOP_ERROR = 3000;
-
-
-
   private final double NO_TARGET_POSITION = -999999.0;
 
-  private boolean armInPosition = false;
 
-  private int numConsectSamples = 0;
+  private int m_numConsectSamples = 0;
 
   private double m_armPwr = -999.0;
   private boolean m_isArmInExtension = false;
@@ -89,13 +85,13 @@ public class CatzArmSubsystem extends SubsystemBase
     double currentPosition = inputs.armMotorEncoder;
     double positionError = currentPosition - m_targetPose.getArmPosEnc();
     if  ((Math.abs(positionError) <= ARM_POS_ERROR_THRESHOLD)) {
-        numConsectSamples++;
-            if(numConsectSamples >= 10) {   
+        m_numConsectSamples++;
+            if(m_numConsectSamples >= 10) {   
                 CatzSharedDataUtil.sharedArmInPos = true;
             }
     }
     else {
-        numConsectSamples = 0;
+        m_numConsectSamples = 0;
         CatzSharedDataUtil.sharedArmInPos = false;
     }
   }
@@ -111,6 +107,7 @@ public class CatzArmSubsystem extends SubsystemBase
       }
     }
   
+    //manually controls the arm and disables armpose object
     public void setArmPwr(double pwr) {        
         this.m_armPwr = pwr;
         this.m_targetPose = null;
@@ -126,10 +123,10 @@ public class CatzArmSubsystem extends SubsystemBase
     //recalibrating arm position with the rev limit switch is triggered
     if(inputs.isRevLimitSwitchClosed) {
         io.setSelectedSensorPositionIO(CatzConstants.ArmConstants.POS_ENC_CNTS_RETRACT);
-        extendSwitchState = true;
+        m_extendSwitchState = true;
     }
     else {
-        extendSwitchState = false;
+        m_extendSwitchState = false;
     }
   }
 

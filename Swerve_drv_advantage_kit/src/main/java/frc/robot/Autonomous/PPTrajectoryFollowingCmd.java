@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.CatzConstants;
 import frc.robot.subsystems.drivetrain.CatzDriveTrainSubsystem;
+import frc.robot.subsystems.drivetrain.CatzDriveTrainSubsystem.DriveConstants;
 
 import org.littletonrobotics.junction.Logger;
 
@@ -42,7 +43,7 @@ public class PPTrajectoryFollowingCmd extends CommandBase {
     public PPTrajectoryFollowingCmd(CatzDriveTrainSubsystem driveTrain, PathPlannerPath newPath) 
     {
         this.trajectory = new PathPlannerTrajectory(newPath, new ChassisSpeeds());
-        controller = CatzConstants.DriveConstants.ppholonomicDriveController;
+        controller = DriveConstants.ppholonomicDriveController;
        addRequirements(driveTrain);
     }
 

@@ -36,7 +36,7 @@ public class CatzIntakeSubsystem extends SubsystemBase {
 
     private PIDController intakePID;
 
-    private double targetPositionDeg = CatzConstants.IntakeConstants.STOW_ENC_POS;
+    private double m_targetPositionDeg = CatzConstants.IntakeConstants.STOW_ENC_POS;
 
     private double prevTargetPwr = 0.0;
 
@@ -44,26 +44,21 @@ public class CatzIntakeSubsystem extends SubsystemBase {
     private double positionError = -999.0;
     public double prevCurrentPosition = -999.0;
 
-    private boolean intakeInPosition = false;
-
     private final double INTAKE_POS_ERROR_THRESHOLD_DEG = 5.0;
     private final double PID_FINE_GROSS_THRESHOLD_DEG = 17.0;
 
-    private int numConsectSamples = 0;
+    private int m_numConsectSamples = 0;
     private double m_fullManualPwr = 0.0;
 
     private CatzManipulatorPositions m_targetPos;
 
     private CatzIntakeSubsystem() {
         switch (CatzConstants.currentMode) {
-            case REAL:
-                io = new IntakeIOReal();
+            case REAL: io = new IntakeIOReal();
                 break;
-            case SIM:
-                io = null; // new IntakeIOSim();
+            case SIM: io = null; // new IntakeIOSim();
                 break;
-            default:
-                io = new IntakeIOReal() {
+            default: io = new IntakeIOReal() {
                 };
                 break;
         }
@@ -82,20 +77,20 @@ public class CatzIntakeSubsystem extends SubsystemBase {
             io.wristSetPercentOuputIO(0.0);
             m_targetPos = null;
         } else if (m_targetPos != null) {
-            targetPositionDeg = m_targetPos.getWristAngleDeg();
+            m_targetPositionDeg = m_targetPos.getWristAngleDeg();
             // ----------------------------------------------------------------------------------
             // Chk if at final position
             // ----------------------------------------------------------------------------------
             currentPosition = inputs.wristPosEnc / CatzConstants.IntakeConstants.WRIST_CNTS_PER_DEGREE;
-            positionError = currentPosition - targetPositionDeg;
+            positionError = currentPosition - m_targetPositionDeg;
 
             if ((Math.abs(positionError) <= INTAKE_POS_ERROR_THRESHOLD_DEG)) {
-                numConsectSamples++;
-                if (numConsectSamples >= 1) {
-                    intakeInPosition = true;
+                m_numConsectSamples++;
+                if (m_numConsectSamples >= 1) {
+                    CatzSharedDataUtil.sharedIntakeInPos = true;
                 }
             } else {
-                numConsectSamples = 0;
+                m_numConsectSamples = 0;
             }
 
             if (Math.abs(positionError) >= PID_FINE_GROSS_THRESHOLD_DEG) {
@@ -108,7 +103,7 @@ public class CatzIntakeSubsystem extends SubsystemBase {
                 intakePID.setD(CatzConstants.IntakeConstants.FINE_kD);
             }
 
-            double pidPower = intakePID.calculate(currentPosition, targetPositionDeg);
+            double pidPower = intakePID.calculate(currentPosition, m_targetPositionDeg);
             double ffPower = calculateGravityFF();
             double targetPower = pidPower + ffPower;
 
@@ -126,7 +121,7 @@ public class CatzIntakeSubsystem extends SubsystemBase {
             // power to 0, otherwise calculate new motor power based on position error and
             // current angle
             // ----------------------------------------------------------------------------------
-            if (targetPositionDeg == CatzConstants.IntakeConstants.STOW_ENC_POS
+            if (m_targetPositionDeg == CatzConstants.IntakeConstants.STOW_ENC_POS
                     && currentPosition > CatzConstants.IntakeConstants.STOW_CUTOFF) {
                 targetPower = 0.0;
             }
@@ -138,21 +133,24 @@ public class CatzIntakeSubsystem extends SubsystemBase {
         }
     }
 
+    //access method for updating the target position for the intake
     public void cmdUpdateIntake(CatzManipulatorPositions targetPos) {
         this.m_targetPos = targetPos;
     }
 
+    //access method for manually setting a new targetposition for the intake
     public void manualHoldingFunction(double wristPwr) {
         if(wristPwr > 0) {
-          targetPositionDeg = Math.min((targetPositionDeg + wristPwr * CatzConstants.IntakeConstants.MANUAL_HOLD_STEP_SIZE), CatzConstants.IntakeConstants.SOFT_LIMIT_FORWARD);
+          m_targetPositionDeg = Math.min((m_targetPositionDeg + wristPwr * CatzConstants.IntakeConstants.MANUAL_HOLD_STEP_SIZE), CatzConstants.IntakeConstants.SOFT_LIMIT_FORWARD);
         }
         else {
-          targetPositionDeg = Math.max((targetPositionDeg + wristPwr * CatzConstants.IntakeConstants.MANUAL_HOLD_STEP_SIZE), CatzConstants.IntakeConstants.SOFT_LIMIT_REVERSE);
+          m_targetPositionDeg = Math.max((m_targetPositionDeg + wristPwr * CatzConstants.IntakeConstants.MANUAL_HOLD_STEP_SIZE), CatzConstants.IntakeConstants.SOFT_LIMIT_REVERSE);
         }
         prevCurrentPosition = -prevCurrentPosition; //intialize for first time through thread loop, that checks stale position values
-        m_targetPos = new CatzManipulatorPositions(CatzSharedDataUtil.sharedElevatorEncCnts, CatzSharedDataUtil.sharedArmEncCnts, targetPositionDeg);
+        m_targetPos = new CatzManipulatorPositions(CatzSharedDataUtil.sharedElevatorEncCnts, CatzSharedDataUtil.sharedArmEncCnts, m_targetPositionDeg);
     }
 
+    //access method for full manualling the intake
     public void wristFullManual(double fullManualPwr) {
         m_fullManualPwr = fullManualPwr;
         m_targetPos = null;
@@ -222,9 +220,10 @@ public class CatzIntakeSubsystem extends SubsystemBase {
         return inputs.wristPosEnc;
     }
 
+    //use the cosine component of the intake to predict the pwr of the motor according to gravity
     public double calculateGravityFF() {
         double radians = Math.toRadians(calcWristAngle() - CatzConstants.IntakeConstants.CENTER_OF_MASS_OFFSET_DEG);
-        double cosineScalar = Math.cos(radians);
+        double cosineScalar = Math.cos(radians); 
 
         return CatzConstants.IntakeConstants.MAX_GRAVITY_FF * cosineScalar;
     }
@@ -235,14 +234,6 @@ public class CatzIntakeSubsystem extends SubsystemBase {
 
     public void shuffleboardIntake() {
 
-    }
-
-    public boolean isIntakeInPos() {
-        return intakeInPosition;
-    }
-
-    public void setisIntakeInPos(boolean isEnabled) {
-        intakeInPosition = isEnabled;
     }
 
     public void softLimitOverideDisabled() {

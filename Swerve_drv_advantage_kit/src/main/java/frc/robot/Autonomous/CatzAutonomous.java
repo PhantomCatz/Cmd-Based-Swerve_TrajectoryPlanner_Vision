@@ -106,7 +106,6 @@ public class CatzAutonomous
     public static SequentialCommandGroup parallelScoreCube()
     {
         return new SequentialCommandGroup(
-                    Commands.runOnce(() -> CatzAbstractStateUtil.newGamePieceState(GamePieceState.CUBE)),
                     new ManipulatorToPoseCmd(ManipulatorPoseConstants.SCORE_HIGH_CONE)
                         .raceWith(Commands.waitSeconds(1.0)),
 
