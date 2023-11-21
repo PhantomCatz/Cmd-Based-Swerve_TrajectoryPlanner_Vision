@@ -78,9 +78,8 @@ public class CatzIntakeSubsystem extends SubsystemBase {
             m_targetPos = null;
         } else if (m_targetPos != null) {
             m_targetPositionDeg = m_targetPos.getWristAngleDeg();
-            // ----------------------------------------------------------------------------------
+
             // Chk if at final position
-            // ----------------------------------------------------------------------------------
             currentPosition = inputs.wristPosEnc / CatzConstants.IntakeConstants.WRIST_CNTS_PER_DEGREE;
             positionError = currentPosition - m_targetPositionDeg;
 
@@ -91,6 +90,7 @@ public class CatzIntakeSubsystem extends SubsystemBase {
                 }
             } else {
                 m_numConsectSamples = 0;
+                CatzSharedDataUtil.sharedIntakeInPos = false;
             }
 
             if (Math.abs(positionError) >= PID_FINE_GROSS_THRESHOLD_DEG) {
@@ -147,7 +147,7 @@ public class CatzIntakeSubsystem extends SubsystemBase {
           m_targetPositionDeg = Math.max((m_targetPositionDeg + wristPwr * CatzConstants.IntakeConstants.MANUAL_HOLD_STEP_SIZE), CatzConstants.IntakeConstants.SOFT_LIMIT_REVERSE);
         }
         prevCurrentPosition = -prevCurrentPosition; //intialize for first time through thread loop, that checks stale position values
-        m_targetPos = new CatzManipulatorPositions(CatzSharedDataUtil.sharedElevatorEncCnts, CatzSharedDataUtil.sharedArmEncCnts, m_targetPositionDeg);
+        m_targetPos = new CatzManipulatorPositions(-999.0, -999.0, m_targetPositionDeg);
     }
 
     //access method for full manualling the intake

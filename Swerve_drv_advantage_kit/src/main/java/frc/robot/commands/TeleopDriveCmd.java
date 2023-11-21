@@ -34,8 +34,7 @@ public class TeleopDriveCmd extends CommandBase {
                         Supplier<Double> supplierLeftJoyY,
                         Supplier<Double> supplierRightJoyX,
                         Supplier<Double> supplierPwrMode,
-                        Supplier<Boolean> isFeildOriented) 
-  {
+                        Supplier<Boolean> isFeildOriented) {
     this.supplierLeftJoyX = supplierLeftJoyX;
     this.supplierLeftJoyY = supplierLeftJoyY;
     this.supplierRightJoyX = supplierRightJoyX;
@@ -51,38 +50,37 @@ public class TeleopDriveCmd extends CommandBase {
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
-  public void execute() 
-  {
-        //obtain realtime joystick inputs with supplier methods
-        double xSpeed = -supplierLeftJoyX.get();
-        double ySpeed = supplierLeftJoyY.get();
-        double turningSpeed = supplierRightJoyX.get();
+  public void execute() {
+    //obtain realtime joystick inputs with supplier methods
+    double xSpeed = -supplierLeftJoyX.get();
+    double ySpeed = supplierLeftJoyY.get();
+    double turningSpeed = supplierRightJoyX.get();
 
-        // Apply deadbands to prevent modules from receiving unintentional pwr
-        xSpeed = Math.abs(xSpeed) > OIConstants.kDeadband ? xSpeed * DriveConstants.MAX_SPEED: 0.0;
-        ySpeed = Math.abs(ySpeed) > OIConstants.kDeadband ? ySpeed * DriveConstants.MAX_SPEED: 0.0;
-        turningSpeed = Math.abs(turningSpeed) > OIConstants.kDeadband ? turningSpeed * DriveConstants.MAX_ANGSPEED_RAD_PER_SEC: 0.0;
+    // Apply deadbands to prevent modules from receiving unintentional pwr
+    xSpeed = Math.abs(xSpeed) > OIConstants.kDeadband ? xSpeed * DriveConstants.MAX_SPEED: 0.0;
+    ySpeed = Math.abs(ySpeed) > OIConstants.kDeadband ? ySpeed * DriveConstants.MAX_SPEED: 0.0;
+    turningSpeed = Math.abs(turningSpeed) > OIConstants.kDeadband ? turningSpeed * DriveConstants.MAX_ANGSPEED_RAD_PER_SEC: 0.0;
 
-        //Construct desired chassis speeds
-        ChassisSpeeds chassisSpeeds;
-        if (isFieldOrientedDisabled.get()) {
-            // Relative to robot
-            chassisSpeeds = new ChassisSpeeds(xSpeed, ySpeed, turningSpeed);
-        } else {
-            // Relative to field
-            chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
-                                                xSpeed, ySpeed, turningSpeed, driveTrain.getRotation2d()
-                                                                 );
-        }
-        driveTrain.driveRobotRelative(chassisSpeeds);
+    //Construct desired chassis speeds
+    ChassisSpeeds chassisSpeeds;
+    if (isFieldOrientedDisabled.get()) {
+        // Relative to robot
+        chassisSpeeds = new ChassisSpeeds(xSpeed, ySpeed, turningSpeed);
+    } else {
+        // Relative to field
+        chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
+                                            xSpeed, ySpeed, turningSpeed, driveTrain.getRotation2d()
+                                                              );
+    }
+    driveTrain.driveRobotRelative(chassisSpeeds);
 
-        //module states are recorded whenever they are set
-        Logger.getInstance().recordOutput("robot xspeed", xSpeed);
-        Logger.getInstance().recordOutput("robot yspeed", ySpeed);
-        Logger.getInstance().recordOutput("robot turnspeed", turningSpeed);
-        Logger.getInstance().recordOutput("robot orientation", driveTrain.getRotation2d().getRadians());
-        Logger.getInstance().recordOutput("chassisspeed x speed mtr sec", chassisSpeeds.vxMetersPerSecond);
-        Logger.getInstance().recordOutput("chassisspeed y speed mtr sec", chassisSpeeds.vyMetersPerSecond);
+    //logging
+    Logger.getInstance().recordOutput("robot xspeed", xSpeed);
+    Logger.getInstance().recordOutput("robot yspeed", ySpeed);
+    Logger.getInstance().recordOutput("robot turnspeed", turningSpeed);
+    Logger.getInstance().recordOutput("robot orientation", driveTrain.getRotation2d().getRadians());
+    Logger.getInstance().recordOutput("chassisspeed x speed mtr sec", chassisSpeeds.vxMetersPerSecond);
+    Logger.getInstance().recordOutput("chassisspeed y speed mtr sec", chassisSpeeds.vyMetersPerSecond);
 
   }
 

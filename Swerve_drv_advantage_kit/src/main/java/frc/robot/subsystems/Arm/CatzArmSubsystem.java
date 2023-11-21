@@ -69,15 +69,17 @@ public class CatzArmSubsystem extends SubsystemBase
         io.setArmPwrIO(0.0);
     }
     else if(m_targetPose != null) {
+        //watching for if if the arm should extend when the elevator reaches threshold
         if(m_isArmInExtension) {
-            if(CatzSharedDataUtil.sharedElevatorEncCnts > HIGH_EXTEND_THRESHOLD_ELEVATOR)
+            if(CatzSharedDataUtil.sharedElevatorEncCnts > HIGH_EXTEND_THRESHOLD_ELEVATOR) {
             io.setArmPosEncIO(m_targetPose.getArmPosEnc());
+            }
         }
         else {
             io.setArmPosEncIO(m_targetPose.getArmPosEnc());
         }
     }
-    else {
+    else { //full manual
         io.setArmPwrIO(m_armPwr);
     }
 
