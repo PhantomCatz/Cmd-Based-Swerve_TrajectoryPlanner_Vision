@@ -2,6 +2,9 @@ package frc.robot.subsystems.drivetrain;
 
 import org.littletonrobotics.junction.AutoLog;
 
+import com.ctre.phoenixpro.controls.PositionVoltage;
+import com.ctre.phoenixpro.controls.VelocityTorqueCurrentFOC;
+
 public interface ModuleIO 
 {
  @AutoLog
@@ -26,6 +29,8 @@ public interface ModuleIO
 
  public default void setSteerPwrIO(double SteerPwr) {}
 
+ public default void setSteerVoltageIO(double steerVoltage) {}
+
  public default void setSteerCoastModeIO() {}
 
  public default void setSteerBrakeModeIO() {}
@@ -37,6 +42,10 @@ public interface ModuleIO
  public default void setDriveSimPwrIO(double volts) {}
 
  public default void setSteerSimPwrIO(double volts) {}
+
+ public default void setDriveControlIO(VelocityTorqueCurrentFOC controlValue) {}
+
+ public default void setSteerControlIO(PositionVoltage controlValue) {}
 
  public default void resetMagEncoderIO() {}
 

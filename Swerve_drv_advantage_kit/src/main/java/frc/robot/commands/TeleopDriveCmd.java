@@ -6,18 +6,10 @@ package frc.robot.commands;
 import java.util.function.Supplier;
 
 import org.littletonrobotics.junction.Logger;
-
-import com.ctre.phoenixpro.sim.ChassisReference;
-
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.CatzConstants;
 import frc.robot.subsystems.drivetrain.CatzDriveTrainSubsystem.DriveConstants;
 import frc.robot.CatzConstants.OIConstants;
-import frc.robot.Utils.CatzMathUtils;
 import frc.robot.subsystems.drivetrain.CatzDriveTrainSubsystem;
 
 public class TeleopDriveCmd extends CommandBase {
@@ -72,6 +64,8 @@ public class TeleopDriveCmd extends CommandBase {
                                             xSpeed, ySpeed, turningSpeed, driveTrain.getRotation2d()
                                                               );
     }
+
+    //send new chassisspeeds object to the drivetrain
     driveTrain.driveRobotRelative(chassisSpeeds);
 
     //logging

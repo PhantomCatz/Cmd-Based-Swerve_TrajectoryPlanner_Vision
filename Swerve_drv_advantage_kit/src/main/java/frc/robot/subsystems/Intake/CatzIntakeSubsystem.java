@@ -16,11 +16,9 @@ import frc.robot.Utils.CatzSharedDataUtil;
 import frc.robot.Utils.CatzAbstractStateUtil;
 
 public class CatzIntakeSubsystem extends SubsystemBase {
-
+    private static CatzIntakeSubsystem instance = new CatzIntakeSubsystem();
     private final IntakeIO io;
     private final IntakeIOInputsAutoLogged inputs = new IntakeIOInputsAutoLogged();
-
-    public static CatzIntakeSubsystem instance;
 
     // ----------------------------------------------------------------------------------------------
     //
@@ -29,12 +27,12 @@ public class CatzIntakeSubsystem extends SubsystemBase {
     // ----------------------------------------------------------------------------------------------
 
     private final double ROLLERS_PWR_CUBE_IN = -0.8;
-    private final double ROLLERS_PWR_CONE_IN = 1.0; // TBD decide pwrs for all cube cone scoring rollers
+    private final double ROLLERS_PWR_CONE_IN = 1.0;
 
     private final double ROLLERS_PWR_CUBE_OUT = 1.0;
     private final double ROLLERS_PWR_CONE_OUT = -0.5;
 
-    private PIDController intakePID;
+    private PIDController m_intakePID;
 
     private double m_targetPositionDeg = CatzConstants.IntakeConstants.STOW_ENC_POS;
 
@@ -58,12 +56,12 @@ public class CatzIntakeSubsystem extends SubsystemBase {
                 break;
             case SIM: io = null; // new IntakeIOSim();
                 break;
-            default: io = new IntakeIOReal() {
-                };
+            default: io = new IntakeIOReal() {};
                 break;
         }
-        intakePID = new PIDController(CatzConstants.IntakeConstants.GROSS_kP, CatzConstants.IntakeConstants.GROSS_kI,
-                CatzConstants.IntakeConstants.GROSS_kD);
+        m_intakePID = new PIDController(CatzConstants.IntakeConstants.GROSS_kP, 
+                                      CatzConstants.IntakeConstants.GROSS_kI,
+                                      CatzConstants.IntakeConstants.GROSS_kD);
 
     }
 
@@ -94,16 +92,16 @@ public class CatzIntakeSubsystem extends SubsystemBase {
             }
 
             if (Math.abs(positionError) >= PID_FINE_GROSS_THRESHOLD_DEG) {
-                intakePID.setP(CatzConstants.IntakeConstants.GROSS_kP);
-                intakePID.setI(CatzConstants.IntakeConstants.GROSS_kI);
-                intakePID.setD(CatzConstants.IntakeConstants.GROSS_kD);
+                m_intakePID.setP(CatzConstants.IntakeConstants.GROSS_kP);
+                m_intakePID.setI(CatzConstants.IntakeConstants.GROSS_kI);
+                m_intakePID.setD(CatzConstants.IntakeConstants.GROSS_kD);
             } else if (Math.abs(positionError) < PID_FINE_GROSS_THRESHOLD_DEG) {
-                intakePID.setP(CatzConstants.IntakeConstants.FINE_kP);
-                intakePID.setI(CatzConstants.IntakeConstants.FINE_kI);
-                intakePID.setD(CatzConstants.IntakeConstants.FINE_kD);
+                m_intakePID.setP(CatzConstants.IntakeConstants.FINE_kP);
+                m_intakePID.setI(CatzConstants.IntakeConstants.FINE_kI);
+                m_intakePID.setD(CatzConstants.IntakeConstants.FINE_kD);
             }
 
-            double pidPower = intakePID.calculate(currentPosition, m_targetPositionDeg);
+            double pidPower = m_intakePID.calculate(currentPosition, m_targetPositionDeg);
             double ffPower = calculateGravityFF();
             double targetPower = pidPower + ffPower;
 
@@ -140,14 +138,14 @@ public class CatzIntakeSubsystem extends SubsystemBase {
 
     //access method for manually setting a new targetposition for the intake
     public void manualHoldingFunction(double wristPwr) {
+        double manualTargetPosDeg;
         if(wristPwr > 0) {
-          m_targetPositionDeg = Math.min((m_targetPositionDeg + wristPwr * CatzConstants.IntakeConstants.MANUAL_HOLD_STEP_SIZE), CatzConstants.IntakeConstants.SOFT_LIMIT_FORWARD);
+          manualTargetPosDeg = Math.min((m_targetPositionDeg + wristPwr * CatzConstants.IntakeConstants.MANUAL_HOLD_STEP_SIZE), CatzConstants.IntakeConstants.SOFT_LIMIT_FORWARD);
         }
         else {
-          m_targetPositionDeg = Math.max((m_targetPositionDeg + wristPwr * CatzConstants.IntakeConstants.MANUAL_HOLD_STEP_SIZE), CatzConstants.IntakeConstants.SOFT_LIMIT_REVERSE);
+          manualTargetPosDeg = Math.max((m_targetPositionDeg + wristPwr * CatzConstants.IntakeConstants.MANUAL_HOLD_STEP_SIZE), CatzConstants.IntakeConstants.SOFT_LIMIT_REVERSE);
         }
-        prevCurrentPosition = -prevCurrentPosition; //intialize for first time through thread loop, that checks stale position values
-        m_targetPos = new CatzManipulatorPositions(-999.0, -999.0, m_targetPositionDeg);
+        m_targetPos = new CatzManipulatorPositions(-999.0, -999.0, manualTargetPosDeg);
     }
 
     //access method for full manualling the intake
@@ -162,7 +160,7 @@ public class CatzIntakeSubsystem extends SubsystemBase {
     *
     *---------------------------------------------------------------------------------------------*/
     public void resetPID() {
-        intakePID.reset();
+        m_intakePID.reset();
     }
 
     /*----------------------------------------------------------------------------------------------
@@ -216,10 +214,6 @@ public class CatzIntakeSubsystem extends SubsystemBase {
         return wristAngle;
     }
 
-    private double getWristPosition() {
-        return inputs.wristPosEnc;
-    }
-
     //use the cosine component of the intake to predict the pwr of the motor according to gravity
     public double calculateGravityFF() {
         double radians = Math.toRadians(calcWristAngle() - CatzConstants.IntakeConstants.CENTER_OF_MASS_OFFSET_DEG);
@@ -243,13 +237,9 @@ public class CatzIntakeSubsystem extends SubsystemBase {
     public void softLimitOverideEnabled() {
         io.intakeConfigureSoftLimitOverride(true);
     }
-
-    // Singleton implementation for instatiating subssytems(Every refrence to this
-    // method should be static)
+    
+    //getInstance method
     public static CatzIntakeSubsystem getInstance() {
-        if (instance == null) {
-            instance = new CatzIntakeSubsystem();
-        }
         return instance;
     }
 }

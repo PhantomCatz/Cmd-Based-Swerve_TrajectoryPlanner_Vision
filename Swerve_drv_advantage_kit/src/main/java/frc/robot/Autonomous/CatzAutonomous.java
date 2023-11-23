@@ -30,7 +30,7 @@ import frc.robot.CatzConstants.ManipulatorPoseConstants;
 import frc.robot.Utils.CatzManipulatorPositions;
 import frc.robot.Utils.CatzAbstractStateUtil;
 import frc.robot.Utils.CatzAbstractStateUtil.GamePieceState;
-import frc.robot.Utils.CatzAbstractStateUtil.SetMechanismState;
+import frc.robot.Utils.CatzAbstractStateUtil.SetAbstractMechanismState;
 import frc.robot.commands.ManipulatorToPoseCmd;
 import frc.robot.subsystems.Arm.CatzArmSubsystem;
 import frc.robot.subsystems.Elevator.CatzElevatorSubsystem;
@@ -38,13 +38,12 @@ import frc.robot.subsystems.Intake.CatzIntakeSubsystem;
 import frc.robot.subsystems.drivetrain.CatzDriveTrainSubsystem;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 
-public class CatzAutonomous 
-{
-    private final static CatzElevatorSubsystem elevator = CatzElevatorSubsystem.getInstance();
-    private final static CatzArmSubsystem arm = CatzArmSubsystem.getInstance();
-    private final static CatzIntakeSubsystem intake = CatzIntakeSubsystem.getInstance();
-    private final static CatzDriveTrainSubsystem driveTrain = CatzDriveTrainSubsystem.getInstance();
-
+public class CatzAutonomous {
+    CatzDriveTrainSubsystem driveTrain = CatzDriveTrainSubsystem.getInstance(); 
+    CatzElevatorSubsystem elevator = CatzElevatorSubsystem.getInstance();
+    CatzArmSubsystem arm = CatzArmSubsystem.getInstance();
+    static CatzIntakeSubsystem intake = CatzIntakeSubsystem.getInstance();
+    
     //private static PathPlannerPath driveStraighFullTurn = PathPlannerPath.fromPathFile("DriveStraightFullTurn");
     //private static PathPlannerPath feildSideDriveBack = PathPlannerPath.fromPathFile("FeildSideDriveBack");
 
@@ -55,7 +54,8 @@ public class CatzAutonomous
     private enum AutoModes {
         TEST,
         DRIVE_STRAIGHT,
-        TRANSLATE_DRIVE_STRAIGHT
+        TRANSLATE_DRIVE_STRAIGHT,
+        PARALEL_SCORE_2
     }
 
     public CatzAutonomous()
@@ -70,17 +70,18 @@ public class CatzAutonomous
         autoChooser.addOption       ("TranslateDriveStraight", AutoModes.TRANSLATE_DRIVE_STRAIGHT);
     }
 
-    public Command getCommand(RobotContainer container)
+    public Command getCommand()
     {
         switch(autoChooser.get())
         {
-            case TEST: return testPath(container);
+            case TEST: return testPath();
+            case PARALEL_SCORE_2: return parallelScoreCube();
             default: 
             return new InstantCommand();
         }
     }
 
-    public Command testPath(RobotContainer container)
+    public Command testPath()
     {
         return new SequentialCommandGroup(
 
@@ -145,6 +146,7 @@ public class CatzAutonomous
 
     public static SequentialCommandGroup intakeSequenceCommandGroup()
     {
+
         return new SequentialCommandGroup(
                 Commands.runOnce(() -> intake.intakeRollerFunctionIN()),
                 Commands.waitSeconds(0.5),

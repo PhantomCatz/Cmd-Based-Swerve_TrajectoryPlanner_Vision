@@ -12,7 +12,7 @@ import frc.robot.Utils.CatzManipulatorPositions;
 import frc.robot.Utils.CatzSharedDataUtil;
 import frc.robot.Utils.CatzAbstractStateUtil;
 import frc.robot.Utils.CatzAbstractStateUtil.GamePieceState;
-import frc.robot.Utils.CatzAbstractStateUtil.SetMechanismState;
+import frc.robot.Utils.CatzAbstractStateUtil.SetAbstractMechanismState;
 import frc.robot.RobotContainer;
 import frc.robot.CatzConstants.ManipulatorPoseConstants;
 import frc.robot.RobotContainer.mechMode;
@@ -23,19 +23,19 @@ import frc.robot.subsystems.Intake.CatzIntakeSubsystem;
 
 
 public class ManipulatorToPoseCmd extends CommandBase {
-  private static CatzElevatorSubsystem m_elevator = CatzElevatorSubsystem.getInstance();
-  private static CatzIntakeSubsystem m_intake     = CatzIntakeSubsystem.getInstance();
-  private static CatzArmSubsystem m_arm           = CatzArmSubsystem.getInstance();
-  CatzManipulatorPositions m_targetPose;
+  private CatzElevatorSubsystem m_elevator = CatzElevatorSubsystem.getInstance();
+  private CatzIntakeSubsystem m_intake = CatzIntakeSubsystem.getInstance();
+  private CatzArmSubsystem m_arm = CatzArmSubsystem.getInstance();
+  private CatzManipulatorPositions m_targetPose;
 
-  /** Creates a new SetStateCommand. */
+  //low level targetpose constructor 
   public ManipulatorToPoseCmd(CatzManipulatorPositions targetPose) {
     this.m_targetPose = targetPose;
     addRequirements(m_elevator, m_intake, m_arm);
   }
 
-
-  public ManipulatorToPoseCmd(SetMechanismState currentMechansimState) {
+  //higher level abstract mechanism state contructor
+  public ManipulatorToPoseCmd(SetAbstractMechanismState currentMechansimState) {
     switch(currentMechansimState) {
       case SCORE_HIGH:
       if(CatzAbstractStateUtil.currentGamePieceState == GamePieceState.CONE) {
@@ -81,12 +81,12 @@ public class ManipulatorToPoseCmd extends CommandBase {
         m_targetPose = ManipulatorPoseConstants.STOW;
       break;
     }
+
     addRequirements(m_elevator, m_intake, m_arm);
   }
 
   @Override
-  public void initialize() 
-  {
+  public void initialize() {
     System.out.println("initstatemachine");
     RobotContainer.armControlMode = mechMode.AutoMode;
     RobotContainer.elevatorControlMode = mechMode.AutoMode;
@@ -94,12 +94,12 @@ public class ManipulatorToPoseCmd extends CommandBase {
   }
 
   @Override
-  public void execute() 
-  {
+  public void execute() {
     m_elevator.cmdUpdateElevator(m_targetPose);
     m_arm.cmdUpdateArm(m_targetPose);
     m_intake.cmdUpdateIntake(m_targetPose);
 
+    //logging
     Logger.getInstance().recordOutput("Commands/targetposeElevator", m_targetPose.getElevatorPosEnc());
     Logger.getInstance().recordOutput("Commands/targetposeArm", m_targetPose.getArmPosEnc());
     Logger.getInstance().recordOutput("Commands/targetposeIntake", m_targetPose.getWristAngleDeg());

@@ -10,9 +10,9 @@ package frc.robot.Utils;
 
 public class CatzAbstractStateUtil 
 {
-public static SetMechanismState currentAbstractMechState = null;
+public static SetAbstractMechanismState currentAbstractMechState = null;
 
-  public static enum SetMechanismState {
+  public static enum SetAbstractMechanismState {
 
     SCORE_HIGH,
     SCORE_MID,

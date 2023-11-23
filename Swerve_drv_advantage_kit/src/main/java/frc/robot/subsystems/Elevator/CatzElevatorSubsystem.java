@@ -16,11 +16,10 @@ import org.littletonrobotics.junction.Logger;
 
 
 public class CatzElevatorSubsystem extends SubsystemBase {
+  private static CatzElevatorSubsystem instance = new CatzElevatorSubsystem();
 
   private final ElevatorIO io;
   private final ElevatorIOInputsAutoLogged  inputs = new ElevatorIOInputsAutoLogged();
-
-  private static CatzElevatorSubsystem instance;
 
   private final double ARM_ENCODER_THRESHOLD = 35000.0;
   private final double ELEVATOR_POS_ERROR_THRESHOLD = 1000.0; //0.424 inches
@@ -33,7 +32,6 @@ public class CatzElevatorSubsystem extends SubsystemBase {
   private boolean m_elevatorDescent = false;
   private double m_elevatorPwr;
 
-  private boolean m_elevatorInPosition = false;
   private int m_numConsectSamples = 0;
 
   //manipulator target pose object
@@ -92,6 +90,8 @@ public class CatzElevatorSubsystem extends SubsystemBase {
         m_numConsectSamples = 0;
         CatzSharedDataUtil.sharedElevatorInPos = false;
     }
+    //logging
+    Logger.getInstance().recordOutput("armencreadfromelevator", CatzSharedDataUtil.sharedArmEncCnts);
   }
 
   public void elevatorFullManualCmd(double elevatorPwr) {
@@ -123,36 +123,32 @@ public class CatzElevatorSubsystem extends SubsystemBase {
     }
   }
 
-    /*----------------------------------------------------------------------------------------------
-    *
-    *  Utilities - 
-    *
-    *---------------------------------------------------------------------------------------------*/
-    public void checkLimitSwitches()
-    {
-      //recalibrate position to low if the rev limit switch is triggered
-      if(inputs.isRevLimitSwitchClosed) {
-          io.setSelectedSensorPositionIO(CatzConstants.ElevatorConstants.ELEVATOR_POS_ENC_CNTS_LOW);
-          m_lowSwitchState = true;
-      }
-      else {
-          m_lowSwitchState = false;
-      }
-      //recalibrate position to high if the high limit switch is triggered
-      if(inputs.isFwdLimitSwitchClosed) {
-          io.setSelectedSensorPositionIO(CatzConstants.ElevatorConstants.ELEVATOR_POS_ENC_CNTS_HIGH);
-          m_highSwitchState = true;
-      }
-      else {
-          m_highSwitchState = false;
-      }
+  /*----------------------------------------------------------------------------------------------
+  *
+  *  Utilities - 
+  *
+  *---------------------------------------------------------------------------------------------*/
+  public void checkLimitSwitches()
+  {
+    //recalibrate position to low if the rev limit switch is triggered
+    if(inputs.isRevLimitSwitchClosed) {
+        io.setSelectedSensorPositionIO(CatzConstants.ElevatorConstants.ELEVATOR_POS_ENC_CNTS_LOW);
+        m_lowSwitchState = true;
     }
-
-    //Singleton implementation for instatiating subssytems(Every refrence to this method should be static)
-    public static CatzElevatorSubsystem getInstance() {
-        if(instance == null) {
-            instance = new CatzElevatorSubsystem();
-        }
-        return instance;
+    else {
+        m_lowSwitchState = false;
+    }
+    //recalibrate position to high if the high limit switch is triggered
+    if(inputs.isFwdLimitSwitchClosed) {
+        io.setSelectedSensorPositionIO(CatzConstants.ElevatorConstants.ELEVATOR_POS_ENC_CNTS_HIGH);
+        m_highSwitchState = true;
+    }
+    else {
+        m_highSwitchState = false;
     }
   }
+  public static CatzElevatorSubsystem getInstance() {
+      return instance;
+  }  
+
+}

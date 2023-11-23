@@ -22,8 +22,6 @@ public class ModuleIOReal implements ModuleIO
     private DutyCycleEncoder magEnc;
     private DigitalInput MagEncPWMInput;
 
-    public boolean driveDirectionFlipped = false;
-
     //current limiting
     private SupplyCurrentLimitConfiguration swerveModuleCurrentLimit;
     private final int     CURRENT_LIMIT_AMPS            = 55;
@@ -34,8 +32,7 @@ public class ModuleIOReal implements ModuleIO
     private final int     STEER_CURRENT_LIMIT_AMPS      = 30;
     private final double  NEUTRAL_TO_FULL_SECONDS       = 0.1;
 
-    public ModuleIOReal(int driveMotorIDIO, int steerMotorIDIO, int magDIOPort)
-    {
+    public ModuleIOReal(int driveMotorIDIO, int steerMotorIDIO, int magDIOPort) {
         MagEncPWMInput = new DigitalInput(magDIOPort);
         magEnc = new DutyCycleEncoder(MagEncPWMInput);
 
@@ -61,8 +58,7 @@ public class ModuleIOReal implements ModuleIO
     }
 
     @Override
-    public void updateInputs(ModuleIOInputs inputs)
-    {
+    public void updateInputs(ModuleIOInputs inputs) {
         inputs.driveMtrVelocity = DRIVE_MOTOR.getSelectedSensorVelocity();
         inputs.driveMtrSensorPosition = DRIVE_MOTOR.getSelectedSensorPosition();
         inputs.magEncoderValue = magEnc.get();
@@ -70,49 +66,48 @@ public class ModuleIOReal implements ModuleIO
     }
 
     @Override
-    public void setDrivePwrPercentIO(double drivePwrPercent) 
-    {
-        DRIVE_MOTOR.set(ControlMode.PercentOutput, drivePwrPercent);
-    }
-
-    @Override
-    public void setDriveVelocityIO(double velocity)
-    {
+    public void setDriveVelocityIO(double velocity) {
+        //negative to align with Controler TBD?
         DRIVE_MOTOR.set(ControlMode.Velocity, - velocity);
     }
 
     @Override
-    public void setSteerPwrIO(double SteerPwr) 
-    {
+    public void setDrivePwrPercentIO(double drivePwrPercent) {
+        //negative to align with Controler TBD?
+        DRIVE_MOTOR.set(ControlMode.PercentOutput, - drivePwrPercent);
+    }
+
+    @Override
+    public void setSteerPwrIO(double SteerPwr) {
         STEER_MOTOR.set(SteerPwr);
     }
 
     @Override
-    public void setSteerCoastModeIO() 
-    {
+    public void setSteerVoltageIO(double steerVoltage) {
+        STEER_MOTOR.setVoltage(steerVoltage);
+    }
+
+    @Override
+    public void setSteerCoastModeIO() {
         STEER_MOTOR.setIdleMode(IdleMode.kCoast);
     }
 
     @Override
-    public void setSteerBrakeModeIO() 
-    {
+    public void setSteerBrakeModeIO() {
         STEER_MOTOR.setIdleMode(IdleMode.kBrake);
     }
 
     @Override
-    public void setDrvSensorPositionIO(double sensorpos)
-    {
+    public void setDrvSensorPositionIO(double sensorPos) {
         DRIVE_MOTOR.setSelectedSensorPosition(0.0);
     }
     @Override
-    public void reverseDriveIO(boolean enable)
-    {
+    public void reverseDriveIO(boolean enable) {
         DRIVE_MOTOR.setInverted(enable);
     }
     
     @Override
-    public void resetMagEncoderIO()
-    {
+    public void resetMagEncoderIO() {
         magEnc.reset();
     }
 

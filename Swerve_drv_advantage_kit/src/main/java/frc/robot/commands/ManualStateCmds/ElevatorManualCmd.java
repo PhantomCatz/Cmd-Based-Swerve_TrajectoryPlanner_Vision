@@ -11,14 +11,10 @@ import frc.robot.RobotContainer;
 import frc.robot.RobotContainer.mechMode;
 import frc.robot.Utils.CatzManipulatorPositions;
 import frc.robot.Utils.CatzSharedDataUtil;
-import frc.robot.subsystems.Arm.CatzArmSubsystem;
 import frc.robot.subsystems.Elevator.CatzElevatorSubsystem;
-import frc.robot.subsystems.Intake.CatzIntakeSubsystem;
 
 public class ElevatorManualCmd extends CommandBase {
-  CatzElevatorSubsystem elevator = CatzElevatorSubsystem.getInstance();
-  CatzArmSubsystem arm = CatzArmSubsystem.getInstance();
-  CatzIntakeSubsystem intake = CatzIntakeSubsystem.getInstance();
+  CatzElevatorSubsystem m_elevator = CatzElevatorSubsystem.getInstance();
       
   Supplier<Double> supplierElevatorPwr;
   Supplier<Boolean> supplierManualMode;
@@ -34,7 +30,7 @@ public class ElevatorManualCmd extends CommandBase {
                            Supplier<Boolean> supplierManualMode) {
     this.supplierElevatorPwr = supplierElevatorPwr;
     this.supplierManualMode = supplierManualMode;
-    addRequirements(elevator);
+    addRequirements(m_elevator);
   }
 
   // Called when the command is initially scheduled.
@@ -52,24 +48,24 @@ public class ElevatorManualCmd extends CommandBase {
     CatzManipulatorPositions targetPosition;
     
       if(Math.abs(elevatorPwr) >= MANUAL_CONTROL_DEADBAND)
-      {
+      {//if pwr is set
           if(isElevatorInManualMode) // Full manual
           {
-              elevator.elevatorFullManualCmd(elevatorPwr);
+              m_elevator.elevatorFullManualCmd(elevatorPwr);
           }
           else // Hold Position
           {
             manualHoldTargetPos = CatzSharedDataUtil.sharedElevatorEncCnts;
             manualHoldTargetPos = manualHoldTargetPos + (elevatorPwr * MANUAL_HOLD_STEP_SIZE);
             targetPosition = new CatzManipulatorPositions(manualHoldTargetPos, -999.0, -999.0);
-            elevator.cmdUpdateElevator(targetPosition);
+            m_elevator.cmdUpdateElevator(targetPosition);
           }
       }
-      else
-      {
+      else 
+      { //set pwr to 0
           if (isElevatorInManualMode)
           {
-            elevator.elevatorFullManualCmd(0.0);
+            m_elevator.elevatorFullManualCmd(0.0);
           }
       }
   
