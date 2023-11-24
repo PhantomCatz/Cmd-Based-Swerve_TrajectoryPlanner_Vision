@@ -4,6 +4,8 @@
 
 package frc.robot.commands.ManualStateCmds;
 
+import com.fasterxml.jackson.databind.deser.std.ContainerDeserializerBase;
+
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.RobotContainer;
 import frc.robot.RobotContainer.mechMode;
@@ -12,7 +14,7 @@ import frc.robot.Utils.CatzSharedDataUtil;
 import frc.robot.subsystems.Arm.CatzArmSubsystem;
 
 public class ArmManualCmd extends CommandBase {
-  private CatzArmSubsystem arm = CatzArmSubsystem.getInstance();
+  private CatzArmSubsystem m_arm = CatzArmSubsystem.getInstance();
   private boolean armExtend;
   private boolean armRetract;
 
@@ -26,7 +28,7 @@ public class ArmManualCmd extends CommandBase {
   {
     this.armExtend = armExtend;
     this.armRetract = armRetract;
-    addRequirements(arm);
+    addRequirements(m_arm);
   }
 
   // Called when the command is initially scheduled.
@@ -41,15 +43,15 @@ public class ArmManualCmd extends CommandBase {
   {
     if(armExtend == true)
     {
-        arm.setArmPwr(EXTEND_PWR);
+        m_arm.setArmPwr(EXTEND_PWR);
     }
     else if(armRetract == true)
     {
-        arm.setArmPwr(RETRACT_PWR);
+        m_arm.setArmPwr(RETRACT_PWR);
     }
     else if(CatzSharedDataUtil.sharedArmInControlMode)
     {
-        arm.setArmPwr(MANUAL_CONTROL_PWR_OFF);
+        m_arm.setArmPwr(MANUAL_CONTROL_PWR_OFF);
     }
   }
 

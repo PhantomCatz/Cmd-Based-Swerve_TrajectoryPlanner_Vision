@@ -5,6 +5,7 @@ public class CatzManipulatorPositions {
     private double armPosEnc = 0;
     private double wristAngleDeg = 0;
 
+    //object used by commands to interface with the subsystems
     public CatzManipulatorPositions(double elevatorPosEnc, double armPosEnc, double wristAngleDeg) 
     {
         this.elevatorPosEnc = elevatorPosEnc;

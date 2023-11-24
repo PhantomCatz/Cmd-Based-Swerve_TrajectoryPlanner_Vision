@@ -28,6 +28,7 @@ import frc.robot.Utils.CatzManipulatorPositions;
  * constants are needed, to reduce verbosity.
  */
 public final class CatzConstants {
+  public static final boolean tuningMode = false;
   public static final Mode currentMode = Mode.REAL;
 
   public static enum Mode {
@@ -44,13 +45,6 @@ public final class CatzConstants {
   public static enum AllianceColor {
     BlUE_ALLIANCE,
     RED_ALLIANCE
-  }
-  //------------------------Autonomous path Enums--------------------
-
-  public static enum AutonomousPath 
-  {
-    TEST
-
   }
 
  public static final class OIConstants {

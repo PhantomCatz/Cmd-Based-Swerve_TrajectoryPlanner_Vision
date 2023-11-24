@@ -4,9 +4,7 @@ import org.littletonrobotics.junction.Logger;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
-import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
-import com.pathplanner.lib.util.ReplanningConfig;
 
 import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
@@ -30,17 +28,17 @@ import frc.robot.Utils.GeometryUtils;
 import frc.robot.subsystems.vision.CatzAprilTag;;
 
 
-public class CatzDriveTrainSubsystem extends SubsystemBase{
+public class CatzDriveTrainSubsystem extends SubsystemBase {
       //----------------------Catz auton Constants---------------------------
     public static final class DriveConstants {
         private static final double MODULE_DISTANCE_FROM_CENTER = 0.298;
 
 
         //not following the original coordinate system since the robot coordinate system is inverted
-        private static final Translation2d SWERVE_LEFT_FRONT_LOCATION  = new Translation2d(-MODULE_DISTANCE_FROM_CENTER, MODULE_DISTANCE_FROM_CENTER);
-        private static final Translation2d SWERVE_LEFT_BACK_LOCATION   = new Translation2d(MODULE_DISTANCE_FROM_CENTER, MODULE_DISTANCE_FROM_CENTER);
-        private static final Translation2d SWERVE_RIGHT_BACK_LOCATION  = new Translation2d(MODULE_DISTANCE_FROM_CENTER, -MODULE_DISTANCE_FROM_CENTER);
-        private static final Translation2d SWERVE_RIGHT_FRONT_LOCATION = new Translation2d(-MODULE_DISTANCE_FROM_CENTER, -MODULE_DISTANCE_FROM_CENTER);
+        private static final Translation2d SWERVE_LEFT_FRONT_LOCATION  = new Translation2d(MODULE_DISTANCE_FROM_CENTER, MODULE_DISTANCE_FROM_CENTER);
+        private static final Translation2d SWERVE_LEFT_BACK_LOCATION   = new Translation2d(-MODULE_DISTANCE_FROM_CENTER, MODULE_DISTANCE_FROM_CENTER);
+        private static final Translation2d SWERVE_RIGHT_BACK_LOCATION  = new Translation2d(-MODULE_DISTANCE_FROM_CENTER, -MODULE_DISTANCE_FROM_CENTER);
+        private static final Translation2d SWERVE_RIGHT_FRONT_LOCATION = new Translation2d(MODULE_DISTANCE_FROM_CENTER, -MODULE_DISTANCE_FROM_CENTER);
         
         // calculates the orientation and speed of individual swerve modules when given the motion of the whole robot
         public static final SwerveDriveKinematics swerveDriveKinematics = new SwerveDriveKinematics(
@@ -85,7 +83,7 @@ public class CatzDriveTrainSubsystem extends SubsystemBase{
         );
     }
  //---------------------CatzDriveTrain class Definitions------------------------------------
-    private static CatzDriveTrainSubsystem instance;
+    private static CatzDriveTrainSubsystem instance = new CatzDriveTrainSubsystem();
 
     private final GyroIO gyroIO;
     private final GyroIOInputsAutoLogged gyroInputs = new GyroIOInputsAutoLogged();
@@ -118,9 +116,6 @@ public class CatzDriveTrainSubsystem extends SubsystemBase{
     private final double LT_BACK_OFFSET = 0.04736465118411634;
     private final double RT_BACK_OFFSET = 0.2542108938552728;
     private final double RT_FRNT_OFFSET = 0.0351528633788208;
-
-    private int index;
-
 
     private CatzDriveTrainSubsystem() {   
         switch(CatzConstants.currentMode) {
@@ -186,10 +181,10 @@ public class CatzDriveTrainSubsystem extends SubsystemBase{
     
     //access method for updating drivetrain instructions
     public void driveRobotRelative(ChassisSpeeds chassisSpeeds) {
-        //apply second order kinematics
+        //apply second order kinematics to prevent swerve skew
         chassisSpeeds = correctForDynamics(chassisSpeeds);
 
-        //Convert chassis speeds to individual module states
+        //Convert chassis speeds to individual module states and set module states
         SwerveModuleState[] moduleStates = DriveConstants.swerveDriveKinematics.toSwerveModuleStates(chassisSpeeds);
         setModuleStates(moduleStates);
     }
@@ -254,7 +249,7 @@ public class CatzDriveTrainSubsystem extends SubsystemBase{
 
     public Pose2d getPose() {
         Pose2d currentPosition = m_poseEstimator.getEstimatedPosition();
-        currentPosition = new Pose2d(currentPosition.getX(), currentPosition.getY(), Rotation2d.fromDegrees(getGyroAngle()));
+        currentPosition = new Pose2d(currentPosition.getX(), currentPosition.getY(), getRotation2d());
         return currentPosition;
     }
 
@@ -323,12 +318,9 @@ public class CatzDriveTrainSubsystem extends SubsystemBase{
         }
         return modulePositions;
     }
-    
-    //Singleton implementation for instatiating subssytems(Every refrence to this method should be static)
+
     public static CatzDriveTrainSubsystem getInstance() {
-        if(instance == null) {
-            instance = new CatzDriveTrainSubsystem();
-        }
         return instance;
     }
+    
 }

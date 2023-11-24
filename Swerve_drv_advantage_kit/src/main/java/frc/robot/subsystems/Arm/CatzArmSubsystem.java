@@ -19,15 +19,11 @@ import frc.robot.Utils.CatzAbstractStateUtil;
 //import frc.robot.Robot.mechMode;
 import frc.robot.subsystems.Elevator.CatzElevatorSubsystem;
 
-public class CatzArmSubsystem extends SubsystemBase 
-{
-  /** Creates a new CatzArmSubsystem. */
+public class CatzArmSubsystem extends SubsystemBase {
+  private static CatzArmSubsystem instance = new CatzArmSubsystem();
+
   private final ArmIO io;
   private final ArmIOInputsAutoLogged  inputs = new ArmIOInputsAutoLogged();
-
-  private static CatzArmSubsystem instance;
-
-  static CatzElevatorSubsystem elevator = CatzElevatorSubsystem.getInstance();
 
   private final double HIGH_EXTEND_THRESHOLD_ELEVATOR = 73000.0;
   private final double ARM_POS_ERROR_THRESHOLD = 2700.0; //0.5 inches    previously 500 enc counts
@@ -69,15 +65,23 @@ public class CatzArmSubsystem extends SubsystemBase
         io.setArmPwrIO(0.0);
     }
     else if(m_targetPose != null) {
+        //watching for if if the arm should extend when the elevator reaches threshold
         if(m_isArmInExtension) {
-            if(CatzSharedDataUtil.sharedElevatorEncCnts > HIGH_EXTEND_THRESHOLD_ELEVATOR)
-            io.setArmPosEncIO(m_targetPose.getArmPosEnc());
+            if(CatzSharedDataUtil.sharedElevatorEncCnts > HIGH_EXTEND_THRESHOLD_ELEVATOR) {
+                io.setArmPosEncIO(m_targetPose.getArmPosEnc());
+            }
+        }
+        else if(DriverStation.isAutonomous() && m_isArmInExtension) {
+            if(CatzSharedDataUtil.sharedIntakeInPos && 
+               CatzSharedDataUtil.sharedElevatorEncCnts > HIGH_EXTEND_THRESHOLD_ELEVATOR) {
+                io.setArmPosEncIO(m_targetPose.getArmPosEnc());
+                }
         }
         else {
             io.setArmPosEncIO(m_targetPose.getArmPosEnc());
         }
     }
-    else {
+    else { //full manual
         io.setArmPwrIO(m_armPwr);
     }
 
@@ -120,21 +124,17 @@ public class CatzArmSubsystem extends SubsystemBase
     *---------------------------------------------------------------------------------------------*/
 
     public void checkLimitSwitches() {
-    //recalibrating arm position with the rev limit switch is triggered
-    if(inputs.isRevLimitSwitchClosed) {
-        io.setSelectedSensorPositionIO(CatzConstants.ArmConstants.POS_ENC_CNTS_RETRACT);
-        m_extendSwitchState = true;
-    }
-    else {
-        m_extendSwitchState = false;
-    }
-  }
-
-    //Singleton implementation for instatiating subssytems(Every refrence to this method should be static)
-    public static CatzArmSubsystem getInstance() {
-        if(instance == null) {
-            instance = new CatzArmSubsystem();
+        //recalibrating arm position with the rev limit switch is triggered
+        if(inputs.isRevLimitSwitchClosed) {
+            io.setSelectedSensorPositionIO(CatzConstants.ArmConstants.POS_ENC_CNTS_RETRACT);
+            m_extendSwitchState = true;
         }
+        else {
+            m_extendSwitchState = false;
+        }
+    } 
+
+    public static CatzArmSubsystem getInstance() {
         return instance;
     }
 }

@@ -21,7 +21,7 @@ public class PPTrajectoryFollowingCmd extends CommandBase {
     public static final double ALLOWABLE_POSE_ERROR = 0.05;
     public static final double ALLOWABLE_ROTATION_ERROR = Math.toRadians(2);
     private final PPHolonomicDriveController controller;
-    private static final CatzDriveTrainSubsystem driveTrain = CatzDriveTrainSubsystem.getInstance();
+    private final CatzDriveTrainSubsystem driveTrain = CatzDriveTrainSubsystem.getInstance();
 
     /**
      * Timer object
@@ -40,7 +40,7 @@ public class PPTrajectoryFollowingCmd extends CommandBase {
      * @param drivetrain The coordinator between the gyro and the swerve modules.
      * @param trajectory          The trajectory to follow.
      */
-    public PPTrajectoryFollowingCmd(CatzDriveTrainSubsystem driveTrain, PathPlannerPath newPath) 
+    public PPTrajectoryFollowingCmd(PathPlannerPath newPath) 
     {
         this.trajectory = new PathPlannerTrajectory(newPath, new ChassisSpeeds());
         controller = DriveConstants.ppholonomicDriveController;

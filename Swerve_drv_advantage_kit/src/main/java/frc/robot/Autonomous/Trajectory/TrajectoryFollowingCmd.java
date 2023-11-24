@@ -13,7 +13,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.drivetrain.CatzDriveTrainSubsystem;
 import frc.robot.subsystems.drivetrain.CatzDriveTrainSubsystem.DriveConstants;
-import frc.robot.CatzConstants;
 
 // Follows a trajectory
 public class TrajectoryFollowingCmd extends CommandBase{
@@ -23,7 +22,7 @@ public class TrajectoryFollowingCmd extends CommandBase{
 
     private final Timer timer = new Timer();
     private final HolonomicDriveController controller;
-    private final CatzDriveTrainSubsystem driveTrain = CatzDriveTrainSubsystem.getInstance();
+    private CatzDriveTrainSubsystem m_driveTrain = CatzDriveTrainSubsystem.getInstance();
 
     private final Trajectory trajectory;
     private final Rotation2d targetHeading;
@@ -40,7 +39,7 @@ public class TrajectoryFollowingCmd extends CommandBase{
         // also, why is it called refheading? wouldn't something like targetOrientation be better
 
         controller = DriveConstants.holonomicDriveController; // see catzconstants
-       addRequirements(driveTrain);
+       addRequirements(m_driveTrain);
     }
 
     // reset and start timer
@@ -48,14 +47,14 @@ public class TrajectoryFollowingCmd extends CommandBase{
     public void initialize() {
         timer.reset();
         timer.start();
-        initHeading = driveTrain.getRotation2d();
+        initHeading = m_driveTrain.getRotation2d();
     }
 
     // calculates if trajectory is finished
     @Override
     public boolean isFinished() {
         double maxTime = trajectory.getTotalTimeSeconds();
-        Pose2d dist = trajectory.sample(maxTime).poseMeters.relativeTo(driveTrain.getPose());
+        Pose2d dist = trajectory.sample(maxTime).poseMeters.relativeTo(m_driveTrain.getPose());
 
         return 
             timer.get() > maxTime * TIMEOUT_RATIO || 
@@ -71,11 +70,11 @@ public class TrajectoryFollowingCmd extends CommandBase{
     public void execute() {
         double currentTime = timer.get();
         Trajectory.State goal = trajectory.sample(currentTime);
-        Pose2d currentPosition = driveTrain.getPose();
+        Pose2d currentPosition = m_driveTrain.getPose();
         
         ChassisSpeeds adjustedSpeed = controller.calculate(currentPosition, goal, initHeading.interpolate(targetHeading, currentTime / trajectory.getTotalTimeSeconds()));
         adjustedSpeed.omegaRadiansPerSecond = - adjustedSpeed.omegaRadiansPerSecond;
-        driveTrain.driveRobotRelative(adjustedSpeed);
+        m_driveTrain.driveRobotRelative(adjustedSpeed);
     }
 
     // stop all robot motion
@@ -83,7 +82,7 @@ public class TrajectoryFollowingCmd extends CommandBase{
     public void end(boolean interrupted) {
         timer.stop();
 
-        driveTrain.stopDriving();
+        m_driveTrain.stopDriving();
         
         System.out.println("trajectory done");
     }

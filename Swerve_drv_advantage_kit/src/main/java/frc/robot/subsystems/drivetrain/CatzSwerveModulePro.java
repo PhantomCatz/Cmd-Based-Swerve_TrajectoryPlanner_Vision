@@ -9,6 +9,8 @@ import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
+import com.ctre.phoenixpro.controls.PositionVoltage;
+import com.ctre.phoenixpro.controls.VelocityTorqueCurrentFOC;
 
 import edu.wpi.first.hal.SimBoolean;
 import edu.wpi.first.math.controller.PIDController;
@@ -20,12 +22,13 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.CatzConstants;
 import frc.robot.subsystems.drivetrain.CatzDriveTrainSubsystem.DriveConstants;
+import frc.robot.Utils.CTREUtils;
 import frc.robot.Utils.CatzMathUtils;
 import frc.robot.Utils.Conversions;
 import frc.robot.subsystems.drivetrain.ModuleIOInputsAutoLogged;
 
 
-public class CatzSwerveModule {
+public class CatzSwerveModulePro {
     private final ModuleIO io;
     private final ModuleIOInputsAutoLogged   inputs = new ModuleIOInputsAutoLogged();
 
@@ -43,8 +46,11 @@ public class CatzSwerveModule {
 
     private int m_index;
 
+    private PositionVoltage angleSetter = new PositionVoltage(0, true, 0, 0, true);
+    private VelocityTorqueCurrentFOC velocitySetter = new VelocityTorqueCurrentFOC(0);
 
-    public CatzSwerveModule(int driveMotorID, int steerMotorID, int encoderDIOChannel, double offset, int index) {
+
+    public CatzSwerveModulePro(int driveMotorID, int steerMotorID, int encoderDIOChannel, double offset, int index) {
         this.m_index = index;
 
         switch (CatzConstants.currentMode) {
@@ -155,25 +161,22 @@ public class CatzSwerveModule {
      * @param state Desired state with speed and angle.
      */
     public void setDesiredState(SwerveModuleState state) {
+        //appy wheel optimizations
+        state = CTREUtils.optimize(state, getCurrentRotation());
 
-        //Need to ask what yuyhun did to fix this
-        state = CatzMathUtils.optimize(state, getCurrentRotation());
-        //calculate drive pwr
-        double drivePwrVelocity = Conversions.MPSToFalcon(state.speedMetersPerSecond, 
-                                                          DriveConstants.DRVTRAIN_WHEEL_CIRCUMFERENCE, 
-                                                          DriveConstants.SDS_L2_GEAR_RATIO); //to set is as a gear reduction not an overdrive
         //calculate turn voltage
         double steerPIDpwr = - m_pid.calculate(getAbsEncRadians(), state.angle.getRadians()); 
         double steerPIDVoltage = steerPIDpwr * 12; //convert to voltage
+        
+        double velocityToSet = state.speedMetersPerSecond; //tbd determine later// * //driveRotationsPerMeter;
 
         //set powers
-        setDriveVelocity(drivePwrVelocity);// + driveFeedforward);
         setSteerVoltage(steerPIDVoltage);
+        io.setDriveControlIO(velocitySetter.withVelocity(velocityToSet));
 
         //logging
         Logger.getInstance().recordOutput("Drive/current roation" + Integer.toString(m_index), getAbsEncRadians());
         Logger.getInstance().recordOutput("Drive/target Angle" + Integer.toString(m_index), state.angle.getRadians());
-        Logger.getInstance().recordOutput("Drive/drive velocity" + Integer.toString(m_index), drivePwrVelocity);
         Logger.getInstance().recordOutput("Drive/turn power" + Integer.toString(m_index), steerPIDpwr);
        // Logger.getInstance().recordOutput("rotation" + Integer.toString(index), d);
     }

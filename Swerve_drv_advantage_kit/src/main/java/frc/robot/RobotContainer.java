@@ -28,7 +28,7 @@ import frc.robot.CatzConstants.ManipulatorPoseConstants;
 import frc.robot.Utils.CatzManipulatorPositions;
 import frc.robot.Utils.CatzAbstractStateUtil;
  import frc.robot.Utils.CatzAbstractStateUtil.GamePieceState;
- import frc.robot.Utils.CatzAbstractStateUtil.SetMechanismState;
+ import frc.robot.Utils.CatzAbstractStateUtil.SetAbstractMechanismState;
 import frc.robot.Utils.led.CatzRGB;
 import frc.robot.Utils.led.ColorMethod;
 import frc.robot.commands.ManipulatorToPoseCmd;
@@ -50,9 +50,9 @@ import frc.robot.subsystems.Arm.CatzArmSubsystem;
   */
  public class RobotContainer {
     private static CatzDriveTrainSubsystem driveTrain;
-    private static CatzElevatorSubsystem elevator;
-    private static CatzIntakeSubsystem intake;
-    private static CatzArmSubsystem arm;
+    private CatzElevatorSubsystem elevator;
+    private CatzIntakeSubsystem intake;
+    private CatzArmSubsystem arm;
 
     private final CatzAutonomous auton = new CatzAutonomous();
     public static CatzRGB        led = new CatzRGB();
@@ -94,13 +94,13 @@ import frc.robot.subsystems.Arm.CatzArmSubsystem;
    private void configureBindings() 
    {
    //---------------------------------------Button mechanism cmds-----------------------------------------------------------------
-     xboxAux.y().onTrue(new ManipulatorToPoseCmd(SetMechanismState.SCORE_HIGH));
-     xboxAux.b().onTrue(new ManipulatorToPoseCmd(SetMechanismState.SCORE_MID));
-     xboxAux.a().onTrue(new ManipulatorToPoseCmd(SetMechanismState.SCORE_LOW));
+     xboxAux.y().onTrue(new ManipulatorToPoseCmd(SetAbstractMechanismState.SCORE_HIGH));
+     xboxAux.b().onTrue(new ManipulatorToPoseCmd(SetAbstractMechanismState.SCORE_MID));
+     xboxAux.a().onTrue(new ManipulatorToPoseCmd(SetAbstractMechanismState.SCORE_LOW));
      xboxAux.x().or(xboxDrv.rightStick())
                 .onTrue(new ManipulatorToPoseCmd(ManipulatorPoseConstants.STOW));
      xboxAux.start().or(xboxDrv.leftStick())
-                    .onTrue(new ManipulatorToPoseCmd(SetMechanismState.PICKUP_GROUND));
+                    .onTrue(new ManipulatorToPoseCmd(SetAbstractMechanismState.PICKUP_GROUND));
  
    
    //--------------------------------------------Manual Cmds---------------------------------------------------------------------------
@@ -108,14 +108,14 @@ import frc.robot.subsystems.Arm.CatzArmSubsystem;
        
      xboxAux.rightTrigger()
      .onTrue(new ArmManualCmd(true,
-                            false))
+                              false))
      .onFalse(Commands.runOnce(
              () -> arm.setArmPwr(0.0)
                               ));
  
      xboxAux.leftTrigger()
      .onTrue(new ArmManualCmd(false,
-                            true))
+                              true))
      .onFalse(Commands.run(
              () -> arm.setArmPwr(0.0)
                           ));
@@ -168,8 +168,6 @@ import frc.robot.subsystems.Arm.CatzArmSubsystem;
            () -> {
              intake.intakeRollersOff();
            }));
-           
- 
    }
    //mechanisms with default commands revert back to these cmds if no other cmd requiring the subsystem is active
    private void defaultCommands() 
@@ -189,8 +187,10 @@ import frc.robot.subsystems.Arm.CatzArmSubsystem;
     */
    public Command getAutonomousCommand() {
      // An example command will be run in autonomous
-     return auton.getCommand(this);
+     return auton.getCommand();
    }
+
+   //--------------------------------------------Subsystem Get Methods-----------------------
 
    //--------------------------------------------LEDs------------------------------------------------
    public static enum mechMode {
