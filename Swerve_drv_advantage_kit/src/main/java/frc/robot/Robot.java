@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj.Threads;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.RobotContainer.gameModeLED;
 import frc.robot.Utils.led.CatzRGB;
 import frc.robot.Utils.led.ColorMethod;
 
@@ -121,7 +122,9 @@ public class Robot extends LoggedRobot {
 
   /** This function is called once each time the robot enters Disabled mode. */
   @Override
-  public void disabledInit() {}
+  public void disabledInit() {
+    RobotContainer.currentGameModeLED = gameModeLED.MatchEnd;
+  }
 
   @Override
   public void disabledPeriodic() {}
@@ -135,6 +138,7 @@ public class Robot extends LoggedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();
     }
+    RobotContainer.currentGameModeLED = gameModeLED.InAutonomous;
   }
 
   /** This function is called periodically during autonomous. */
@@ -150,6 +154,7 @@ public class Robot extends LoggedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
+    RobotContainer.currentGameModeLED = gameModeLED.TeleOp;
   }
 
   /** This function is called periodically during operator control. */

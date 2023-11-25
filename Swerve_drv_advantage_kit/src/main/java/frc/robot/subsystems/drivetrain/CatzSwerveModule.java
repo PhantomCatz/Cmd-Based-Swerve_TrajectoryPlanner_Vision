@@ -9,6 +9,7 @@ import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
+import com.ctre.phoenixpro.controls.VelocityTorqueCurrentFOC;
 
 import edu.wpi.first.hal.SimBoolean;
 import edu.wpi.first.math.controller.PIDController;
@@ -43,6 +44,8 @@ public class CatzSwerveModule {
 
     private int m_index;
 
+    private VelocityTorqueCurrentFOC velocitySetter = new VelocityTorqueCurrentFOC(0);
+
 
     public CatzSwerveModule(int driveMotorID, int steerMotorID, int encoderDIOChannel, double offset, int index) {
         this.m_index = index;
@@ -51,6 +54,8 @@ public class CatzSwerveModule {
             case REAL: io = new ModuleIOReal(driveMotorID, steerMotorID, encoderDIOChannel);
                 break;
             case SIM : io = new ModuleIOSim();
+                break;
+            case REAL_WITH_PRO : io = new ModuleIOPro(driveMotorID, steerMotorID, encoderDIOChannel);
                 break;
             default : io = new ModuleIOReal(driveMotorID, steerMotorID, encoderDIOChannel) {};
                 break;
@@ -156,19 +161,26 @@ public class CatzSwerveModule {
      */
     public void setDesiredState(SwerveModuleState state) {
 
-        //Need to ask what yuyhun did to fix this
+        //Need to ask what yuyhun did to fix this TBD
         state = CatzMathUtils.optimize(state, getCurrentRotation());
+        
+        //calculate turn voltage
+        double steerPIDpwr = - m_pid.calculate(getAbsEncRadians(), state.angle.getRadians()); 
+        double steerPIDVoltage = steerPIDpwr * 12; //convert to voltage
+        //set voltage
+        setSteerVoltage(steerPIDVoltage);
+
         //calculate drive pwr
         double drivePwrVelocity = Conversions.MPSToFalcon(state.speedMetersPerSecond, 
                                                           DriveConstants.DRVTRAIN_WHEEL_CIRCUMFERENCE, 
                                                           DriveConstants.SDS_L2_GEAR_RATIO); //to set is as a gear reduction not an overdrive
-        //calculate turn voltage
-        double steerPIDpwr = - m_pid.calculate(getAbsEncRadians(), state.angle.getRadians()); 
-        double steerPIDVoltage = steerPIDpwr * 12; //convert to voltage
-
-        //set powers
-        setDriveVelocity(drivePwrVelocity);// + driveFeedforward);
-        setSteerVoltage(steerPIDVoltage);
+        //set power for FOC
+        if(CatzConstants.currentMode == CatzConstants.Mode.REAL_WITH_PRO) { 
+            io.setDriveControlIO(velocitySetter.withVelocity(drivePwrVelocity));   
+        }
+        else { //set pwr for REAL/SIM
+            setDriveVelocity(drivePwrVelocity);// + driveFeedforward);
+        }
 
         //logging
         Logger.getInstance().recordOutput("Drive/current roation" + Integer.toString(m_index), getAbsEncRadians());

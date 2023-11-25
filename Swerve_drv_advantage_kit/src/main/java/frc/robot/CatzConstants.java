@@ -35,6 +35,9 @@ public final class CatzConstants {
     /** Running on a real robot. */
     REAL,
 
+    /** Running on a real robot with phoenix pro */
+    REAL_WITH_PRO,
+
     /** Running a physics simulator. */
     SIM,
 

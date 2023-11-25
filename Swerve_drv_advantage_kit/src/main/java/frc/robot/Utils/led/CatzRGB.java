@@ -4,10 +4,10 @@ import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.util.Color;
+import frc.robot.CatzAutonomous;
 import frc.robot.CatzConstants;
 import frc.robot.Robot;
 import frc.robot.RobotContainer;
-import frc.robot.Autonomous.CatzAutonomous;
 import frc.robot.CatzConstants.AllianceColor;
 import frc.robot.subsystems.vision.CatzAprilTag;
 

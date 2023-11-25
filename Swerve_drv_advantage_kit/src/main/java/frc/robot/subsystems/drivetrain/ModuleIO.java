@@ -8,8 +8,7 @@ import com.ctre.phoenixpro.controls.VelocityTorqueCurrentFOC;
 public interface ModuleIO 
 {
  @AutoLog
- public static class ModuleIOInputs
- {
+ public static class ModuleIOInputs {
     public double gyroAngle = 0.0;
     public double driveMtrVelocity = 0.0;
     public double driveMtrSensorPosition = 0.0;
@@ -17,7 +16,6 @@ public interface ModuleIO
     public double driveAppliedVolts = 0.0;
     public double steerAppliedVolts = 0.0;
     public double driveMtrPercentOutput = 0.0;
-
  }
 
  /** Updates the set of loggable inputs. */

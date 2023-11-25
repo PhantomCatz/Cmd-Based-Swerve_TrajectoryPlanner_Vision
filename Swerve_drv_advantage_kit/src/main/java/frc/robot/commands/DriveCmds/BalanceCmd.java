@@ -2,7 +2,7 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.Autonomous;
+package frc.robot.commands.DriveCmds;
 
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -33,12 +33,10 @@ public class BalanceCmd extends CommandBase {
   public final double MAX_POWER = 0.30;
   public final double BALANCE_THREAD_PERIOD = 0.02;
 
-  private CatzDriveTrainSubsystem driveTrain;
-  public BalanceCmd(CatzDriveTrainSubsystem driveTrain) 
+  private CatzDriveTrainSubsystem driveTrain = CatzDriveTrainSubsystem.getInstance();
+  public BalanceCmd() 
   {
-    this.driveTrain = driveTrain;
     addRequirements(driveTrain);
-    // Use addRequirements() here to declare subsystem dependencies.
   }
 
   // Called when the command is initially scheduled.

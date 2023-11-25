@@ -13,8 +13,7 @@ import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 
-public class ModuleIOReal implements ModuleIO
-{
+public class ModuleIOReal implements ModuleIO {
 
     private final CANSparkMax STEER_MOTOR;
     private final WPI_TalonFX DRIVE_MOTOR;

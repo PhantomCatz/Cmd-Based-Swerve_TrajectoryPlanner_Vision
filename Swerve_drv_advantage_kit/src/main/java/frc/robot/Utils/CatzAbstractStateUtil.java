@@ -8,6 +8,9 @@
  **/
 package frc.robot.Utils;
 
+import frc.robot.RobotContainer;
+import frc.robot.RobotContainer.gamePiece;
+
 public class CatzAbstractStateUtil 
 {
 public static SetAbstractMechanismState currentAbstractMechState = null;
@@ -31,8 +34,18 @@ public static SetAbstractMechanismState currentAbstractMechState = null;
     NONE
   }  
 
-  public static void newGamePieceState(GamePieceState newGamePieceState)
-  {
+  public static void newGamePieceState(GamePieceState newGamePieceState) {
     currentGamePieceState = newGamePieceState;
+
+    //LED logic
+    if(currentGamePieceState == GamePieceState.CONE) {
+      RobotContainer.currentGamePiece = gamePiece.Cone;
+    } 
+    else if(currentGamePieceState == GamePieceState.CUBE) {
+      RobotContainer.currentGamePiece = gamePiece.Cube;
+    }
+    else {
+      RobotContainer.currentGamePiece = gamePiece.None;
+    }
   }
 }

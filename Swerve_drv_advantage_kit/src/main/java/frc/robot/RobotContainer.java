@@ -22,8 +22,6 @@ import edu.wpi.first.wpilibj2.command.Command;
  import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
  import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.Autonomous.BalanceCmd;
-import frc.robot.Autonomous.CatzAutonomous;
 import frc.robot.CatzConstants.ManipulatorPoseConstants;
 import frc.robot.Utils.CatzManipulatorPositions;
 import frc.robot.Utils.CatzAbstractStateUtil;
@@ -32,7 +30,8 @@ import frc.robot.Utils.CatzAbstractStateUtil;
 import frc.robot.Utils.led.CatzRGB;
 import frc.robot.Utils.led.ColorMethod;
 import frc.robot.commands.ManipulatorToPoseCmd;
-import frc.robot.commands.TeleopDriveCmd;
+import frc.robot.commands.DriveCmds.BalanceCmd;
+import frc.robot.commands.DriveCmds.TeleopDriveCmd;
 import frc.robot.commands.ManualStateCmds.ArmManualCmd;
 import frc.robot.commands.ManualStateCmds.ElevatorManualCmd;
 import frc.robot.commands.ManualStateCmds.IntakeManualCmd;
@@ -86,8 +85,6 @@ import frc.robot.subsystems.Arm.CatzArmSubsystem;
      // Configure the trigger bindings and default cmds
      defaultCommands();
      configureBindings();
-    //start led scheduling thread
-    startLEDSchedulingThread();
    }
  
    
@@ -192,7 +189,7 @@ import frc.robot.subsystems.Arm.CatzArmSubsystem;
 
    //--------------------------------------------Subsystem Get Methods-----------------------
 
-   //--------------------------------------------LEDs------------------------------------------------
+   //--------------------------------------------LED setup------------------------------------------------
    public static enum mechMode {
     AutoMode(Color.kGreen),
     ManualHoldMode(Color.kCyan),
@@ -235,33 +232,5 @@ import frc.robot.subsystems.Arm.CatzArmSubsystem;
   public static mechMode armControlMode = mechMode.AutoMode;
   public static gameModeLED currentGameModeLED = gameModeLED.MatchEnd;
   public static gamePiece currentGamePiece = gamePiece.None;
-
-   public void startLEDSchedulingThread() {
-       Thread LEDThread = new Thread(() -> {
-
-          //driverstation mode leds
-          if(DriverStation.isAutonomous()) {
-            currentGameModeLED = gameModeLED.InAutonomous;
-          }
-          else if(DriverStation.isTeleop()) {
-            currentGameModeLED = gameModeLED.TeleOp;
-          }
-
-          //gamepiece mode leds
-          if(CatzAbstractStateUtil.currentGamePieceState == GamePieceState.CONE) {
-            currentGamePiece = gamePiece.Cone;
-          }
-          else if(CatzAbstractStateUtil.currentGamePieceState == GamePieceState.CUBE) {
-            currentGamePiece = gamePiece.Cube;
-          }
-          else {
-            currentGamePiece = gamePiece.None;
-          }
-
-          
-          Timer.delay(0.02);
-       });
-       LEDThread.start();
-   }
 
  }
