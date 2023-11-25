@@ -1,4 +1,4 @@
-package frc.robot.Autonomous;
+package frc.robot;
 
 import java.nio.file.Path;
 import java.security.DrbgParameters.Reseed;
@@ -21,10 +21,6 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import frc.robot.CatzConstants;
-import frc.robot.RobotContainer;
-import frc.robot.Autonomous.Trajectory.TrajectoryFollowingCmd;
-import frc.robot.Autonomous.Trajectory.Paths.Trajectories;
 import frc.robot.CatzConstants.AllianceColor;
 import frc.robot.CatzConstants.ManipulatorPoseConstants;
 import frc.robot.Utils.CatzManipulatorPositions;
@@ -32,6 +28,8 @@ import frc.robot.Utils.CatzAbstractStateUtil;
 import frc.robot.Utils.CatzAbstractStateUtil.GamePieceState;
 import frc.robot.Utils.CatzAbstractStateUtil.SetAbstractMechanismState;
 import frc.robot.commands.ManipulatorToPoseCmd;
+import frc.robot.commands.DriveCmds.Trajectory.TrajectoryFollowingCmd;
+import frc.robot.commands.DriveCmds.Trajectory.Paths.Trajectories;
 import frc.robot.subsystems.Arm.CatzArmSubsystem;
 import frc.robot.subsystems.Elevator.CatzElevatorSubsystem;
 import frc.robot.subsystems.Intake.CatzIntakeSubsystem;
@@ -39,9 +37,9 @@ import frc.robot.subsystems.drivetrain.CatzDriveTrainSubsystem;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 
 public class CatzAutonomous {
-    CatzDriveTrainSubsystem driveTrain = CatzDriveTrainSubsystem.getInstance(); 
-    CatzElevatorSubsystem elevator = CatzElevatorSubsystem.getInstance();
-    CatzArmSubsystem arm = CatzArmSubsystem.getInstance();
+    static CatzDriveTrainSubsystem driveTrain = CatzDriveTrainSubsystem.getInstance(); 
+    static CatzElevatorSubsystem elevator = CatzElevatorSubsystem.getInstance();
+    static CatzArmSubsystem arm = CatzArmSubsystem.getInstance();
     static CatzIntakeSubsystem intake = CatzIntakeSubsystem.getInstance();
     
     //private static PathPlannerPath driveStraighFullTurn = PathPlannerPath.fromPathFile("DriveStraightFullTurn");
@@ -75,6 +73,7 @@ public class CatzAutonomous {
         switch(autoChooser.get())
         {
             case TEST: return testPath();
+            case DRIVE_STRAIGHT: driveStraight();
             case PARALEL_SCORE_2: return parallelScoreCube();
             default: 
             return new InstantCommand();
@@ -87,6 +86,10 @@ public class CatzAutonomous {
 
                new TrajectoryFollowingCmd(Trajectories.testTrajectoryStraight, Rotation2d.fromDegrees(180))
                                         );
+    }
+
+    public Command driveStraight() {
+        return new TrajectoryFollowingCmd(Trajectories.testTrajectoryStraight, Rotation2d.fromDegrees(180));
     }
 
     public Command startWall()

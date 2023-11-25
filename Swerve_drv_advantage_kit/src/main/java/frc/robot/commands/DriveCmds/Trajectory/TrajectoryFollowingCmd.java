@@ -1,4 +1,4 @@
-package frc.robot.Autonomous.Trajectory;
+package frc.robot.commands.DriveCmds.Trajectory;
 
 import org.littletonrobotics.junction.Logger;
 
