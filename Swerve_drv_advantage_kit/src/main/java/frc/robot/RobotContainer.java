@@ -49,7 +49,7 @@ import frc.robot.subsystems.Arm.CatzArmSubsystem;
   * subsystems, commands, and trigger mappings) should be declared here.
   */
  public class RobotContainer {
-    private static CatzDriveTrainSubsystem driveTrain;
+    private static CatzDriveTrainSubsystem driveTrain; //TBD use put subsytem at the front 
     private CatzElevatorSubsystem elevator;
     private CatzIntakeSubsystem intake;
     private CatzArmSubsystem arm;
@@ -75,7 +75,7 @@ import frc.robot.subsystems.Arm.CatzArmSubsystem;
     //instantiate subsystems
      driveTrain = CatzDriveTrainSubsystem.getInstance(); 
      elevator = CatzElevatorSubsystem.getInstance();
-     arm = CatzArmSubsystem.getInstance();
+     arm = CatzArmSubsystem.getInstance();          //tbd align the periods?
      intake = CatzIntakeSubsystem.getInstance();
 
  
@@ -94,7 +94,7 @@ import frc.robot.subsystems.Arm.CatzArmSubsystem;
    private void configureBindings() 
    {
    //---------------------------------------Button mechanism cmds-----------------------------------------------------------------
-     xboxAux.y().onTrue(new ManipulatorToPoseCmd(SetAbstractMechanismState.SCORE_HIGH));
+     xboxAux.y().onTrue(new ManipulatorToPoseCmd(SetAbstractMechanismState.SCORE_HIGH)); //TBD when is "new" used?
      xboxAux.b().onTrue(new ManipulatorToPoseCmd(SetAbstractMechanismState.SCORE_MID));
      xboxAux.a().onTrue(new ManipulatorToPoseCmd(SetAbstractMechanismState.SCORE_LOW));
      xboxAux.x().or(xboxDrv.rightStick())
@@ -147,23 +147,24 @@ import frc.robot.subsystems.Arm.CatzArmSubsystem;
  
       //disabling softlimits only when both bumpers are pressed
       
-     xboxAux.leftBumper().and(xboxAux.rightBumper()) 
-     .onTrue(Commands.runOnce(() -> intake.softLimitOverideDisabled()))
-     .onFalse(Commands.runOnce(() -> intake.softLimitOverideEnabled()));
+     //boolean testBool = xboxAux.leftBumper().and(xboxAux.rightBumper()); //tbd which is evaluated first?
+     //testBool
+     //.onTrue(Commands.runOnce(() -> intake.softLimitOverideDisabled()))
+     //.onFalse(Commands.runOnce(() -> intake.softLimitOverideEnabled()));
  
  
      xboxDrv.start().onTrue(Commands.runOnce(() -> driveTrain.zeroGyro()));
  
-     //xboxDrv.b().onTrue(Commands.runOnce(() -> driveTrain.lockWheels())); TBD need to add this back in
+     //xboxDrv.b().onTrue(Commands.runOnce(() -> driveTrain.lockWheels())); TBD need to add this back in TBD runs when disabled where?
  
      
      //--------------------------Intake Rollers--------------------------
        xboxAux.rightBumper().onTrue(Commands.runOnce(() -> intake.intakeRollerFunctionIN()))
-                            .onFalse(Commands.runOnce(() -> intake.intakeRollersOff()));
- 
+                            .onFalse(Commands.runOnce(() -> intake.intakeRollersOff()));//tbd look more ar inline commands and look at the different types of methods
+                             
        xboxAux.leftBumper().onTrue(Commands.runOnce(
          () -> {
-           intake.intakeRollerFunctionOUT();
+           intake.intakeRollerFunctionOUT();//TBD follow the model hashiro proposed
          })).onFalse(Commands.runOnce(
            () -> {
              intake.intakeRollersOff();
