@@ -269,7 +269,7 @@ public class CatzDriveTrainSubsystem extends SubsystemBase {
 
     //flipped due to weird coordinate system
     public Rotation2d getRotation2d() {
-        return Rotation2d.fromRadians(-getHeadingRadians());
+        return Rotation2d.fromRadians(-getHeadingRadians()); //TBD remove negative if necessary
     }
 
     private void resetPosition(Pose2d pose) {

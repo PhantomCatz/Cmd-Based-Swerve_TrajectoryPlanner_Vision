@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems.Intake;
 
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import org.littletonrobotics.junction.Logger;
@@ -168,24 +169,30 @@ public class CatzIntakeSubsystem extends SubsystemBase {
     *  Utilities - Rollers
     *
     *---------------------------------------------------------------------------------------------*/
-    public void intakeRollerFunctionIN() {
+    public Command intakeRollersIn() {
+        return run(() ->intakeRollerFunctionIN());
+    }
+    public Command intakeRollersOut() {
+        return run(() -> intakeRollerFunctionOUT());
+    }
+    public Command intakeRollersOff() {
+        return run(() -> io.rollersOffIO());
+    }
+    
+    private void intakeRollerFunctionIN() {
         if (CatzAbstractStateUtil.currentGamePieceState == CatzAbstractStateUtil.GamePieceState.CUBE) {
-            rollersInCube();
+            io.rollerVoltageIO(ROLLERS_PWR_CUBE_IN * 12);
         } else {
-            rollersInCone();
+            io.rollerVoltageIO(ROLLERS_PWR_CONE_IN * 12);
         }
     }
 
-    public void intakeRollerFunctionOUT() {
+    private void intakeRollerFunctionOUT() {
         if (CatzAbstractStateUtil.currentGamePieceState == CatzAbstractStateUtil.GamePieceState.CUBE) {
-            rollersOutCube();
+            io.rollerVoltageIO(ROLLERS_PWR_CUBE_OUT * 12);
         } else {
-            rollersOutCone();
+            io.rollerVoltageIO(ROLLERS_PWR_CONE_OUT * 12);
         }
-    }
-
-    public void intakeRollersOff() {
-        io.rollersOffIO();
     }
 
     private void rollersInCube() {

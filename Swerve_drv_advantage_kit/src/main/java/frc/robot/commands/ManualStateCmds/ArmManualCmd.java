@@ -43,15 +43,15 @@ public class ArmManualCmd extends CommandBase {
   {
     if(armExtend == true)
     {
-        m_arm.setArmPwr(EXTEND_PWR);
+        m_arm.setArmPwrCmd(EXTEND_PWR);
     }
     else if(armRetract == true)
     {
-        m_arm.setArmPwr(RETRACT_PWR);
+        m_arm.setArmPwrCmd(RETRACT_PWR);
     }
     else if(CatzSharedDataUtil.sharedArmInControlMode)
     {
-        m_arm.setArmPwr(MANUAL_CONTROL_PWR_OFF);
+        m_arm.setArmPwrCmd(MANUAL_CONTROL_PWR_OFF);
     }
   }
 

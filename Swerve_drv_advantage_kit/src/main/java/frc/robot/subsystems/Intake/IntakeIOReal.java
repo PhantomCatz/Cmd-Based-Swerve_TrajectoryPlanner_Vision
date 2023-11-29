@@ -109,6 +109,12 @@ public class IntakeIOReal implements IntakeIO
     }
 
     @Override
+    public void rollerVoltageIO(double volts)
+    {
+        rollersMtr.setVoltage(volts);
+    }
+
+    @Override
     public void intakeManualHoldingIO(double targetHoldingPwrIO) 
     {
         wristMtr.set(ControlMode.PercentOutput, targetHoldingPwrIO);

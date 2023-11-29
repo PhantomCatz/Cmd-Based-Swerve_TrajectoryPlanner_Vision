@@ -30,7 +30,6 @@ import frc.robot.Utils.CatzAbstractStateUtil;
 import frc.robot.Utils.led.CatzRGB;
 import frc.robot.Utils.led.ColorMethod;
 import frc.robot.commands.ManipulatorToPoseCmd;
-import frc.robot.commands.DriveCmds.BalanceCmd;
 import frc.robot.commands.DriveCmds.TeleopDriveCmd;
 import frc.robot.commands.ManualStateCmds.ArmManualCmd;
 import frc.robot.commands.ManualStateCmds.ElevatorManualCmd;
@@ -103,20 +102,11 @@ import frc.robot.subsystems.Arm.CatzArmSubsystem;
    //--------------------------------------------Manual Cmds---------------------------------------------------------------------------
      //arm
        
-     xboxAux.rightTrigger()
-     .onTrue(new ArmManualCmd(true,
-                              false))
-     .onFalse(Commands.runOnce(
-             () -> arm.setArmPwr(0.0)
-                              ));
+     xboxAux.rightTrigger().onTrue(new ArmManualCmd(true,false))
+                           .onFalse(arm.setArmPwrCmd(0.0));
  
-     xboxAux.leftTrigger()
-     .onTrue(new ArmManualCmd(false,
-                              true))
-     .onFalse(Commands.run(
-             () -> arm.setArmPwr(0.0)
-                          ));
-
+     xboxAux.leftTrigger().onTrue(new ArmManualCmd(false, true))
+                          .onFalse(arm.setArmPwrCmd(0.0));
     //intake
     xboxAux.leftStick().onTrue(new IntakeManualCmd(() -> xboxAux.getLeftY(), 
                                                    () -> xboxAux.leftStick().getAsBoolean()));
@@ -144,10 +134,9 @@ import frc.robot.subsystems.Arm.CatzArmSubsystem;
  
       //disabling softlimits only when both bumpers are pressed
       
-     //boolean testBool = xboxAux.leftBumper().and(xboxAux.rightBumper()); //tbd which is evaluated first?
-     //testBool
-     //.onTrue(Commands.runOnce(() -> intake.softLimitOverideDisabled()))
-     //.onFalse(Commands.runOnce(() -> intake.softLimitOverideEnabled()));
+     Trigger softLimitTrigger = xboxAux.leftBumper().and(xboxAux.rightBumper()); //tbd which is evaluated first?
+     softLimitTrigger.onTrue(Commands.runOnce(() -> intake.softLimitOverideDisabled()));
+     softLimitTrigger.onFalse(Commands.runOnce(() -> intake.softLimitOverideEnabled()));
  
  
      xboxDrv.start().onTrue(Commands.runOnce(() -> driveTrain.zeroGyro()));
@@ -156,16 +145,12 @@ import frc.robot.subsystems.Arm.CatzArmSubsystem;
  
      
      //--------------------------Intake Rollers--------------------------
-       xboxAux.rightBumper().onTrue(Commands.runOnce(() -> intake.intakeRollerFunctionIN()))
-                            .onFalse(Commands.runOnce(() -> intake.intakeRollersOff()));//tbd look more ar inline commands and look at the different types of methods
+       xboxAux.rightBumper().onTrue(intake.intakeRollersIn())
+                            .onFalse(intake.intakeRollersOff());//tbd look more ar inline commands and look at the different types of methods
                              
-       xboxAux.leftBumper().onTrue(Commands.runOnce(
-         () -> {
-           intake.intakeRollerFunctionOUT();//TBD follow the model hashiro proposed
-         })).onFalse(Commands.runOnce(
-           () -> {
-             intake.intakeRollersOff();
-           }));
+       xboxAux.leftBumper().onTrue(intake.intakeRollersOut())
+                            .onFalse(intake.intakeRollersOff());
+
    }
    //mechanisms with default commands revert back to these cmds if no other cmd requiring the subsystem is active
    private void defaultCommands() 

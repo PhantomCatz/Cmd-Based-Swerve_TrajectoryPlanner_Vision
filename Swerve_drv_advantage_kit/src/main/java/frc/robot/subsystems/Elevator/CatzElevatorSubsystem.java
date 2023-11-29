@@ -100,8 +100,6 @@ public class CatzElevatorSubsystem extends SubsystemBase {
     m_targetPose = null;
   }
 
-
-//
   public void cmdUpdateElevator(CatzManipulatorPositions targetPosition) {
     this.m_targetPose = targetPosition;
 

@@ -151,9 +151,9 @@ public class CatzAutonomous {
     {
 
         return new SequentialCommandGroup(
-                Commands.runOnce(() -> intake.intakeRollerFunctionIN()),
+                intake.intakeRollersIn(),
                 Commands.waitSeconds(0.5),
-                Commands.runOnce(() -> intake.intakeRollersOff())           
+                intake.intakeRollersOff()           
                                          );
     }
 

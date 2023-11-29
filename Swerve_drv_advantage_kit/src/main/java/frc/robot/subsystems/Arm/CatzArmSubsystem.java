@@ -5,6 +5,7 @@
 package frc.robot.subsystems.Arm;
 
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import org.littletonrobotics.junction.Logger;
@@ -112,7 +113,10 @@ public class CatzArmSubsystem extends SubsystemBase {
     }
   
     //manually controls the arm and disables armpose object
-    public void setArmPwr(double pwr) {        
+    public Command setArmPwrCmd(double pwr) {
+        return run(() -> setArmPwr(pwr));
+    }
+    private void setArmPwr(double pwr) {        
         this.m_armPwr = pwr;
         this.m_targetPose = null;
     }
