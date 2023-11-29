@@ -23,6 +23,7 @@ import frc.robot.subsystems.Intake.CatzIntakeSubsystem;
 
 
 public class ManipulatorToPoseCmd extends CommandBase {
+
   private CatzElevatorSubsystem m_elevator = CatzElevatorSubsystem.getInstance();
   private CatzIntakeSubsystem m_intake = CatzIntakeSubsystem.getInstance();
   private CatzArmSubsystem m_arm = CatzArmSubsystem.getInstance();
@@ -110,10 +111,10 @@ public class ManipulatorToPoseCmd extends CommandBase {
       
   }
 
-  @Override
+  @Override //TBD comment this as an auton feature
   public boolean isFinished() {
-      return (!CatzSharedDataUtil.sharedElevatorInPos && 
-              !CatzSharedDataUtil.sharedIntakeInPos && 
-              !CatzSharedDataUtil.sharedArmInPos);
+      return (CatzSharedDataUtil.sharedElevatorInPos && 
+              CatzSharedDataUtil.sharedIntakeInPos && 
+              CatzSharedDataUtil.sharedArmInPos);
   }
 }

@@ -5,7 +5,6 @@
 package frc.robot.subsystems.Elevator;
 
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.CatzConstants;
 import frc.robot.CatzConstants.ElevatorConstants;
@@ -16,6 +15,7 @@ import org.littletonrobotics.junction.Logger;
 
 
 public class CatzElevatorSubsystem extends SubsystemBase {
+
   private static CatzElevatorSubsystem instance = new CatzElevatorSubsystem();
 
   private final ElevatorIO io;
@@ -48,6 +48,7 @@ public class CatzElevatorSubsystem extends SubsystemBase {
             break;
     }
   }
+  //tbd find a way to get in on csv for our  needs
 
   //The periodic method will be used for any hardware calls to set motor power
   @Override
@@ -99,6 +100,8 @@ public class CatzElevatorSubsystem extends SubsystemBase {
     m_targetPose = null;
   }
 
+
+//
   public void cmdUpdateElevator(CatzManipulatorPositions targetPosition) {
     this.m_targetPose = targetPosition;
 
@@ -113,6 +116,8 @@ public class CatzElevatorSubsystem extends SubsystemBase {
       io.elevatorConfig_kIIO(0, ElevatorConstants.ELEVATOR_KI_LOW);
       io.elevatorConfig_kDIO(0, ElevatorConstants.ELEVATOR_KD_LOW);
     }
+
+
 
     //if the target position is lower than High elevator needs to be aware of the arm position
     if(targetPosition.getElevatorPosEnc() < ElevatorConstants.ELEVATOR_POS_ENC_CNTS_HIGH) {
@@ -147,6 +152,7 @@ public class CatzElevatorSubsystem extends SubsystemBase {
         m_highSwitchState = false;
     }
   }
+
   public static CatzElevatorSubsystem getInstance() {
       return instance;
   }  

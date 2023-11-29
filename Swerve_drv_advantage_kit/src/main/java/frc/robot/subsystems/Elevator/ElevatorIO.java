@@ -2,7 +2,7 @@ package frc.robot.subsystems.Elevator;
 
 import org.littletonrobotics.junction.AutoLog;
 
-public interface ElevatorIO 
+public interface ElevatorIO //tbd change to ifc suffix
 {
     @AutoLog
     public class ElevatorIOInputs

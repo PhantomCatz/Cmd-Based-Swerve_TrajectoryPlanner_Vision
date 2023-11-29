@@ -16,7 +16,6 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
@@ -31,6 +30,7 @@ import frc.robot.subsystems.vision.CatzAprilTag;;
 public class CatzDriveTrainSubsystem extends SubsystemBase {
       //----------------------Catz auton Constants---------------------------
     public static final class DriveConstants {
+        
         private static final double MODULE_DISTANCE_FROM_CENTER = 0.298;
 
 

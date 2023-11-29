@@ -7,8 +7,6 @@ package frc.robot.subsystems.drivetrain;
 
 import org.littletonrobotics.junction.Logger;
 
-import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenixpro.controls.VelocityTorqueCurrentFOC;
 
 import edu.wpi.first.hal.SimBoolean;
