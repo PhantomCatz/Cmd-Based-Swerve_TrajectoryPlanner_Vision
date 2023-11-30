@@ -34,6 +34,7 @@ import frc.robot.subsystems.Arm.CatzArmSubsystem;
 import frc.robot.subsystems.Elevator.CatzElevatorSubsystem;
 import frc.robot.subsystems.Intake.CatzIntakeSubsystem;
 import frc.robot.subsystems.drivetrain.CatzDriveTrainSubsystem;
+import frc.robot.subsystems.drivetrain.CatzDriveTrainSubsystem.DriveConstants;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 
 public class CatzAutonomous {
@@ -73,7 +74,7 @@ public class CatzAutonomous {
         switch(autoChooser.get())
         {
             case TEST: return testPath();
-            case DRIVE_STRAIGHT: driveStraight();
+            case DRIVE_STRAIGHT: return driveStraight();
             case PARALEL_SCORE_2: return parallelScoreCube();
             default: 
             return new InstantCommand();
@@ -82,9 +83,11 @@ public class CatzAutonomous {
 
     public Command testPath()
     {
+        driveTrain.resetPosition(DriveConstants.initPose);
+        driveTrain.zeroGyro();
         return new SequentialCommandGroup(
 
-               new TrajectoryFollowingCmd(Trajectories.testTrajectoryStraight, Rotation2d.fromDegrees(180))
+               new TrajectoryFollowingCmd(Trajectories.testTrajectoryStraight, Rotation2d.fromDegrees(0))
                                         );
     }
 

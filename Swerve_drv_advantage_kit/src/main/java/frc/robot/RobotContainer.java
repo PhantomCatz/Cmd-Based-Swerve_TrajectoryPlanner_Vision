@@ -68,8 +68,7 @@ import frc.robot.subsystems.Arm.CatzArmSubsystem;
     *    -since multiple classes are referencing these mechansims, 
     *         mechanisms are instantiated inside mechanism class(singleton)
    */
-   public RobotContainer() 
-   {
+   public RobotContainer() {
     //instantiate subsystems
      driveTrain = CatzDriveTrainSubsystem.getInstance(); 
      elevator = CatzElevatorSubsystem.getInstance();
@@ -87,8 +86,7 @@ import frc.robot.subsystems.Arm.CatzArmSubsystem;
    }
  
    
-   private void configureBindings() 
-   {
+   private void configureBindings() {
    //---------------------------------------Button mechanism cmds-----------------------------------------------------------------
      xboxAux.y().onTrue(new ManipulatorToPoseCmd(SetAbstractMechanismState.SCORE_HIGH)); //TBD when is "new" used?
      xboxAux.b().onTrue(new ManipulatorToPoseCmd(SetAbstractMechanismState.SCORE_MID));
@@ -153,8 +151,7 @@ import frc.robot.subsystems.Arm.CatzArmSubsystem;
 
    }
    //mechanisms with default commands revert back to these cmds if no other cmd requiring the subsystem is active
-   private void defaultCommands() 
-   {  
+   private void defaultCommands() {  
       driveTrain.setDefaultCommand(new TeleopDriveCmd(() -> xboxDrv.getLeftX(),
                                                       () -> xboxDrv.getLeftY(),
                                                       () -> xboxDrv.getRightX(),

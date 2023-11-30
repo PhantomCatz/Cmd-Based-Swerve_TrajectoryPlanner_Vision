@@ -83,12 +83,12 @@ public class CatzArmSubsystem extends SubsystemBase {
         }
     }
     else { //full manual
-        io.setArmPwrIO(m_armPwr);
+        //io.setArmPwrIO(m_armPwr); tbd
+        io.setArmPwrIO(0);
     }
-
-    //checking if arm has reached position
+/*    //checking if arm has reached position
     double currentPosition = inputs.armMotorEncoder;
-    double positionError = currentPosition - m_targetPose.getArmPosEnc();
+    double positionError = currentPosition - 0.0;//tbfdm_targetPose.getArmPosEnc();
     if  ((Math.abs(positionError) <= ARM_POS_ERROR_THRESHOLD)) {
         m_numConsectSamples++;
             if(m_numConsectSamples >= 10) {   
@@ -98,8 +98,9 @@ public class CatzArmSubsystem extends SubsystemBase {
     else {
         m_numConsectSamples = 0;
         CatzSharedDataUtil.sharedArmInPos = false;
-    }
+    } */
   }
+  
     //updates the arm statemachine to auto and does auto cmds
     public void cmdUpdateArm(CatzManipulatorPositions targetPose)
     {

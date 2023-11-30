@@ -30,6 +30,7 @@ public class ModuleIOReal implements ModuleIO {
 
     private final int     STEER_CURRENT_LIMIT_AMPS      = 30;
     private final double  NEUTRAL_TO_FULL_SECONDS       = 0.1;
+    private final double  VEL_FF                        = 1.5;
 
     public ModuleIOReal(int driveMotorIDIO, int steerMotorIDIO, int magDIOPort) {
         MagEncPWMInput = new DigitalInput(magDIOPort);
@@ -67,7 +68,7 @@ public class ModuleIOReal implements ModuleIO {
     @Override
     public void setDriveVelocityIO(double velocity) {
         //negative to align with Controler TBD?
-        DRIVE_MOTOR.set(ControlMode.Velocity, - velocity);
+        DRIVE_MOTOR.set(ControlMode.Velocity, - velocity * VEL_FF);
     }
 
     @Override

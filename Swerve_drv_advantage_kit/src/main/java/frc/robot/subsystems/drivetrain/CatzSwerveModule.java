@@ -9,11 +9,9 @@ import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenixpro.controls.VelocityTorqueCurrentFOC;
 
-import edu.wpi.first.hal.SimBoolean;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -21,7 +19,6 @@ import frc.robot.CatzConstants;
 import frc.robot.subsystems.drivetrain.CatzDriveTrainSubsystem.DriveConstants;
 import frc.robot.Utils.CatzMathUtils;
 import frc.robot.Utils.Conversions;
-import frc.robot.subsystems.drivetrain.ModuleIOInputsAutoLogged;
 
 
 public class CatzSwerveModule {
@@ -213,7 +210,7 @@ public class CatzSwerveModule {
     }
 
     public SwerveModulePosition getModulePosition() {
-        return new SwerveModulePosition(getDriveDistanceMeters(), getCurrentRotation());
+        return new SwerveModulePosition(- getDriveDistanceMeters(), getCurrentRotation());
     }
     
     public double getDriveDistanceMeters() {

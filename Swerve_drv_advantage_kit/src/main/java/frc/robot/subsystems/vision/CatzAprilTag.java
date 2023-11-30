@@ -98,15 +98,5 @@ public class CatzAprilTag {
         return instance;
     }
 
-    public void smartDashboardAprilTag()
-    {
-        SmartDashboard.putNumber("botpos Px", botPose[POS_X_INDEX]);
-        SmartDashboard.putNumber("botpos Py", botPose[POS_Y_INDEX]);
-        SmartDashboard.putNumber("botpos Rz", botPose[ROT_Z_INDEX]);
-        
-        SmartDashboard.putNumber("LimelightX", x);
-        SmartDashboard.putNumber("LimelightY", y);
-        SmartDashboard.putNumber("LimelightArea", area);
-    }
 
 }

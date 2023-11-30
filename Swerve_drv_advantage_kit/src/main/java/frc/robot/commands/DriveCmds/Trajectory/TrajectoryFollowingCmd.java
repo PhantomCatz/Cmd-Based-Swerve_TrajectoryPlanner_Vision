@@ -16,9 +16,9 @@ import frc.robot.subsystems.drivetrain.CatzDriveTrainSubsystem.DriveConstants;
 
 // Follows a trajectory
 public class TrajectoryFollowingCmd extends CommandBase{
-    private final double TIMEOUT_RATIO = 1.5;
+    private final double TIMEOUT_RATIO = 2.5;
     private final double END_POS_ERROR = 0.05;
-    private final double END_ROT_ERROR = Math.toRadians(5);
+    private final double END_ROT_ERROR = 2.5; //degrees
 
     private final Timer timer = new Timer();
     private final HolonomicDriveController controller;
@@ -54,13 +54,20 @@ public class TrajectoryFollowingCmd extends CommandBase{
     @Override
     public boolean isFinished() {
         double maxTime = trajectory.getTotalTimeSeconds();
-        Pose2d dist = trajectory.sample(maxTime).poseMeters.relativeTo(m_driveTrain.getPose());
+        Pose2d currentPosition = m_driveTrain.getPose();
+        Pose2d dist = trajectory.sample(maxTime).poseMeters.relativeTo(currentPosition);
 
+        double angleError = Math.abs(targetHeading.getDegrees() - currentPosition.getRotation().getDegrees());
+        double posError = Math.hypot(dist.getX(), dist.getY());
+
+        System.out.println("Angle error: " + angleError);
+        System.out.println("Pos error: " + posError);
+        System.out.println("Time left: " + (maxTime - timer.get()));
         return 
             timer.get() > maxTime * TIMEOUT_RATIO || 
             (
-                dist.getRotation().getDegrees() <= END_ROT_ERROR &&
-                Math.sqrt(Math.pow(dist.getX(), 2) + Math.pow(dist.getY(), 2)) <= END_POS_ERROR
+                angleError <= END_ROT_ERROR &&
+                posError <= END_POS_ERROR
             );
     }
 
@@ -71,10 +78,17 @@ public class TrajectoryFollowingCmd extends CommandBase{
         double currentTime = timer.get();
         Trajectory.State goal = trajectory.sample(currentTime);
         Pose2d currentPosition = m_driveTrain.getPose();
+        Rotation2d targetHeadingNow = initHeading.interpolate(targetHeading, currentTime / trajectory.getTotalTimeSeconds());
         
-        ChassisSpeeds adjustedSpeed = controller.calculate(currentPosition, goal, initHeading.interpolate(targetHeading, currentTime / trajectory.getTotalTimeSeconds()));
-        adjustedSpeed.omegaRadiansPerSecond = - adjustedSpeed.omegaRadiansPerSecond;
-        m_driveTrain.driveRobotRelative(adjustedSpeed);
+        ChassisSpeeds adjustedSpeed = controller.calculate(currentPosition, goal, targetHeadingNow);
+        SwerveModuleState[] targetModuleStates = DriveConstants.swerveDriveKinematics.toSwerveModuleStates(adjustedSpeed);
+        m_driveTrain.setModuleStates(targetModuleStates);
+
+        Logger.getInstance().recordOutput("Current Position", currentPosition);
+        Logger.getInstance().recordOutput("Target Position", goal.poseMeters);
+        Logger.getInstance().recordOutput("Adjusted VelX", adjustedSpeed.vxMetersPerSecond);
+        Logger.getInstance().recordOutput("Adjusted VelX", adjustedSpeed.vyMetersPerSecond);
+        Logger.getInstance().recordOutput("Adjusted VelW", adjustedSpeed.omegaRadiansPerSecond);
     }
 
     // stop all robot motion

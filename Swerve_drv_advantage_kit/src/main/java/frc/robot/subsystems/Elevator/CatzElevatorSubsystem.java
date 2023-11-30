@@ -77,10 +77,10 @@ public class CatzElevatorSubsystem extends SubsystemBase {
       m_elevatorPwr = m_elevatorPwr * CatzConstants.ElevatorConstants.ELEVATOR_MAX_MANUAL_SCALED_POWER;
       io.elevatorManualIO(m_elevatorPwr);
     }
-
+/* 
     //checking elevator is in position
     double currentPosition = inputs.elevatorEncoderCnts;
-    double positionError = currentPosition - m_targetPose.getElevatorPosEnc();
+    double positionError = currentPosition - 0.0;//tbd m_targetPose.getElevatorPosEnc();
     if  ((Math.abs(positionError) <= ELEVATOR_POS_ERROR_THRESHOLD) && m_targetPose.getElevatorPosEnc() != NO_TARGET_POSITION) {
         m_numConsectSamples++;
             if(m_numConsectSamples >= 10) {   
@@ -91,6 +91,7 @@ public class CatzElevatorSubsystem extends SubsystemBase {
         m_numConsectSamples = 0;
         CatzSharedDataUtil.sharedElevatorInPos = false;
     }
+    */
     //logging
     Logger.getInstance().recordOutput("armencreadfromelevator", CatzSharedDataUtil.sharedArmEncCnts);
   }
