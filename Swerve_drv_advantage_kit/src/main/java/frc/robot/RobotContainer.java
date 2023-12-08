@@ -139,7 +139,7 @@ import frc.robot.subsystems.Arm.SubsystemCatzArm;
  
      xboxDrv.start().onTrue(Commands.runOnce(() -> driveTrain.zeroGyro()));
  
-     xboxDrv.b().onTrue(Commands.runOnce(() -> driveTrain.lockWheels())); //TBD need to add this back in TBD runs when disabled where?
+     xboxDrv.b().onTrue(Commands.runOnce(() -> driveTrain.stopDriving())); //TBD need to add this back in TBD runs when disabled where?
  
      
      //--------------------------Intake Rollers--------------------------
