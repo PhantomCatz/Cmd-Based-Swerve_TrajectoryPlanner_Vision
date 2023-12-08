@@ -2,7 +2,7 @@ package frc.robot.subsystems.drivetrain;
 
 import com.kauailabs.navx.frc.AHRS;
 
-import frc.robot.subsystems.drivetrain.CatzDriveTrainSubsystem.DriveConstants;
+import frc.robot.subsystems.drivetrain.SubsystemCatzDriveTrain.DriveConstants;
 
 public class GyroIONavX implements GyroIO 
 {

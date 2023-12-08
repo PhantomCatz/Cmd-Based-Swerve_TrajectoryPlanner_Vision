@@ -34,10 +34,10 @@ import frc.robot.commands.DriveCmds.TeleopDriveCmd;
 import frc.robot.commands.ManualStateCmds.ArmManualCmd;
 import frc.robot.commands.ManualStateCmds.ElevatorManualCmd;
 import frc.robot.commands.ManualStateCmds.IntakeManualCmd;
-import frc.robot.subsystems.Arm.CatzArmSubsystem;
- import frc.robot.subsystems.Elevator.CatzElevatorSubsystem;
- import frc.robot.subsystems.Intake.CatzIntakeSubsystem;
- import frc.robot.subsystems.drivetrain.CatzDriveTrainSubsystem;
+import frc.robot.subsystems.Arm.SubsystemCatzArm;
+ import frc.robot.subsystems.Elevator.SubsystemCatzElevator;
+ import frc.robot.subsystems.Intake.SubsystemCatzIntake;
+ import frc.robot.subsystems.drivetrain.SubsystemCatzDriveTrain;
  
  
  /**
@@ -47,10 +47,10 @@ import frc.robot.subsystems.Arm.CatzArmSubsystem;
   * subsystems, commands, and trigger mappings) should be declared here.
   */
  public class RobotContainer {
-    private static CatzDriveTrainSubsystem driveTrain; //TBD use put subsytem at the front 
-    private CatzElevatorSubsystem elevator;
-    private CatzIntakeSubsystem intake;
-    private CatzArmSubsystem arm;
+    private static SubsystemCatzDriveTrain driveTrain; 
+    private SubsystemCatzElevator elevator;
+    private SubsystemCatzIntake intake;
+    private SubsystemCatzArm arm;
 
     private final CatzAutonomous auton = new CatzAutonomous();
     public static CatzRGB        led = new CatzRGB();
@@ -70,10 +70,10 @@ import frc.robot.subsystems.Arm.CatzArmSubsystem;
    */
    public RobotContainer() {
     //instantiate subsystems
-     driveTrain = CatzDriveTrainSubsystem.getInstance(); 
-     elevator = CatzElevatorSubsystem.getInstance();
-     arm = CatzArmSubsystem.getInstance();          //tbd align the periods?
-     intake = CatzIntakeSubsystem.getInstance();
+     driveTrain = SubsystemCatzDriveTrain.getInstance(); 
+     elevator = SubsystemCatzElevator    .getInstance();
+     arm = SubsystemCatzArm              .getInstance();          
+     intake = SubsystemCatzIntake        .getInstance();
 
  
      xboxDrv = new CommandXboxController(XBOX_DRV_PORT); 
@@ -88,7 +88,7 @@ import frc.robot.subsystems.Arm.CatzArmSubsystem;
    
    private void configureBindings() {
    //---------------------------------------Button mechanism cmds-----------------------------------------------------------------
-     xboxAux.y().onTrue(new ManipulatorToPoseCmd(SetAbstractMechanismState.SCORE_HIGH)); //TBD when is "new" used?
+     xboxAux.y().onTrue(new ManipulatorToPoseCmd(SetAbstractMechanismState.SCORE_HIGH)); //TBD when is "new" used? when you want to start up new object command instead of inline
      xboxAux.b().onTrue(new ManipulatorToPoseCmd(SetAbstractMechanismState.SCORE_MID));
      xboxAux.a().onTrue(new ManipulatorToPoseCmd(SetAbstractMechanismState.SCORE_LOW));
      xboxAux.x().or(xboxDrv.rightStick())
@@ -139,7 +139,7 @@ import frc.robot.subsystems.Arm.CatzArmSubsystem;
  
      xboxDrv.start().onTrue(Commands.runOnce(() -> driveTrain.zeroGyro()));
  
-     //xboxDrv.b().onTrue(Commands.runOnce(() -> driveTrain.lockWheels())); TBD need to add this back in TBD runs when disabled where?
+     xboxDrv.b().onTrue(Commands.runOnce(() -> driveTrain.lockWheels())); //TBD need to add this back in TBD runs when disabled where?
  
      
      //--------------------------Intake Rollers--------------------------
@@ -169,8 +169,6 @@ import frc.robot.subsystems.Arm.CatzArmSubsystem;
      // An example command will be run in autonomous
      return auton.getCommand();
    }
-
-   //--------------------------------------------Subsystem Get Methods-----------------------
 
    //--------------------------------------------LED setup------------------------------------------------
    public static enum mechMode {

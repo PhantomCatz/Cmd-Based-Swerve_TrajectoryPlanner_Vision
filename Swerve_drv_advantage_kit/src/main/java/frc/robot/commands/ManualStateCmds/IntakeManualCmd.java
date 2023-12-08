@@ -10,17 +10,17 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.CatzConstants;
 import frc.robot.RobotContainer;
 import frc.robot.RobotContainer.mechMode;
-import frc.robot.subsystems.Intake.CatzIntakeSubsystem;
+import frc.robot.subsystems.Intake.SubsystemCatzIntake;
 
 public class IntakeManualCmd extends CommandBase {
-  CatzIntakeSubsystem intake = CatzIntakeSubsystem.getInstance();
+  SubsystemCatzIntake intake = SubsystemCatzIntake.getInstance();
   Supplier<Double> supplierWristPwr;
   Supplier<Boolean> supplierManualMode;
 
   
   
-  private final double SOFT_LIMIT_FORWARD = 0.0; //4876  + WRIST_ABS_ENC_OFFSET;  //3887
-  private final double SOFT_LIMIT_REVERSE = -8900.0; //-798.0 + WRIST_ABS_ENC_OFFSET; //-1787     //TBD
+  private final double SOFT_LIMIT_FORWARD = 0.0; 
+  private final double SOFT_LIMIT_REVERSE = -8900.0; 
   private final double MANUAL_HOLD_STEP_SIZE = 1.5;       
   private final double WRIST_MAX_PWR = 0.3;
 

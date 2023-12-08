@@ -10,13 +10,15 @@ import org.littletonrobotics.junction.Logger;
 import com.ctre.phoenixpro.controls.VelocityTorqueCurrentFOC;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.CatzConstants;
-import frc.robot.subsystems.drivetrain.CatzDriveTrainSubsystem.DriveConstants;
+import frc.robot.subsystems.drivetrain.SubsystemCatzDriveTrain.DriveConstants;
 import frc.robot.Utils.CatzMathUtils;
 import frc.robot.Utils.Conversions;
 
@@ -30,6 +32,16 @@ public class CatzSwerveModule {
     private PIDController m_pid;
     private final SimpleMotorFeedforward m_driveFeedforward = new SimpleMotorFeedforward(1, 3);
     private final SimpleMotorFeedforward m_turnFeedforward = new SimpleMotorFeedforward(1, 0.5);
+
+    /* 
+    private final ProfiledPIDController m_turningPIDController =
+      new ProfiledPIDController(
+          1,
+          0,
+          0,
+          new TrapezoidProfile.Constraints(
+              kModuleMaxAngularVelocity, kModuleMaxAngularAcceleration));
+                */
 
     private final double kP = 0.4; //cuz error is in tenths place so no need to mutiply kp value
     private final double kI = 0.0;
@@ -76,7 +88,7 @@ public class CatzSwerveModule {
 
 
 
-    public void setSteerPower(double pwr) {
+    private void setSteerPower(double pwr) {
         if(CatzConstants.currentMode == CatzConstants.Mode.SIM) {
            io.setSteerSimPwrIO(pwr);
         }
@@ -85,7 +97,7 @@ public class CatzSwerveModule {
         }
     }
 
-    public void setSteerVoltage(double volts) {
+    private void setSteerVoltage(double volts) {
         if(CatzConstants.currentMode == CatzConstants.Mode.SIM) {
 
         }
@@ -94,7 +106,7 @@ public class CatzSwerveModule {
         }
     }
 
-    public void setDrivePercent(double pwr) {
+    private void setDrivePercent(double pwr) {
         if(CatzConstants.currentMode == CatzConstants.Mode.SIM) {
            io.setDriveSimPwrIO(pwr);
         }
@@ -103,7 +115,7 @@ public class CatzSwerveModule {
         }
     }
 
-    public void setDriveVelocity(double velocity) {
+    private void setDriveVelocity(double velocity) {
         if(CatzConstants.currentMode == CatzConstants.Mode.SIM) {
             
         }
@@ -156,9 +168,12 @@ public class CatzSwerveModule {
      */
     public void setDesiredState(SwerveModuleState state) {
 
-        //Need to ask what yuyhun did to fix this TBD
         state = CatzMathUtils.optimize(state, getCurrentRotation());
         
+        //ff control
+        double driveFeedforward = m_driveFeedforward.calculate(state.speedMetersPerSecond);
+        //double turnFeedforward = m_turnFeedforward.calculate(m_pid.getSetpoint().velocity);
+
         //calculate turn voltage
         double steerPIDpwr = - m_pid.calculate(getAbsEncRadians(), state.angle.getRadians()); 
         double steerPIDVoltage = steerPIDpwr * 12; //convert to voltage
@@ -174,7 +189,7 @@ public class CatzSwerveModule {
             io.setDriveControlIO(velocitySetter.withVelocity(drivePwrVelocity));   
         }
         else { //set pwr for REAL/SIM
-            setDriveVelocity(drivePwrVelocity);// + driveFeedforward);
+            setDriveVelocity(drivePwrVelocity); //+ driveFeedforward);
         }
 
         //logging
@@ -195,7 +210,7 @@ public class CatzSwerveModule {
     }
 
     public void initializeOffset() {
-        //TBD
+
     }
 
     //inputs the rotation object as radian conversion

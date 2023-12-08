@@ -89,6 +89,12 @@ public class CatzAprilTag {
         return (DISX_TAG_TO_TAG/2-Math.abs(botPose[POS_X_INDEX]));
     }
 
+    public void smartDashboardAprilTag() {
+        SmartDashboard.putNumber("Limielightx", x);
+        SmartDashboard.putNumber("Limielighty", y);
+        SmartDashboard.putNumber("Limielighta", area);
+    }
+
     public static CatzAprilTag getInstance()
     {
         if(instance == null)

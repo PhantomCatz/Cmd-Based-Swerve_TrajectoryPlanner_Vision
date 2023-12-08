@@ -43,8 +43,8 @@ public class IntakeIOReal implements IntakeIO
     private final double  CURRENT_LIMIT_TIMEOUT_SECONDS = 0.5;
     private final boolean ENABLE_CURRENT_LIMIT          = true;
 
-    private final double SOFT_LIMIT_FORWARD = 0.0; //4876  + WRIST_ABS_ENC_OFFSET;  //3887
-    private final double SOFT_LIMIT_REVERSE = -8900.0; //-798.0 + WRIST_ABS_ENC_OFFSET; //-1787     //TBD
+    private final double SOFT_LIMIT_FORWARD = 0.0;
+    private final double SOFT_LIMIT_REVERSE = -8900.0;
 
 
 

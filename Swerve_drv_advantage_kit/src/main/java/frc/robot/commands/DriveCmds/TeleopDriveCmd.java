@@ -8,13 +8,13 @@ import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.subsystems.drivetrain.CatzDriveTrainSubsystem.DriveConstants;
+import frc.robot.subsystems.drivetrain.SubsystemCatzDriveTrain.DriveConstants;
 import frc.robot.CatzConstants.OIConstants;
-import frc.robot.subsystems.drivetrain.CatzDriveTrainSubsystem;
+import frc.robot.subsystems.drivetrain.SubsystemCatzDriveTrain;
 
 public class TeleopDriveCmd extends CommandBase {
 
-  private CatzDriveTrainSubsystem driveTrain = CatzDriveTrainSubsystem.getInstance();
+  private SubsystemCatzDriveTrain driveTrain = SubsystemCatzDriveTrain.getInstance();
   Supplier<Double> supplierLeftJoyX;
   Supplier<Double> supplierLeftJoyY;
   Supplier<Double> supplierRightJoyX;

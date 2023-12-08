@@ -4,7 +4,6 @@
  * @author Kynam Lenghiem
  * 
  * This class is where reusable constants are defined
- * -TBD should all constants move here?
  ***/
 
 package frc.robot;
@@ -104,7 +103,7 @@ public static final class ManipulatorPoseConstants
 
     public static final double MANUAL_HOLD_STEP_SIZE = 2.0;
 
-    // TBD - ADD comment for ref point
+    // Just above parallel with the ground
     public static final double CENTER_OF_MASS_OFFSET_DEG = 177.0;
     public static final double WRIST_ABS_ENC_OFFSET_DEG = 0.0; // Set to make stow pos equal to 0
     public static final double WRIST_ABS_ENC_OFFSET = WRIST_ABS_ENC_OFFSET_DEG * WRIST_CNTS_PER_DEGREE;// -989.0; //Negative
@@ -129,8 +128,8 @@ public static final class ManipulatorPoseConstants
     public static final double SCORE_CONE_MID_ENC_POS = -170.000;
     public static final double SCORE_CONE_LOW_ENC_POS = -130.00;
 
-    public static final double SOFT_LIMIT_FORWARD = -160.0; // 4876 + WRIST_ABS_ENC_OFFSET; //3887
-    public static final double SOFT_LIMIT_REVERSE = -8900.0; // -798.0 + WRIST_ABS_ENC_OFFSET; //-1787 //TBD
+    public static final double SOFT_LIMIT_FORWARD = -160.0; 
+    public static final double SOFT_LIMIT_REVERSE = -8900.0;
 
     public static final double GROSS_kP = 0.002472;// 0.0070;//0.00009;
     public static final double GROSS_kI = 0.0;// 000040;

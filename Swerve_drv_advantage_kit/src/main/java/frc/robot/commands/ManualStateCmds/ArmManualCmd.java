@@ -11,10 +11,10 @@ import frc.robot.RobotContainer;
 import frc.robot.RobotContainer.mechMode;
 import frc.robot.Utils.CatzManipulatorPositions;
 import frc.robot.Utils.CatzSharedDataUtil;
-import frc.robot.subsystems.Arm.CatzArmSubsystem;
+import frc.robot.subsystems.Arm.SubsystemCatzArm;
 
 public class ArmManualCmd extends CommandBase {
-  private CatzArmSubsystem m_arm = CatzArmSubsystem.getInstance();
+  private SubsystemCatzArm m_arm = SubsystemCatzArm.getInstance();
   private boolean armExtend;
   private boolean armRetract;
 

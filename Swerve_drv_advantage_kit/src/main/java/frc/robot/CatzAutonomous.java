@@ -30,18 +30,18 @@ import frc.robot.Utils.CatzAbstractStateUtil.SetAbstractMechanismState;
 import frc.robot.commands.ManipulatorToPoseCmd;
 import frc.robot.commands.DriveCmds.Trajectory.TrajectoryFollowingCmd;
 import frc.robot.commands.DriveCmds.Trajectory.Paths.Trajectories;
-import frc.robot.subsystems.Arm.CatzArmSubsystem;
-import frc.robot.subsystems.Elevator.CatzElevatorSubsystem;
-import frc.robot.subsystems.Intake.CatzIntakeSubsystem;
-import frc.robot.subsystems.drivetrain.CatzDriveTrainSubsystem;
-import frc.robot.subsystems.drivetrain.CatzDriveTrainSubsystem.DriveConstants;
+import frc.robot.subsystems.Arm.SubsystemCatzArm;
+import frc.robot.subsystems.Elevator.SubsystemCatzElevator;
+import frc.robot.subsystems.Intake.SubsystemCatzIntake;
+import frc.robot.subsystems.drivetrain.SubsystemCatzDriveTrain;
+import frc.robot.subsystems.drivetrain.SubsystemCatzDriveTrain.DriveConstants;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 
 public class CatzAutonomous {
-    static CatzDriveTrainSubsystem driveTrain = CatzDriveTrainSubsystem.getInstance(); 
-    static CatzElevatorSubsystem elevator = CatzElevatorSubsystem.getInstance();
-    static CatzArmSubsystem arm = CatzArmSubsystem.getInstance();
-    static CatzIntakeSubsystem intake = CatzIntakeSubsystem.getInstance();
+    static SubsystemCatzDriveTrain driveTrain = SubsystemCatzDriveTrain.getInstance(); 
+    static SubsystemCatzElevator elevator = SubsystemCatzElevator.getInstance();
+    static SubsystemCatzArm arm = SubsystemCatzArm.getInstance();
+    static SubsystemCatzIntake intake = SubsystemCatzIntake.getInstance();
     
     //private static PathPlannerPath driveStraighFullTurn = PathPlannerPath.fromPathFile("DriveStraightFullTurn");
     //private static PathPlannerPath feildSideDriveBack = PathPlannerPath.fromPathFile("FeildSideDriveBack");

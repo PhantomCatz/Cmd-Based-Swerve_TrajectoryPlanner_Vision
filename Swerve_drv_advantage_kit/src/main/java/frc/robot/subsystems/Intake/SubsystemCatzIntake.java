@@ -16,8 +16,8 @@ import frc.robot.Utils.CatzManipulatorPositions;
 import frc.robot.Utils.CatzSharedDataUtil;
 import frc.robot.Utils.CatzAbstractStateUtil;
 
-public class CatzIntakeSubsystem extends SubsystemBase {
-    private static CatzIntakeSubsystem instance = new CatzIntakeSubsystem();
+public class SubsystemCatzIntake extends SubsystemBase {
+    private static SubsystemCatzIntake instance = new SubsystemCatzIntake();
     private final IntakeIO io;
     private final IntakeIOInputsAutoLogged inputs = new IntakeIOInputsAutoLogged();
 
@@ -51,7 +51,7 @@ public class CatzIntakeSubsystem extends SubsystemBase {
 
     private CatzManipulatorPositions m_targetPos;
 
-    private CatzIntakeSubsystem() {
+    private SubsystemCatzIntake() {
         switch (CatzConstants.currentMode) {
             case REAL: io = new IntakeIOReal();
                 break;
@@ -170,7 +170,7 @@ public class CatzIntakeSubsystem extends SubsystemBase {
     *
     *---------------------------------------------------------------------------------------------*/
     public Command intakeRollersIn() {
-        return run(() ->intakeRollerFunctionIN());
+        return run(() -> intakeRollerFunctionIN());
     }
     public Command intakeRollersOut() {
         return run(() -> intakeRollerFunctionOUT());
@@ -246,7 +246,7 @@ public class CatzIntakeSubsystem extends SubsystemBase {
     }
     
     //getInstance method
-    public static CatzIntakeSubsystem getInstance() {
+    public static SubsystemCatzIntake getInstance() {
         return instance;
     }
 }

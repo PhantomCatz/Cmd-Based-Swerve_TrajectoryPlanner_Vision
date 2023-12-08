@@ -14,9 +14,9 @@ import frc.robot.Utils.CatzSharedDataUtil;
 import org.littletonrobotics.junction.Logger;
 
 
-public class CatzElevatorSubsystem extends SubsystemBase {
+public class SubsystemCatzElevator extends SubsystemBase {
 
-  private static CatzElevatorSubsystem instance = new CatzElevatorSubsystem();
+  private static SubsystemCatzElevator instance = new SubsystemCatzElevator();
 
   private final ElevatorIO io;
   private final ElevatorIOInputsAutoLogged  inputs = new ElevatorIOInputsAutoLogged();
@@ -38,7 +38,7 @@ public class CatzElevatorSubsystem extends SubsystemBase {
   private CatzManipulatorPositions m_targetPose;
 
   /** Creates a new CatzElevatorSubsystem. */
-  private CatzElevatorSubsystem() {
+  private SubsystemCatzElevator() {
     switch(CatzConstants.currentMode) {
         case REAL:io = new ElevatorIOReal();
             break;
@@ -72,26 +72,26 @@ public class CatzElevatorSubsystem extends SubsystemBase {
       else {
          io.elevatorMtrSetPosIO(m_targetPose.getElevatorPosEnc());
       }
+
+      //checking elevator is in position
+      double currentPosition = inputs.elevatorEncoderCnts;
+      double positionError = currentPosition - m_targetPose.getElevatorPosEnc();
+      if  ((Math.abs(positionError) <= ELEVATOR_POS_ERROR_THRESHOLD) && m_targetPose.getElevatorPosEnc() != NO_TARGET_POSITION) {
+          m_numConsectSamples++;
+              if(m_numConsectSamples >= 10) {   
+                  CatzSharedDataUtil.sharedElevatorInPos = true;
+              }
+      }
+      else {
+          m_numConsectSamples = 0;
+          CatzSharedDataUtil.sharedElevatorInPos = false;
+      }
     }
     else { //full manual
       m_elevatorPwr = m_elevatorPwr * CatzConstants.ElevatorConstants.ELEVATOR_MAX_MANUAL_SCALED_POWER;
       io.elevatorManualIO(m_elevatorPwr);
     }
-/* 
-    //checking elevator is in position
-    double currentPosition = inputs.elevatorEncoderCnts;
-    double positionError = currentPosition - 0.0;//tbd m_targetPose.getElevatorPosEnc();
-    if  ((Math.abs(positionError) <= ELEVATOR_POS_ERROR_THRESHOLD) && m_targetPose.getElevatorPosEnc() != NO_TARGET_POSITION) {
-        m_numConsectSamples++;
-            if(m_numConsectSamples >= 10) {   
-                CatzSharedDataUtil.sharedElevatorInPos = true;
-            }
-    }
-    else {
-        m_numConsectSamples = 0;
-        CatzSharedDataUtil.sharedElevatorInPos = false;
-    }
-    */
+
     //logging
     Logger.getInstance().recordOutput("armencreadfromelevator", CatzSharedDataUtil.sharedArmEncCnts);
   }
@@ -152,7 +152,7 @@ public class CatzElevatorSubsystem extends SubsystemBase {
     }
   }
 
-  public static CatzElevatorSubsystem getInstance() {
+  public static SubsystemCatzElevator getInstance() {
       return instance;
   }  
 

@@ -11,18 +11,18 @@ import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.subsystems.drivetrain.CatzDriveTrainSubsystem;
-import frc.robot.subsystems.drivetrain.CatzDriveTrainSubsystem.DriveConstants;
+import frc.robot.subsystems.drivetrain.SubsystemCatzDriveTrain;
+import frc.robot.subsystems.drivetrain.SubsystemCatzDriveTrain.DriveConstants;
 
 // Follows a trajectory
 public class TrajectoryFollowingCmd extends CommandBase{
-    private final double TIMEOUT_RATIO = 2.5;
+    private final double TIMEOUT_RATIO = 25;
     private final double END_POS_ERROR = 0.05;
     private final double END_ROT_ERROR = 2.5; //degrees
 
     private final Timer timer = new Timer();
     private final HolonomicDriveController controller;
-    private CatzDriveTrainSubsystem m_driveTrain = CatzDriveTrainSubsystem.getInstance();
+    private SubsystemCatzDriveTrain m_driveTrain = SubsystemCatzDriveTrain.getInstance();
 
     private final Trajectory trajectory;
     private final Rotation2d targetHeading;
@@ -39,7 +39,7 @@ public class TrajectoryFollowingCmd extends CommandBase{
         // also, why is it called refheading? wouldn't something like targetOrientation be better
 
         controller = DriveConstants.holonomicDriveController; // see catzconstants
-       addRequirements(m_driveTrain);
+        addRequirements(m_driveTrain);
     }
 
     // reset and start timer
@@ -60,11 +60,9 @@ public class TrajectoryFollowingCmd extends CommandBase{
         double angleError = Math.abs(targetHeading.getDegrees() - currentPosition.getRotation().getDegrees());
         double posError = Math.hypot(dist.getX(), dist.getY());
 
-        System.out.println("Angle error: " + angleError);
-        System.out.println("Pos error: " + posError);
         System.out.println("Time left: " + (maxTime - timer.get()));
         return 
-            timer.get() > maxTime * TIMEOUT_RATIO || 
+            //timer.get() > maxTime * TIMEOUT_RATIO || 
             (
                 angleError <= END_ROT_ERROR &&
                 posError <= END_POS_ERROR
@@ -84,6 +82,7 @@ public class TrajectoryFollowingCmd extends CommandBase{
         SwerveModuleState[] targetModuleStates = DriveConstants.swerveDriveKinematics.toSwerveModuleStates(adjustedSpeed);
         m_driveTrain.setModuleStates(targetModuleStates);
 
+        System.out.println("Current Position " + currentPosition);
         Logger.getInstance().recordOutput("Current Position", currentPosition);
         Logger.getInstance().recordOutput("Target Position", goal.poseMeters);
         Logger.getInstance().recordOutput("Adjusted VelX", adjustedSpeed.vxMetersPerSecond);

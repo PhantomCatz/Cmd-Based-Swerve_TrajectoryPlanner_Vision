@@ -20,14 +20,16 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.CatzConstants;
 import frc.robot.Robot;
 import frc.robot.Utils.GeometryUtils;
+import frc.robot.commands.DriveCmds.TeleopDriveCmd;
 import frc.robot.subsystems.vision.CatzAprilTag;;
 
 
-public class CatzDriveTrainSubsystem extends SubsystemBase {
+public class SubsystemCatzDriveTrain extends SubsystemBase {
       //----------------------Catz auton Constants---------------------------
     public static final class DriveConstants {
         public static final Pose2d initPose = new Pose2d(0, 0, Rotation2d.fromDegrees(180));
@@ -49,7 +51,7 @@ public class CatzDriveTrainSubsystem extends SubsystemBase {
         );
         
 
-        public static final double MAX_SPEED = 4.0; // meters per second
+        public static final double MAX_SPEED = 2.0; // meters per second
         public static final double MAX_ANGSPEED_RAD_PER_SEC = 6.0; // radians per second
 
         public static final double SDS_L1_GEAR_RATIO = 8.14;       //SDS mk4i L1 ratio reduction
@@ -69,8 +71,8 @@ public class CatzDriveTrainSubsystem extends SubsystemBase {
 
         // calculates target chassis motion when given current position and desired trajectory
         public static final HolonomicDriveController holonomicDriveController = new HolonomicDriveController(
-            new PIDController(0.35, 0, 0), // PID values for x offset
-            new PIDController(0.35, 0, 0), // PID values for y offset
+            new PIDController(2, 0, 0), // PID values for x offset
+            new PIDController(2, 0, 0), // PID values for y offset
             autoTurnPIDController // PID values for orientation offset
         );
 
@@ -83,7 +85,7 @@ public class CatzDriveTrainSubsystem extends SubsystemBase {
         );
     }
  //---------------------CatzDriveTrain class Definitions------------------------------------
-    private static CatzDriveTrainSubsystem instance = new CatzDriveTrainSubsystem();
+    private static SubsystemCatzDriveTrain instance = new SubsystemCatzDriveTrain();
 
     private final GyroIO gyroIO;
     private final GyroIOInputsAutoLogged gyroInputs = new GyroIOInputsAutoLogged();
@@ -112,12 +114,12 @@ public class CatzDriveTrainSubsystem extends SubsystemBase {
     private final int RT_BACK_ENC_PORT = 7;
     private final int RT_FRNT_ENC_PORT = 8;
 
-    private final double LT_FRNT_OFFSET = 0.007371500184287522;
-    private final double LT_BACK_OFFSET = 0.04736465118411634;
-    private final double RT_BACK_OFFSET = 0.2542108938552728;
-    private final double RT_FRNT_OFFSET = 0.0351528633788208;
+    private final double LT_FRNT_OFFSET = 0.0112305378; //this one changed
+    private final double LT_BACK_OFFSET = 0.0446386386;
+    private final double RT_BACK_OFFSET = 0.2591109064;
+    private final double RT_FRNT_OFFSET = 0.0363121009;
 
-    private CatzDriveTrainSubsystem() {   
+    private SubsystemCatzDriveTrain() {   
         switch(CatzConstants.currentMode) {
         case REAL: gyroIO = new GyroIONavX();
         break;
@@ -163,11 +165,11 @@ public class CatzDriveTrainSubsystem extends SubsystemBase {
         
         gyroIO.updateInputs(gyroInputs);
         Logger.getInstance().processInputs("Drive/gyroinputs ", gyroInputs);
-        //Pose2d aprilPose2d;
+        Pose2d aprilPose2d;
         
         //updated pose estimator
         m_poseEstimator.update(getRotation2d(), getModulePositions());
-/* 
+
         //apriltag logic to possibly update pose estimator
         if(m_aprilTag.aprilTagInView()) {         
             aprilPose2d = m_aprilTag.getLimelightBotPose();
@@ -175,12 +177,12 @@ public class CatzDriveTrainSubsystem extends SubsystemBase {
 
             Logger.getInstance().recordOutput("Drive/VisionPose" , aprilPose2d);
         }
-        */
+        
         
         //logging
-       // Logger.getInstance().recordOutput("Obometry/pose", getPose());
+       Logger.getInstance().recordOutput("Obometry/pose", getPose());
         Logger.getInstance().recordOutput("Drive/rotationheading" , getHeadingRadians());
-       // m_aprilTag.smartDashboardAprilTag();
+        m_aprilTag.smartDashboardAprilTag();
 
         SmartDashboard.putNumber("gyroAngle", getGyroAngle());
         SmartDashboard.putNumber("HeadingRad", getHeadingRadians());
@@ -300,32 +302,27 @@ public class CatzDriveTrainSubsystem extends SubsystemBase {
         }
     }
 
-    public void stopDriving(){
-        for(CatzSwerveModule module : m_swerveModules) {
-            module.setDrivePercent(0.0);
-            module.setSteerPower(0.0);
-        }
+    public Command stopDriving(){
+        return new TeleopDriveCmd(null, null, null, null, null);
     }
 
     public SwerveModuleState[] getModuleStates() {
         SwerveModuleState[] moduleStates = new SwerveModuleState[4];
-        moduleStates[0] = LT_FRNT_MODULE.getModuleState();
-        moduleStates[1] = LT_BACK_MODULE.getModuleState();
-        moduleStates[2] = RT_BACK_MODULE.getModuleState();
-        moduleStates[3] = RT_FRNT_MODULE.getModuleState();
+        for(CatzSwerveModule module : m_swerveModules) {
+            module.getModuleState();
+        }
         return moduleStates;
     }
 
     public SwerveModulePosition[] getModulePositions() {
         SwerveModulePosition[] modulePositions = new SwerveModulePosition[4];
-        modulePositions[0] = LT_FRNT_MODULE.getModulePosition();
-        modulePositions[1] = LT_BACK_MODULE.getModulePosition( );
-        modulePositions[2] = RT_BACK_MODULE.getModulePosition();
-        modulePositions[3] = RT_FRNT_MODULE.getModulePosition();
+        for(CatzSwerveModule module : m_swerveModules) {
+            module.getModuleState();
+        }
         return modulePositions;
     }
 
-    public static CatzDriveTrainSubsystem getInstance() {
+    public static SubsystemCatzDriveTrain getInstance() {
         return instance;
     }
     
