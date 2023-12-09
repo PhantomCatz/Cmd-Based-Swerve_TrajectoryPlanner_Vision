@@ -43,9 +43,9 @@ public class CatzSwerveModule {
               kModuleMaxAngularVelocity, kModuleMaxAngularAcceleration));
                 */
 
-    private final double kP = 0.4; //cuz error is in tenths place so no need to mutiply kp value
+    private final double kP = 0.55; //cuz error is in tenths place so no need to mutiply kp value
     private final double kI = 0.0;
-    private final double kD = 0.0;
+    private final double kD = 0.0175;
 
     private double m_wheelOffset;
 
@@ -84,6 +84,7 @@ public class CatzSwerveModule {
         Logger.getInstance().recordOutput("absenctorad" + Integer.toString(m_index) , getAbsEncRadians());
 
         SmartDashboard.putNumber("absenctorad" + Integer.toString(m_index) , getAbsEncRadians());
+        SmartDashboard.putNumber("angle" + Integer.toString(m_index) , getCurrentRotation().getDegrees());
     }
 
 
@@ -192,10 +193,15 @@ public class CatzSwerveModule {
             setDriveVelocity(drivePwrVelocity); //+ driveFeedforward);
         }
 
+        if(m_index == 1){
+            System.out.println("Target " + m_index + ": " + state);
+            System.out.println("Current " + m_index + ": " + getModuleState());
+        }
         //logging
         Logger.getInstance().recordOutput("Drive/current roation" + Integer.toString(m_index), getAbsEncRadians());
         Logger.getInstance().recordOutput("Drive/target Angle" + Integer.toString(m_index), state.angle.getRadians());
-        Logger.getInstance().recordOutput("Drive/drive velocity" + Integer.toString(m_index), drivePwrVelocity);
+        Logger.getInstance().recordOutput("Drive/target velocity" + Integer.toString(m_index), drivePwrVelocity);
+        Logger.getInstance().recordOutput("Drive/current velocity" + Integer.toString(m_index), getModuleState().speedMetersPerSecond);
         Logger.getInstance().recordOutput("Drive/turn power" + Integer.toString(m_index), steerPIDpwr);
        // Logger.getInstance().recordOutput("rotation" + Integer.toString(index), d);
     }

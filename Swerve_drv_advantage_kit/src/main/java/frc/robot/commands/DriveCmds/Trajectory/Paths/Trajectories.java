@@ -25,10 +25,10 @@ public class Trajectories {
         new Pose2d(0,0,Rotation2d.fromDegrees(0)),
 
         List.of(
-            new Translation2d(3,1)
+            new Translation2d(0.5,1.5)
         ),
 
-        new Pose2d(5,0,Rotation2d.fromDegrees(0)),
+        new Pose2d(2,2,Rotation2d.fromDegrees(0)),
         DriveConstants.MAX_SPEED, DriveConstants.MAX_SPEED
     );
 

@@ -1,5 +1,7 @@
 package frc.robot.subsystems.vision;
     
+import javax.lang.model.util.ElementScanner14;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.*;
@@ -80,7 +82,11 @@ public class CatzAprilTag {
     public Pose2d getLimelightBotPose()
     {
         botPoseUpdate();
-        return new Pose2d(botPose[POS_X_INDEX],botPose[POS_Y_INDEX],Rotation2d.fromDegrees(botPose[ROT_Z_INDEX]));
+        if(botPose == null){
+            return null;
+        }else{
+            return new Pose2d(botPose[POS_X_INDEX],botPose[POS_Y_INDEX],Rotation2d.fromDegrees(botPose[ROT_Z_INDEX]));
+        }
     }
 
     //return the distance from center of robot to apriltag

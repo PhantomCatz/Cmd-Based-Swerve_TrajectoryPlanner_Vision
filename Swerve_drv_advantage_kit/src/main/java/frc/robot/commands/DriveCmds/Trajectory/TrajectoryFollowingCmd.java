@@ -75,6 +75,7 @@ public class TrajectoryFollowingCmd extends CommandBase{
     public void execute() {
         double currentTime = timer.get();
         Trajectory.State goal = trajectory.sample(currentTime);
+        goal.poseMeters = new Pose2d(goal.poseMeters.getX(), goal.poseMeters.getY(), new Rotation2d(0));
         Pose2d currentPosition = m_driveTrain.getPose();
         Rotation2d targetHeadingNow = initHeading.interpolate(targetHeading, currentTime / trajectory.getTotalTimeSeconds());
         
@@ -83,11 +84,19 @@ public class TrajectoryFollowingCmd extends CommandBase{
         m_driveTrain.setModuleStates(targetModuleStates);
 
         System.out.println("Current Position " + currentPosition);
+        System.out.println("Target Position " + goal.poseMeters);
         Logger.getInstance().recordOutput("Current Position", currentPosition);
         Logger.getInstance().recordOutput("Target Position", goal.poseMeters);
         Logger.getInstance().recordOutput("Adjusted VelX", adjustedSpeed.vxMetersPerSecond);
         Logger.getInstance().recordOutput("Adjusted VelX", adjustedSpeed.vyMetersPerSecond);
         Logger.getInstance().recordOutput("Adjusted VelW", adjustedSpeed.omegaRadiansPerSecond);
+
+        // for debugging
+        // System.out.println(m_driveTrain.getPose());
+        // m_driveTrain.LT_BACK_MODULE.setDesiredState(new SwerveModuleState(1.0, new Rotation2d(0.0)));
+        // m_driveTrain.RT_BACK_MODULE.setDesiredState(new SwerveModuleState(1.0, new Rotation2d(0.0)));
+        // m_driveTrain.LT_FRNT_MODULE.setDesiredState(new SwerveModuleState(1.0, new Rotation2d(0.0)));
+        // m_driveTrain.RT_FRNT_MODULE.setDesiredState(new SwerveModuleState(1.0, new Rotation2d(0.0)));
     }
 
     // stop all robot motion

@@ -87,11 +87,13 @@ public class CatzAutonomous {
         driveTrain.zeroGyro();
         return new SequentialCommandGroup(
 
-               new TrajectoryFollowingCmd(Trajectories.testTrajectoryStraight, Rotation2d.fromDegrees(0))
+               new TrajectoryFollowingCmd(Trajectories.testTrajectoryCurve, Rotation2d.fromDegrees(0))
                                         );
     }
 
     public Command driveStraight() {
+        driveTrain.resetPosition(DriveConstants.initPose);
+        driveTrain.zeroGyro();
         return new TrajectoryFollowingCmd(Trajectories.testTrajectoryStraight, Rotation2d.fromDegrees(180));
     }
 
