@@ -8,7 +8,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
-import frc.robot.subsystems.drivetrain.SubsystemCatzDriveTrain.DriveConstants;
+import frc.robot.CatzConstants.DriveConstants;
 
 public class Trajectories {
     //all the trajectories will be created here
