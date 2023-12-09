@@ -74,14 +74,14 @@ public class PPTrajectoryFollowingCmd extends CommandBase {
         chassisSpeeds.vyMetersPerSecond +=
                 desiredState.accelerationMpsSq * heading.getSin() * ACCELERATION_COEFFICIENT;
 
-        driveTrain.driveRobotRelative(chassisSpeeds);
+        driveTrain.driveRobot(chassisSpeeds);
         Logger.getInstance().recordOutput("Desired Auto Pose", new Pose2d(desiredState.positionMeters, desiredState.heading));
     }
 
     @Override
     public void end(boolean interrupted) {
         this.timer.stop(); // Stop timer
-        driveTrain.driveRobotRelative(new ChassisSpeeds()); // Stop motors
+        driveTrain.driveRobot(new ChassisSpeeds()); // Stop motors
     }
 
     @Override

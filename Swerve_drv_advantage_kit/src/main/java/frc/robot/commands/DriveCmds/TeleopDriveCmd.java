@@ -26,17 +26,17 @@ public class TeleopDriveCmd extends CommandBase {
                         Supplier<Double> supplierLeftJoyY,
                         Supplier<Double> supplierRightJoyX,
                         Supplier<Double> supplierPwrMode,
-                        Supplier<Boolean> isFeildOriented) {
+                        Supplier<Boolean> supplierFieldOriented) {
     this.supplierLeftJoyX = supplierLeftJoyX;
     this.supplierLeftJoyY = supplierLeftJoyY;
     this.supplierRightJoyX = supplierRightJoyX;
     this.supplierPwrMode = supplierPwrMode;
-    this.isFieldOrientedDisabled = isFeildOriented;
+    this.isFieldOrientedDisabled = supplierFieldOriented;
 
     addRequirements(driveTrain);
   }
 
-  // Called when the command is initially scheduled.
+// Called when the command is initially scheduled.
   @Override
   public void initialize() {}
 
@@ -66,7 +66,7 @@ public class TeleopDriveCmd extends CommandBase {
     }
 
     //send new chassisspeeds object to the drivetrain
-    driveTrain.driveRobotRelative(chassisSpeeds);
+    driveTrain.driveRobot(chassisSpeeds);
 
     //logging
     Logger.getInstance().recordOutput("robot xspeed", xSpeed);

@@ -30,6 +30,7 @@ import frc.robot.subsystems.vision.CatzAprilTag;;
 
 
 public class SubsystemCatzDriveTrain extends SubsystemBase {
+
       //----------------------Catz auton Constants---------------------------
     public static final class DriveConstants {
         public static final Pose2d initPose = new Pose2d(0, 0, Rotation2d.fromDegrees(180));
@@ -57,18 +58,18 @@ public class SubsystemCatzDriveTrain extends SubsystemBase {
         public static final double SDS_L1_GEAR_RATIO = 8.14;       //SDS mk4i L1 ratio reduction
         public static final double SDS_L2_GEAR_RATIO = 6.75;       //SDS mk4i L2 ratio reduction
         
-        public static final double DRVTRAIN_WHEEL_DIAMETER             = 0.095;
-        public static final double DRVTRAIN_WHEEL_CIRCUMFERENCE        = (Math.PI * DRVTRAIN_WHEEL_DIAMETER);
+        public static final double DRVTRAIN_WHEEL_DIAMETER_METERS             = 0.095;
+        public static final double DRVTRAIN_WHEEL_CIRCUMFERENCE        = (Math.PI * DRVTRAIN_WHEEL_DIAMETER_METERS);
 
         //uses a trapezoidal velocity/time graph enforced with a PID loop
         private static ProfiledPIDController autoTurnPIDController
                 = new ProfiledPIDController(4, 0, 0, new TrapezoidProfile.Constraints(MAX_ANGSPEED_RAD_PER_SEC, MAX_ANGSPEED_RAD_PER_SEC));
-
+            //TBD need to validated
         static{
             autoTurnPIDController.enableContinuousInput(-Math.PI, Math.PI); //offset clamped between these two values
             autoTurnPIDController.setTolerance(Math.toRadians(0.1)); //tolerable error
         }
-
+            //TBD need to validated
         // calculates target chassis motion when given current position and desired trajectory
         public static final HolonomicDriveController holonomicDriveController = new HolonomicDriveController(
             new PIDController(2, 0, 0), // PID values for x offset
@@ -100,7 +101,7 @@ public class SubsystemCatzDriveTrain extends SubsystemBase {
     public final CatzSwerveModule RT_BACK_MODULE;
 
     private final int LT_FRNT_DRIVE_ID = 1;
-    private final int LT_BACK_DRIVE_ID = 3;
+    private final int LT_BACK_DRIVE_ID = 3;//TBD put in constants
     private final int RT_BACK_DRIVE_ID = 22;
     private final int RT_FRNT_DRIVE_ID = 7;
     
@@ -120,6 +121,7 @@ public class SubsystemCatzDriveTrain extends SubsystemBase {
     private final double RT_FRNT_OFFSET = 0.0363121009;
 
     private SubsystemCatzDriveTrain() {   
+
         switch(CatzConstants.currentMode) {
         case REAL: gyroIO = new GyroIONavX();
         break;
@@ -189,7 +191,7 @@ public class SubsystemCatzDriveTrain extends SubsystemBase {
     }
     
     //access method for updating drivetrain instructions
-    public void driveRobotRelative(ChassisSpeeds chassisSpeeds) {
+    public void driveRobot(ChassisSpeeds chassisSpeeds) {
         //apply second order kinematics to prevent swerve skew
         chassisSpeeds = correctForDynamics(chassisSpeeds);
 
@@ -198,7 +200,7 @@ public class SubsystemCatzDriveTrain extends SubsystemBase {
         setModuleStates(moduleStates);
     }
 
-    //setting indivdula module states to each of the swerve modules
+    //setting indivdual module states to each of the swerve modules
     public void setModuleStates(SwerveModuleState[] desiredStates) {
         //scaling down wheel speeds
         SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, DriveConstants.MAX_SPEED);
@@ -248,8 +250,18 @@ public class SubsystemCatzDriveTrain extends SubsystemBase {
         }
     }
 
-    public void zeroGyro() {
-        gyroIO.resetNavXIO();
+    public Command stopDriving(){
+        return new TeleopDriveCmd(()-> 0.0, ()-> 0.0, ()-> 0.0,()->0.0, ()->false);
+    }
+
+    //gyro methods
+    public Command zeroGyro() {
+        return run(()-> gyroIO.resetNavXIO());
+    }
+
+    //negative due to weird coordinate system
+    public double getGyroAngle() {
+        return - gyroInputs.gyroAngle;
     }
 
     public double getRollAngle() {
@@ -262,11 +274,7 @@ public class SubsystemCatzDriveTrain extends SubsystemBase {
         return currentPosition;
     }
 
-    //negative due to weird coordinate system
-    public double getGyroAngle() {
-        return - gyroInputs.gyroAngle;
-    }
-
+    //---------------------Heading Methods------------
     public double getHeading() {
         return Math.IEEEremainder(getGyroAngle(), 360);
     }
@@ -284,6 +292,7 @@ public class SubsystemCatzDriveTrain extends SubsystemBase {
         m_poseEstimator.resetPosition(pose.getRotation(), getModulePositions(), pose);
     }
 
+    //---------------Enc resets---------------
     private void resetMagEncs() {
         for(CatzSwerveModule module : m_swerveModules){
             module.resetMagEnc();
@@ -300,10 +309,6 @@ public class SubsystemCatzDriveTrain extends SubsystemBase {
         for(CatzSwerveModule module : m_swerveModules) {
             module.initializeOffset();
         }
-    }
-
-    public Command stopDriving(){
-        return new TeleopDriveCmd(null, null, null, null, null);
     }
 
     public SwerveModuleState[] getModuleStates() {
