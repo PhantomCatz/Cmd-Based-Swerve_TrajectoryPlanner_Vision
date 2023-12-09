@@ -65,7 +65,7 @@ public class ModuleIOReal implements ModuleIO {
     @Override
     public void setDriveVelocityIO(double velocity) {
         //negative to align with Controler TBD?
-        DRIVE_MOTOR.set(ControlMode.Velocity, - velocity * DriveConstants.VEL_FF);
+        DRIVE_MOTOR.set(ControlMode.Velocity, velocity * DriveConstants.VEL_FF);
     }
 
     @Override

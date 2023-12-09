@@ -105,10 +105,10 @@ public static final class ManipulatorPoseConstants
       //----------------------Catz auton Constants---------------------------
       public static final class DriveConstants {
 
-        public static final double LT_FRNT_OFFSET = 0.0112305378; //this one changed
-        public static final double LT_BACK_OFFSET = 0.0446386386;
-        public static final double RT_BACK_OFFSET = 0.2591109064;
-        public static final double RT_FRNT_OFFSET = 0.0363121009;
+        public static final double LT_FRNT_OFFSET = 0.5112305378; //this one changed
+        public static final double LT_BACK_OFFSET = 0.5446386386;
+        public static final double RT_BACK_OFFSET = 0.7591109064;
+        public static final double RT_FRNT_OFFSET = 0.5363121009;
 
         public static final int LT_FRNT_DRIVE_ID = 1;
         public static final int LT_BACK_DRIVE_ID = 3;//TBD put in constants
@@ -135,7 +135,7 @@ public static final class ManipulatorPoseConstants
         public static final double  VEL_FF                        = 1.5;
 
         public static final Pose2d initPose = new Pose2d(0, 0, Rotation2d.fromDegrees(180));
-        private static final double MODULE_DISTANCE_FROM_CENTER = 0.298;
+        private static final double MODULE_DISTANCE_FROM_CENTER = 0.298; // manhattan distance divided by 2
 
 
         //not following the original coordinate system since the robot coordinate system is inverted
@@ -153,8 +153,9 @@ public static final class ManipulatorPoseConstants
         );
         
 
-        public static final double MAX_SPEED = 2.0; // meters per second
-        public static final double MAX_ANGSPEED_RAD_PER_SEC = 6.0; // radians per second
+        public static final double MAX_SPEED = 3.0; // meters per second
+        public static final double MAX_ANGSPEED_RAD_PER_SEC = 3.0; // radians per second
+        public static final double MAX_SPEED_DESATURATION = MAX_SPEED + MAX_ANGSPEED_RAD_PER_SEC * MODULE_DISTANCE_FROM_CENTER * Math.sqrt(2);
 
         public static final double SDS_L1_GEAR_RATIO = 8.14;       //SDS mk4i L1 ratio reduction
         public static final double SDS_L2_GEAR_RATIO = 6.75;       //SDS mk4i L2 ratio reduction
@@ -164,7 +165,7 @@ public static final class ManipulatorPoseConstants
 
         //uses a trapezoidal velocity/time graph enforced with a PID loop
         private static ProfiledPIDController autoTurnPIDController
-                = new ProfiledPIDController(4, 0, 0, new TrapezoidProfile.Constraints(MAX_ANGSPEED_RAD_PER_SEC, MAX_ANGSPEED_RAD_PER_SEC));
+                = new ProfiledPIDController(6, 0, 0, new TrapezoidProfile.Constraints(MAX_ANGSPEED_RAD_PER_SEC, MAX_ANGSPEED_RAD_PER_SEC));
             //TBD need to validated
         static{
             autoTurnPIDController.enableContinuousInput(-Math.PI, Math.PI); //offset clamped between these two values

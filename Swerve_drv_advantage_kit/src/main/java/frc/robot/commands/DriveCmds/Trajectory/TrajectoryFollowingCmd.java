@@ -25,17 +25,17 @@ public class TrajectoryFollowingCmd extends CommandBase{
     private SubsystemCatzDriveTrain m_driveTrain = SubsystemCatzDriveTrain.getInstance();
 
     private final Trajectory trajectory;
-    private final Rotation2d targetHeading;
-    private Rotation2d initHeading;
+    private final Rotation2d endOrientation;
+    private Rotation2d initOrientation;
 
     /**
      * @param trajectory The trajectory to follow
      * @param refHeading The goal heading for the robot to be in while in the middle of the trajectory. Takes a Pose2d parameter so that the heading may change based on external factors. 
      */
-    public TrajectoryFollowingCmd(Trajectory trajectory, Rotation2d targetHeading)
+    public TrajectoryFollowingCmd(Trajectory trajectory, Rotation2d endOrientation)
     {
         this.trajectory = trajectory;
-        this.targetHeading = targetHeading; // this returns the desired orientation when given the current position (the function itself is given as an argument). But most of the times, it will just give a constant desired orientation.
+        this.endOrientation = endOrientation; // this returns the desired orientation when given the current position (the function itself is given as an argument). But most of the times, it will just give a constant desired orientation.
         // also, why is it called refheading? wouldn't something like targetOrientation be better
 
         controller = DriveConstants.holonomicDriveController; // see catzconstants
@@ -47,7 +47,7 @@ public class TrajectoryFollowingCmd extends CommandBase{
     public void initialize() {
         timer.reset();
         timer.start();
-        initHeading = m_driveTrain.getRotation2d();
+        initOrientation = m_driveTrain.getRotation2d();
     }
 
     // calculates if trajectory is finished
@@ -57,7 +57,7 @@ public class TrajectoryFollowingCmd extends CommandBase{
         Pose2d currentPosition = m_driveTrain.getPose();
         Pose2d dist = trajectory.sample(maxTime).poseMeters.relativeTo(currentPosition);
 
-        double angleError = Math.abs(targetHeading.getDegrees() - currentPosition.getRotation().getDegrees());
+        double angleError = Math.abs(endOrientation.getDegrees() - currentPosition.getRotation().getDegrees());
         double posError = Math.hypot(dist.getX(), dist.getY());
 
         System.out.println("Time left: " + (maxTime - timer.get()));
@@ -75,11 +75,10 @@ public class TrajectoryFollowingCmd extends CommandBase{
     public void execute() {
         double currentTime = timer.get();
         Trajectory.State goal = trajectory.sample(currentTime);
-        goal.poseMeters = new Pose2d(goal.poseMeters.getX(), goal.poseMeters.getY(), new Rotation2d(0));
+        Rotation2d targetOrientation = initOrientation.interpolate(endOrientation, currentTime / trajectory.getTotalTimeSeconds());
         Pose2d currentPosition = m_driveTrain.getPose();
-        Rotation2d targetHeadingNow = initHeading.interpolate(targetHeading, currentTime / trajectory.getTotalTimeSeconds());
         
-        ChassisSpeeds adjustedSpeed = controller.calculate(currentPosition, goal, targetHeadingNow);
+        ChassisSpeeds adjustedSpeed = controller.calculate(currentPosition, goal, targetOrientation);
         SwerveModuleState[] targetModuleStates = DriveConstants.swerveDriveKinematics.toSwerveModuleStates(adjustedSpeed);
         m_driveTrain.setModuleStates(targetModuleStates);
 

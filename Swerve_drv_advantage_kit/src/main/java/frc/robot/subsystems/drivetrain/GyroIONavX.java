@@ -23,7 +23,7 @@ public class GyroIONavX implements GyroIO
     public void resetNavXIO()
     {
         navX.reset();
-        navX.setAngleAdjustment(DriveConstants.initPose.getRotation().getDegrees());
+        navX.setAngleAdjustment(- DriveConstants.initPose.getRotation().getDegrees());
     }
 
     @Override
