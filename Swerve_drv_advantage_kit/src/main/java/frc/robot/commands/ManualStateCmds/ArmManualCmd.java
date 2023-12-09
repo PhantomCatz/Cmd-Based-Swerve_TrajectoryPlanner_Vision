@@ -24,10 +24,9 @@ public class ArmManualCmd extends CommandBase {
 
   
   /** Creates a new ArmManualCmd. */
-  public ArmManualCmd(boolean armExtend, boolean armRetract) 
+  public ArmManualCmd(boolean armExtend) 
   {
     this.armExtend = armExtend;
-    this.armRetract = armRetract;
     addRequirements(m_arm);
   }
 
@@ -45,7 +44,7 @@ public class ArmManualCmd extends CommandBase {
     {
         m_arm.setArmPwrCmd(EXTEND_PWR);
     }
-    else if(armRetract == true)
+    else if(armExtend == false)
     {
         m_arm.setArmPwrCmd(RETRACT_PWR);
     }

@@ -34,7 +34,7 @@ import frc.robot.subsystems.Arm.SubsystemCatzArm;
 import frc.robot.subsystems.Elevator.SubsystemCatzElevator;
 import frc.robot.subsystems.Intake.SubsystemCatzIntake;
 import frc.robot.subsystems.drivetrain.SubsystemCatzDriveTrain;
-import frc.robot.subsystems.drivetrain.SubsystemCatzDriveTrain.DriveConstants;
+import frc.robot.CatzConstants.DriveConstants;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 
 public class CatzAutonomous {

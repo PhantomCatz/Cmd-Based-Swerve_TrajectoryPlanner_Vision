@@ -89,7 +89,7 @@ public class BalanceCmd extends CommandBase {
     ChassisSpeeds chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
                                             power, 0.0, 0.0, driveTrain.getRotation2d()
                                                               );
-    driveTrain.driveRobotRelative(chassisSpeeds);
+    driveTrain.driveRobot(chassisSpeeds);
 
     prevBalanceAngle = balanceAngle;
     prevTime = time;

@@ -1,4 +1,4 @@
-package frc.robot.subsystems.drivetrain;
+package frc.robot.Subsystems.drivetrain;
 
 import org.littletonrobotics.junction.Logger;
 
@@ -18,13 +18,13 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.CatzConstants;
 import frc.robot.Robot;
 import frc.robot.CatzConstants.DriveConstants;
+import frc.robot.Commands.TeleopDriveCmd;
+import frc.robot.Subsystems.vision.CatzAprilTag;
 import frc.robot.Utils.GeometryUtils;
-import frc.robot.commands.DriveCmds.TeleopDriveCmd;
-import frc.robot.subsystems.vision.CatzAprilTag;;
+
 
 
 public class SubsystemCatzDriveTrain extends SubsystemBase {
-
  //---------------------CatzDriveTrain class Definitions------------------------------------
     private static SubsystemCatzDriveTrain instance = new SubsystemCatzDriveTrain();
 
@@ -77,8 +77,7 @@ public class SubsystemCatzDriveTrain extends SubsystemBase {
         m_swerveModules[2] = RT_BACK_MODULE;
         m_swerveModules[3] = RT_FRNT_MODULE;
 
-        zeroGyro().execute();
-        resetDriveEncs();
+        zeroGyro();
 
         m_poseEstimator = new SwerveDrivePoseEstimator(
             DriveConstants.swerveDriveKinematics, 
@@ -104,19 +103,21 @@ public class SubsystemCatzDriveTrain extends SubsystemBase {
         m_poseEstimator.update(getRotation2d(), getModulePositions());
 
         //apriltag logic to possibly update pose estimator
-        aprilPose2d = m_aprilTag.getLimelightBotPose();
-        if(aprilPose2d != null) {         
+        if(m_aprilTag.aprilTagInView()) {         
+            aprilPose2d = m_aprilTag.getLimelightBotPose();
             m_poseEstimator.addVisionMeasurement(aprilPose2d, Logger.getInstance().getTimestamp());
 
-            Logger.getInstance().recordOutput("Drive/VisionPose" , aprilPose2d);
+            Logger.recordOutput("Drive/VisionPose" , aprilPose2d);
         }
         
         
         //logging
-       Logger.getInstance().recordOutput("Obometry/pose", getPose());
+       Logger.recordOutput("Obometry/pose", getPose());
+        Logger.recordOutput("Drive/rotationheading" , getHeadingRadians());
         m_aprilTag.smartDashboardAprilTag();
 
         SmartDashboard.putNumber("gyroAngle", getGyroAngle());
+        SmartDashboard.putNumber("HeadingRad", getHeadingRadians());
     }
     
     //access method for updating drivetrain instructions
@@ -200,7 +201,6 @@ public class SubsystemCatzDriveTrain extends SubsystemBase {
     public Pose2d getPose() {
         Pose2d currentPosition = m_poseEstimator.getEstimatedPosition();
         currentPosition = new Pose2d(currentPosition.getX(), currentPosition.getY(), getRotation2d());
-        //System.out.println("Gyrov " + getRotation2d());
         return currentPosition;
     }
 
@@ -215,7 +215,7 @@ public class SubsystemCatzDriveTrain extends SubsystemBase {
 
     //flipped due to weird coordinate system
     public Rotation2d getRotation2d() {
-        return Rotation2d.fromDegrees(getGyroAngle());
+        return Rotation2d.fromRadians(getHeadingRadians());
     }
 
     public void resetPosition(Pose2d pose) {
@@ -231,23 +231,19 @@ public class SubsystemCatzDriveTrain extends SubsystemBase {
         }
     }
 
-    public void resetForAutonomous(){
-        zeroGyro().execute();
-        resetPosition(DriveConstants.initPose);
-    }
 
     public SwerveModuleState[] getModuleStates() {
         SwerveModuleState[] moduleStates = new SwerveModuleState[4];
-        for(int i=0; i<m_swerveModules.length; i++) {
-            moduleStates[i] = m_swerveModules[i].getModuleState();
+        for(CatzSwerveModule module : m_swerveModules) {
+            module.getModuleState();
         }
         return moduleStates;
     }
 
     public SwerveModulePosition[] getModulePositions() {
         SwerveModulePosition[] modulePositions = new SwerveModulePosition[4];
-        for(int i=0; i<m_swerveModules.length; i++) {
-            modulePositions[i] = m_swerveModules[i].getModulePosition();
+        for(CatzSwerveModule module : m_swerveModules) {
+            module.getModuleState();
         }
         return modulePositions;
     }
