@@ -237,12 +237,12 @@ public class SubsystemCatzIntake extends SubsystemBase {
 
     }
 
-    public void softLimitOverideDisabled() {
-        io.intakeConfigureSoftLimitOverride(false);
+    public Command softLimitOverideDisabled() {
+        return run(()-> io.intakeConfigureSoftLimitOverride(false));
     }
 
-    public void softLimitOverideEnabled() {
-        io.intakeConfigureSoftLimitOverride(true);
+    public Command softLimitOverideEnabled() {
+        return run(()-> io.intakeConfigureSoftLimitOverride(true));    
     }
     
     //getInstance method

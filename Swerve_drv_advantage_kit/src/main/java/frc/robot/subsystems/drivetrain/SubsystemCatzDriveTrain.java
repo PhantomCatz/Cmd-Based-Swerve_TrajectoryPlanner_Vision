@@ -2,13 +2,6 @@ package frc.robot.subsystems.drivetrain;
 
 import org.littletonrobotics.junction.Logger;
 
-import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.controllers.PPHolonomicDriveController;
-import com.pathplanner.lib.util.PIDConstants;
-
-import edu.wpi.first.math.controller.HolonomicDriveController;
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -24,67 +17,13 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.CatzConstants;
 import frc.robot.Robot;
+import frc.robot.CatzConstants.DriveConstants;
 import frc.robot.Utils.GeometryUtils;
 import frc.robot.commands.DriveCmds.TeleopDriveCmd;
 import frc.robot.subsystems.vision.CatzAprilTag;;
 
 
 public class SubsystemCatzDriveTrain extends SubsystemBase {
-
-      //----------------------Catz auton Constants---------------------------
-    public static final class DriveConstants {
-        public static final Pose2d initPose = new Pose2d(0, 0, Rotation2d.fromDegrees(180));
-        private static final double MODULE_DISTANCE_FROM_CENTER = 0.298;
-
-
-        //not following the original coordinate system since the robot coordinate system is inverted
-        private static final Translation2d SWERVE_LEFT_FRONT_LOCATION  = new Translation2d(MODULE_DISTANCE_FROM_CENTER, MODULE_DISTANCE_FROM_CENTER);
-        private static final Translation2d SWERVE_LEFT_BACK_LOCATION   = new Translation2d(-MODULE_DISTANCE_FROM_CENTER, MODULE_DISTANCE_FROM_CENTER);
-        private static final Translation2d SWERVE_RIGHT_BACK_LOCATION  = new Translation2d(-MODULE_DISTANCE_FROM_CENTER, -MODULE_DISTANCE_FROM_CENTER);
-        private static final Translation2d SWERVE_RIGHT_FRONT_LOCATION = new Translation2d(MODULE_DISTANCE_FROM_CENTER, -MODULE_DISTANCE_FROM_CENTER);
-        
-        // calculates the orientation and speed of individual swerve modules when given the motion of the whole robot
-        public static final SwerveDriveKinematics swerveDriveKinematics = new SwerveDriveKinematics(
-            SWERVE_LEFT_FRONT_LOCATION,
-            SWERVE_LEFT_BACK_LOCATION,
-            SWERVE_RIGHT_BACK_LOCATION,
-            SWERVE_RIGHT_FRONT_LOCATION
-        );
-        
-
-        public static final double MAX_SPEED = 2.0; // meters per second
-        public static final double MAX_ANGSPEED_RAD_PER_SEC = 6.0; // radians per second
-
-        public static final double SDS_L1_GEAR_RATIO = 8.14;       //SDS mk4i L1 ratio reduction
-        public static final double SDS_L2_GEAR_RATIO = 6.75;       //SDS mk4i L2 ratio reduction
-        
-        public static final double DRVTRAIN_WHEEL_DIAMETER_METERS             = 0.095;
-        public static final double DRVTRAIN_WHEEL_CIRCUMFERENCE        = (Math.PI * DRVTRAIN_WHEEL_DIAMETER_METERS);
-
-        //uses a trapezoidal velocity/time graph enforced with a PID loop
-        private static ProfiledPIDController autoTurnPIDController
-                = new ProfiledPIDController(4, 0, 0, new TrapezoidProfile.Constraints(MAX_ANGSPEED_RAD_PER_SEC, MAX_ANGSPEED_RAD_PER_SEC));
-            //TBD need to validated
-        static{
-            autoTurnPIDController.enableContinuousInput(-Math.PI, Math.PI); //offset clamped between these two values
-            autoTurnPIDController.setTolerance(Math.toRadians(0.1)); //tolerable error
-        }
-            //TBD need to validated
-        // calculates target chassis motion when given current position and desired trajectory
-        public static final HolonomicDriveController holonomicDriveController = new HolonomicDriveController(
-            new PIDController(2, 0, 0), // PID values for x offset
-            new PIDController(2, 0, 0), // PID values for y offset
-            autoTurnPIDController // PID values for orientation offset
-        );
-
-        // calculates target chassis motion when given current position and desired trajectory
-        public static final PPHolonomicDriveController ppholonomicDriveController = new PPHolonomicDriveController(
-        new PIDConstants(0.35, 0, 0), // PID values for x offset
-        new PIDConstants(0.35, 0, 0), // PID values for rotation 
-        MAX_SPEED,
-        MODULE_DISTANCE_FROM_CENTER
-        );
-    }
  //---------------------CatzDriveTrain class Definitions------------------------------------
     private static SubsystemCatzDriveTrain instance = new SubsystemCatzDriveTrain();
 
@@ -100,26 +39,6 @@ public class SubsystemCatzDriveTrain extends SubsystemBase {
     public final CatzSwerveModule RT_FRNT_MODULE;
     public final CatzSwerveModule RT_BACK_MODULE;
 
-    private final int LT_FRNT_DRIVE_ID = 1;
-    private final int LT_BACK_DRIVE_ID = 3;//TBD put in constants
-    private final int RT_BACK_DRIVE_ID = 22;
-    private final int RT_FRNT_DRIVE_ID = 7;
-    
-    private final int LT_FRNT_STEER_ID = 2;
-    private final int LT_BACK_STEER_ID = 4;
-    private final int RT_BACK_STEER_ID = 6;
-    private final int RT_FRNT_STEER_ID = 8;
-
-    private final int LT_FRNT_ENC_PORT = 9;
-    private final int LT_BACK_ENC_PORT = 6;
-    private final int RT_BACK_ENC_PORT = 7;
-    private final int RT_FRNT_ENC_PORT = 8;
-
-    private final double LT_FRNT_OFFSET = 0.0112305378; //this one changed
-    private final double LT_BACK_OFFSET = 0.0446386386;
-    private final double RT_BACK_OFFSET = 0.2591109064;
-    private final double RT_FRNT_OFFSET = 0.0363121009;
-
     private SubsystemCatzDriveTrain() {   
 
         switch(CatzConstants.currentMode) {
@@ -128,19 +47,29 @@ public class SubsystemCatzDriveTrain extends SubsystemBase {
         case REPLAY: gyroIO = new GyroIONavX() {};
         break;
 
-        default: gyroIO = null; // new GyroIOSim();
+        default: gyroIO = null;
         break;
         }
         
-        LT_FRNT_MODULE = new CatzSwerveModule(LT_FRNT_DRIVE_ID, LT_FRNT_STEER_ID, LT_FRNT_ENC_PORT, LT_FRNT_OFFSET, 0);
-        LT_BACK_MODULE = new CatzSwerveModule(LT_BACK_DRIVE_ID, LT_BACK_STEER_ID, LT_BACK_ENC_PORT, LT_BACK_OFFSET, 1);
-        RT_BACK_MODULE = new CatzSwerveModule(RT_BACK_DRIVE_ID, RT_BACK_STEER_ID, RT_BACK_ENC_PORT, RT_BACK_OFFSET, 2);
-        RT_FRNT_MODULE = new CatzSwerveModule(RT_FRNT_DRIVE_ID, RT_FRNT_STEER_ID, RT_FRNT_ENC_PORT, RT_FRNT_OFFSET, 3);
-        
-        LT_FRNT_MODULE.resetMagEnc();
-        LT_BACK_MODULE.resetMagEnc();
-        RT_FRNT_MODULE.resetMagEnc();
-        RT_BACK_MODULE.resetMagEnc();
+        LT_FRNT_MODULE = new CatzSwerveModule(DriveConstants.LT_FRNT_DRIVE_ID, 
+                                              DriveConstants.LT_FRNT_STEER_ID, 
+                                              DriveConstants.LT_FRNT_ENC_PORT, 
+                                              DriveConstants.LT_FRNT_OFFSET, 0);
+
+        LT_BACK_MODULE = new CatzSwerveModule(DriveConstants.LT_BACK_DRIVE_ID, 
+                                              DriveConstants.LT_BACK_STEER_ID, 
+                                              DriveConstants.LT_BACK_ENC_PORT, 
+                                              DriveConstants.LT_BACK_OFFSET, 1);
+
+        RT_BACK_MODULE = new CatzSwerveModule(DriveConstants.RT_BACK_DRIVE_ID, 
+                                              DriveConstants.RT_BACK_STEER_ID, 
+                                              DriveConstants.RT_BACK_ENC_PORT, 
+                                              DriveConstants.RT_BACK_OFFSET, 2);
+
+        RT_FRNT_MODULE = new CatzSwerveModule(DriveConstants.RT_FRNT_DRIVE_ID, 
+                                              DriveConstants.RT_FRNT_STEER_ID, 
+                                              DriveConstants.RT_FRNT_ENC_PORT, 
+                                              DriveConstants.RT_FRNT_OFFSET, 3);
 
         m_swerveModules[0] = LT_FRNT_MODULE;
         m_swerveModules[1] = LT_BACK_MODULE;
@@ -237,7 +166,7 @@ public class SubsystemCatzDriveTrain extends SubsystemBase {
         return updatedSpeeds;
     }
 
-    //-------------------------------------------------DriveTraing method Utils-------------------------------------------------
+    //-------------------------------------------------DriveTrain MISC methods-------------------------------------------------
     public void setBrakeMode() {
         for(CatzSwerveModule module : m_swerveModules) {
             module.setBrakeMode();
@@ -293,23 +222,14 @@ public class SubsystemCatzDriveTrain extends SubsystemBase {
     }
 
     //---------------Enc resets---------------
-    private void resetMagEncs() {
-        for(CatzSwerveModule module : m_swerveModules){
-            module.resetMagEnc();
-        }
-    }
 
+    //TBD figured out where called
     public void resetDriveEncs() {
         for(CatzSwerveModule module : m_swerveModules) {
             module.resetDriveEncs();
         }
     }
 
-    public void initializeOffsets() {
-        for(CatzSwerveModule module : m_swerveModules) {
-            module.initializeOffset();
-        }
-    }
 
     public SwerveModuleState[] getModuleStates() {
         SwerveModuleState[] moduleStates = new SwerveModuleState[4];

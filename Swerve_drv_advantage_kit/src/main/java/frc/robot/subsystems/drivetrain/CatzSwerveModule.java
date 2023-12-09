@@ -18,30 +18,19 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.CatzConstants;
-import frc.robot.subsystems.drivetrain.SubsystemCatzDriveTrain.DriveConstants;
+import frc.robot.CatzConstants.DriveConstants;
 import frc.robot.Utils.CatzMathUtils;
 import frc.robot.Utils.Conversions;
 
 
 public class CatzSwerveModule {
+
     private final ModuleIO io;
     private final ModuleIOInputsAutoLogged   inputs = new ModuleIOInputsAutoLogged();
-
-    private final int MOTOR_ID;
 
     private PIDController m_pid;
     private final SimpleMotorFeedforward m_driveFeedforward = new SimpleMotorFeedforward(1, 3);
     private final SimpleMotorFeedforward m_turnFeedforward = new SimpleMotorFeedforward(1, 0.5);
-
-    /* 
-    private final ProfiledPIDController m_turningPIDController =
-      new ProfiledPIDController(
-          1,
-          0,
-          0,
-          new TrapezoidProfile.Constraints(
-              kModuleMaxAngularVelocity, kModuleMaxAngularAcceleration));
-                */
 
     private final double kP = 0.4; //cuz error is in tenths place so no need to mutiply kp value
     private final double kI = 0.0;
@@ -71,9 +60,6 @@ public class CatzSwerveModule {
         m_pid = new PIDController(kP, kI, kD);
 
         m_wheelOffset = offset;
-
-        //for shuffleboard
-        MOTOR_ID = steerMotorID;
     }
 
     public void periodic() {
@@ -86,8 +72,7 @@ public class CatzSwerveModule {
         SmartDashboard.putNumber("absenctorad" + Integer.toString(m_index) , getAbsEncRadians());
     }
 
-
-
+    //----------------------------------------Setting pwr methods
     private void setSteerPower(double pwr) {
         if(CatzConstants.currentMode == CatzConstants.Mode.SIM) {
            io.setSteerSimPwrIO(pwr);
@@ -123,7 +108,7 @@ public class CatzSwerveModule {
             io.setDriveVelocityIO(velocity);
         }
     }
-
+    //----------------------------------Util Methods catzswerve------------------------
     public double getDrvDistanceRaw() {
         return inputs.driveMtrSensorPosition;
     }
@@ -136,18 +121,6 @@ public class CatzSwerveModule {
         io.setSteerBrakeModeIO();
     }
 
-    public void resetDrvDistance() {
-        int i = 0;
-
-        io.setDrvSensorPositionIO(0.0); //resetsensorpos
-        while(Math.abs(inputs.driveMtrSensorPosition) > 1.0) {
-            i++;
-            if(i >= 3000) {
-                resetDrvDistance();
-            }
-        }
-    }
-
     public double getDrvVelocity() {
         return inputs.driveMtrVelocity;
     }
@@ -155,7 +128,7 @@ public class CatzSwerveModule {
     private double getAbsEncRadians() {
         return (inputs.magEncoderValue - m_wheelOffset) * 2 * Math.PI;
     }
-
+    //TBD put in autobalance file
     /*Auto Balance */
     public void reverseDrive(Boolean reverse) {
         io.reverseDriveIO(reverse);
@@ -176,15 +149,13 @@ public class CatzSwerveModule {
 
         //calculate turn voltage
         double steerPIDpwr = - m_pid.calculate(getAbsEncRadians(), state.angle.getRadians()); 
-        double steerPIDVoltage = steerPIDpwr * 12; //convert to voltage
-        //set voltage
-        setSteerVoltage(steerPIDVoltage);
+        setSteerPower(steerPIDpwr);
 
         //calculate drive pwr
         double drivePwrVelocity = Conversions.MPSToFalcon(state.speedMetersPerSecond, 
                                                           DriveConstants.DRVTRAIN_WHEEL_CIRCUMFERENCE, 
                                                           DriveConstants.SDS_L2_GEAR_RATIO); //to set is as a gear reduction not an overdrive
-        //set power for FOC
+        //set power for FOC(experimental)
         if(CatzConstants.currentMode == CatzConstants.Mode.REAL_WITH_PRO) { 
             io.setDriveControlIO(velocitySetter.withVelocity(drivePwrVelocity));   
         }
@@ -200,17 +171,8 @@ public class CatzSwerveModule {
        // Logger.getInstance().recordOutput("rotation" + Integer.toString(index), d);
     }
 
-
-    public void resetMagEnc() {
-        
-    }
-
     public void resetDriveEncs() {
         io.setDrvSensorPositionIO(0.0);
-    }
-
-    public void initializeOffset() {
-
     }
 
     //inputs the rotation object as radian conversion

@@ -13,20 +13,16 @@
 
  package frc.robot;
 
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
- import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
- import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
+
 import frc.robot.CatzConstants.ManipulatorPoseConstants;
-import frc.robot.Utils.CatzManipulatorPositions;
 import frc.robot.Utils.CatzAbstractStateUtil;
- import frc.robot.Utils.CatzAbstractStateUtil.GamePieceState;
- import frc.robot.Utils.CatzAbstractStateUtil.SetAbstractMechanismState;
+import frc.robot.Utils.CatzAbstractStateUtil.GamePieceState;
+import frc.robot.Utils.CatzAbstractStateUtil.SetAbstractMechanismState;
 import frc.robot.Utils.led.CatzRGB;
 import frc.robot.Utils.led.ColorMethod;
 import frc.robot.commands.ManipulatorToPoseCmd;
@@ -35,9 +31,9 @@ import frc.robot.commands.ManualStateCmds.ArmManualCmd;
 import frc.robot.commands.ManualStateCmds.ElevatorManualCmd;
 import frc.robot.commands.ManualStateCmds.IntakeManualCmd;
 import frc.robot.subsystems.Arm.SubsystemCatzArm;
- import frc.robot.subsystems.Elevator.SubsystemCatzElevator;
- import frc.robot.subsystems.Intake.SubsystemCatzIntake;
- import frc.robot.subsystems.drivetrain.SubsystemCatzDriveTrain;
+import frc.robot.subsystems.Elevator.SubsystemCatzElevator;
+import frc.robot.subsystems.Intake.SubsystemCatzIntake;
+import frc.robot.subsystems.drivetrain.SubsystemCatzDriveTrain;
  
  
  /**
@@ -47,13 +43,15 @@ import frc.robot.subsystems.Arm.SubsystemCatzArm;
   * subsystems, commands, and trigger mappings) should be declared here.
   */
  public class RobotContainer {
-    private static SubsystemCatzDriveTrain driveTrain; 
+    
+    //subsystems
+    private SubsystemCatzDriveTrain driveTrain; 
     private SubsystemCatzElevator elevator;
     private SubsystemCatzIntake intake;
     private SubsystemCatzArm arm;
 
     private final CatzAutonomous auton = new CatzAutonomous();
-    public static CatzRGB        led = new CatzRGB();
+    private static CatzRGB        led = new CatzRGB();
 
     //xbox controller
     private CommandXboxController xboxDrv;
@@ -87,7 +85,7 @@ import frc.robot.subsystems.Arm.SubsystemCatzArm;
  
    
    private void configureBindings() {
-   //---------------------------------------Button mechanism cmds-----------------------------------------------------------------
+   //---------------------------------------Set State mechanism cmds-----------------------------------------------------------------
      xboxAux.y().onTrue(new ManipulatorToPoseCmd(SetAbstractMechanismState.SCORE_HIGH)); //TBD when is "new" used? when you want to start up new object command instead of inline
      xboxAux.b().onTrue(new ManipulatorToPoseCmd(SetAbstractMechanismState.SCORE_MID));
      xboxAux.a().onTrue(new ManipulatorToPoseCmd(SetAbstractMechanismState.SCORE_LOW));
@@ -99,26 +97,23 @@ import frc.robot.subsystems.Arm.SubsystemCatzArm;
    
    //--------------------------------------------Manual Cmds---------------------------------------------------------------------------
      //arm
-       
-     xboxAux.rightTrigger().onTrue(new ArmManualCmd(true,false))
+     xboxAux.rightTrigger().onTrue(new ArmManualCmd(true))
                            .onFalse(arm.setArmPwrCmd(0.0));
  
-     xboxAux.leftTrigger().onTrue(new ArmManualCmd(false, true))
+     xboxAux.leftTrigger().onTrue(new ArmManualCmd(false))
                           .onFalse(arm.setArmPwrCmd(0.0));
     //intake
-    xboxAux.leftStick().onTrue(new IntakeManualCmd(() -> xboxAux.getLeftY(), 
-                                                   () -> xboxAux.leftStick().getAsBoolean()));
+    xboxAux.leftStick().onTrue(new IntakeManualCmd(()-> xboxAux.getLeftY(), 
+                                                   ()-> xboxAux.leftStick().getAsBoolean()));
     //elevator     
-     xboxAux.rightStick().onTrue(new ElevatorManualCmd(() -> xboxAux.getRightY(), 
-                                                       () -> xboxAux.rightStick().getAsBoolean()));
+     xboxAux.rightStick().onTrue(new ElevatorManualCmd(()-> xboxAux.getRightY(), 
+                                                       ()-> xboxAux.rightStick().getAsBoolean()));
   
  
  
    //-----------------------------------commands with no subsystem--------------------------------------------------------------------
      xboxAux.back()
-     .onTrue(Commands.runOnce(
-         () -> CatzAbstractStateUtil.newGamePieceState(GamePieceState.NONE)
-                             ));
+        .onTrue(Commands.runOnce(() -> CatzAbstractStateUtil.newGamePieceState(GamePieceState.NONE)));
  
      xboxAux.povLeft()
      .onTrue(Commands.runOnce(
@@ -131,15 +126,15 @@ import frc.robot.subsystems.Arm.SubsystemCatzArm;
                              ));
  
       //disabling softlimits only when both bumpers are pressed
-      
-     Trigger softLimitTrigger = xboxAux.leftBumper().and(xboxAux.rightBumper()); //tbd which is evaluated first?
-     softLimitTrigger.onTrue(Commands.runOnce(() -> intake.softLimitOverideDisabled()));
-     softLimitTrigger.onFalse(Commands.runOnce(() -> intake.softLimitOverideEnabled()));
+      //TBD how to set precedence with and and or methods
+     Trigger softLimitTrigger = xboxAux.leftBumper().and(xboxAux.rightBumper()); //tbd which is evaluated first? First one
+     softLimitTrigger.onTrue(intake.softLimitOverideDisabled());
+     softLimitTrigger.onFalse(intake.softLimitOverideEnabled());
  
  
-     xboxDrv.start().onTrue(Commands.runOnce(() -> driveTrain.zeroGyro()));
+     xboxDrv.start().onTrue(driveTrain.zeroGyro());
  
-     xboxDrv.b().onTrue(Commands.runOnce(() -> driveTrain.stopDriving())); //TBD need to add this back in TBD runs when disabled where?
+     xboxDrv.b().onTrue(driveTrain.stopDriving()); //TBD need to add this back in TBD runs when disabled where?
  
      
      //--------------------------Intake Rollers--------------------------
@@ -150,27 +145,28 @@ import frc.robot.subsystems.Arm.SubsystemCatzArm;
                             .onFalse(intake.intakeRollersOff());
 
    }
+   //TBD
    //mechanisms with default commands revert back to these cmds if no other cmd requiring the subsystem is active
    private void defaultCommands() {  
-      driveTrain.setDefaultCommand(new TeleopDriveCmd(() -> xboxDrv.getLeftX(),
-                                                      () -> xboxDrv.getLeftY(),
-                                                      () -> xboxDrv.getRightX(),
-                                                      () -> xboxDrv.getRightTriggerAxis(), 
-                                                      () -> xboxDrv.b().getAsBoolean()));
-                                                     
- 
+      driveTrain.setDefaultCommand(new TeleopDriveCmd(()-> xboxDrv.getLeftX(),
+                                                      ()-> xboxDrv.getLeftY(),
+                                                      ()-> xboxDrv.getRightX(),
+                                                      ()-> xboxDrv.getRightTriggerAxis(), 
+                                                      ()-> xboxDrv.b().getAsBoolean()));
+    
    }
+
    /**
     * Use this to pass the autonomous command to the main {@link Robot} class.
     *
     * @return the command to run in autonomous
     */
    public Command getAutonomousCommand() {
-     // An example command will be run in autonomous
      return auton.getCommand();
    }
 
    //--------------------------------------------LED setup------------------------------------------------
+   //TBD in constants class
    public static enum mechMode {
     AutoMode(Color.kGreen),
     ManualHoldMode(Color.kCyan),
