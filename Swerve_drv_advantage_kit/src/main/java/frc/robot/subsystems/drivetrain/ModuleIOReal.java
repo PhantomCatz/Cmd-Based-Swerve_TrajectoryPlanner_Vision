@@ -6,6 +6,7 @@ import com.revrobotics.CANSparkMax;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
+import frc.robot.CatzConstants.DriveConstants;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
@@ -23,13 +24,7 @@ public class ModuleIOReal implements ModuleIO {
 
     //current limiting
     private SupplyCurrentLimitConfiguration swerveModuleCurrentLimit;
-    private final int     CURRENT_LIMIT_AMPS            = 55;
-    private final int     CURRENT_LIMIT_TRIGGER_AMPS    = 55;
-    private final double  CURRENT_LIMIT_TIMEOUT_SECONDS = 0.5;
-    private final boolean ENABLE_CURRENT_LIMIT          = true;
 
-    private final int     STEER_CURRENT_LIMIT_AMPS      = 30;
-    private final double  NEUTRAL_TO_FULL_SECONDS       = 0.1;
 
     public ModuleIOReal(int driveMotorIDIO, int steerMotorIDIO, int magDIOPort) {
         MagEncPWMInput = new DigitalInput(magDIOPort);
@@ -42,9 +37,12 @@ public class ModuleIOReal implements ModuleIO {
         DRIVE_MOTOR.configFactoryDefault();
 
         //Set current limit
-        swerveModuleCurrentLimit = new SupplyCurrentLimitConfiguration(ENABLE_CURRENT_LIMIT, CURRENT_LIMIT_AMPS, CURRENT_LIMIT_TRIGGER_AMPS, CURRENT_LIMIT_TIMEOUT_SECONDS);
+        swerveModuleCurrentLimit = new SupplyCurrentLimitConfiguration(DriveConstants.ENABLE_CURRENT_LIMIT, 
+                                                                       DriveConstants.CURRENT_LIMIT_AMPS, 
+                                                                       DriveConstants.CURRENT_LIMIT_TRIGGER_AMPS, 
+                                                                       DriveConstants.CURRENT_LIMIT_TIMEOUT_SECONDS);
 
-        STEER_MOTOR.setSmartCurrentLimit(STEER_CURRENT_LIMIT_AMPS);
+        STEER_MOTOR.setSmartCurrentLimit(DriveConstants.STEER_CURRENT_LIMIT_AMPS);
         DRIVE_MOTOR.configSupplyCurrentLimit(swerveModuleCurrentLimit);
 
         STEER_MOTOR.setIdleMode(IdleMode.kCoast);
@@ -53,7 +51,7 @@ public class ModuleIOReal implements ModuleIO {
         DRIVE_MOTOR.config_kP(0, 0.1);
         DRIVE_MOTOR.config_kI(0, 0.0);
         DRIVE_MOTOR.config_kD(0, 0.0);
-        DRIVE_MOTOR.configClosedloopRamp(NEUTRAL_TO_FULL_SECONDS);
+        DRIVE_MOTOR.configClosedloopRamp(DriveConstants.NEUTRAL_TO_FULL_SECONDS);
     }
 
     @Override
@@ -67,7 +65,7 @@ public class ModuleIOReal implements ModuleIO {
     @Override
     public void setDriveVelocityIO(double velocity) {
         //negative to align with Controler TBD?
-        DRIVE_MOTOR.set(ControlMode.Velocity, - velocity);
+        DRIVE_MOTOR.set(ControlMode.Velocity, velocity * DriveConstants.VEL_FF);
     }
 
     @Override

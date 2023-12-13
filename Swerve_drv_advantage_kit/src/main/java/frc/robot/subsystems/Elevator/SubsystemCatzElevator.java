@@ -5,7 +5,6 @@
 package frc.robot.subsystems.Elevator;
 
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.CatzConstants;
 import frc.robot.CatzConstants.ElevatorConstants;
@@ -15,8 +14,9 @@ import frc.robot.Utils.CatzSharedDataUtil;
 import org.littletonrobotics.junction.Logger;
 
 
-public class CatzElevatorSubsystem extends SubsystemBase {
-  private static CatzElevatorSubsystem instance = new CatzElevatorSubsystem();
+public class SubsystemCatzElevator extends SubsystemBase {
+
+  private static SubsystemCatzElevator instance = new SubsystemCatzElevator();
 
   private final ElevatorIO io;
   private final ElevatorIOInputsAutoLogged  inputs = new ElevatorIOInputsAutoLogged();
@@ -38,7 +38,7 @@ public class CatzElevatorSubsystem extends SubsystemBase {
   private CatzManipulatorPositions m_targetPose;
 
   /** Creates a new CatzElevatorSubsystem. */
-  private CatzElevatorSubsystem() {
+  private SubsystemCatzElevator() {
     switch(CatzConstants.currentMode) {
         case REAL:io = new ElevatorIOReal();
             break;
@@ -48,6 +48,7 @@ public class CatzElevatorSubsystem extends SubsystemBase {
             break;
     }
   }
+  //tbd find a way to get in on csv for our  needs
 
   //The periodic method will be used for any hardware calls to set motor power
   @Override
@@ -71,25 +72,26 @@ public class CatzElevatorSubsystem extends SubsystemBase {
       else {
          io.elevatorMtrSetPosIO(m_targetPose.getElevatorPosEnc());
       }
+
+      //checking elevator is in position
+      double currentPosition = inputs.elevatorEncoderCnts;
+      double positionError = currentPosition - m_targetPose.getElevatorPosEnc();
+      if  ((Math.abs(positionError) <= ELEVATOR_POS_ERROR_THRESHOLD) && m_targetPose.getElevatorPosEnc() != NO_TARGET_POSITION) {
+          m_numConsectSamples++;
+              if(m_numConsectSamples >= 10) {   
+                  CatzSharedDataUtil.sharedElevatorInPos = true;
+              }
+      }
+      else {
+          m_numConsectSamples = 0;
+          CatzSharedDataUtil.sharedElevatorInPos = false;
+      }
     }
     else { //full manual
       m_elevatorPwr = m_elevatorPwr * CatzConstants.ElevatorConstants.ELEVATOR_MAX_MANUAL_SCALED_POWER;
       io.elevatorManualIO(m_elevatorPwr);
     }
 
-    //checking elevator is in position
-    double currentPosition = inputs.elevatorEncoderCnts;
-    double positionError = currentPosition - m_targetPose.getElevatorPosEnc();
-    if  ((Math.abs(positionError) <= ELEVATOR_POS_ERROR_THRESHOLD) && m_targetPose.getElevatorPosEnc() != NO_TARGET_POSITION) {
-        m_numConsectSamples++;
-            if(m_numConsectSamples >= 10) {   
-                CatzSharedDataUtil.sharedElevatorInPos = true;
-            }
-    }
-    else {
-        m_numConsectSamples = 0;
-        CatzSharedDataUtil.sharedElevatorInPos = false;
-    }
     //logging
     Logger.getInstance().recordOutput("armencreadfromelevator", CatzSharedDataUtil.sharedArmEncCnts);
   }
@@ -113,6 +115,8 @@ public class CatzElevatorSubsystem extends SubsystemBase {
       io.elevatorConfig_kIIO(0, ElevatorConstants.ELEVATOR_KI_LOW);
       io.elevatorConfig_kDIO(0, ElevatorConstants.ELEVATOR_KD_LOW);
     }
+
+
 
     //if the target position is lower than High elevator needs to be aware of the arm position
     if(targetPosition.getElevatorPosEnc() < ElevatorConstants.ELEVATOR_POS_ENC_CNTS_HIGH) {
@@ -147,7 +151,8 @@ public class CatzElevatorSubsystem extends SubsystemBase {
         m_highSwitchState = false;
     }
   }
-  public static CatzElevatorSubsystem getInstance() {
+
+  public static SubsystemCatzElevator getInstance() {
       return instance;
   }  
 

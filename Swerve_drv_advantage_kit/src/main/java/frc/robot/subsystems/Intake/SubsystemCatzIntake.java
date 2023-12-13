@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems.Intake;
 
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import org.littletonrobotics.junction.Logger;
@@ -15,8 +16,8 @@ import frc.robot.Utils.CatzManipulatorPositions;
 import frc.robot.Utils.CatzSharedDataUtil;
 import frc.robot.Utils.CatzAbstractStateUtil;
 
-public class CatzIntakeSubsystem extends SubsystemBase {
-    private static CatzIntakeSubsystem instance = new CatzIntakeSubsystem();
+public class SubsystemCatzIntake extends SubsystemBase {
+    private static SubsystemCatzIntake instance = new SubsystemCatzIntake();
     private final IntakeIO io;
     private final IntakeIOInputsAutoLogged inputs = new IntakeIOInputsAutoLogged();
 
@@ -50,7 +51,7 @@ public class CatzIntakeSubsystem extends SubsystemBase {
 
     private CatzManipulatorPositions m_targetPos;
 
-    private CatzIntakeSubsystem() {
+    private SubsystemCatzIntake() {
         switch (CatzConstants.currentMode) {
             case REAL: io = new IntakeIOReal();
                 break;
@@ -168,24 +169,30 @@ public class CatzIntakeSubsystem extends SubsystemBase {
     *  Utilities - Rollers
     *
     *---------------------------------------------------------------------------------------------*/
-    public void intakeRollerFunctionIN() {
+    public Command intakeRollersIn() {
+        return run(() -> intakeRollerFunctionIN());
+    }
+    public Command intakeRollersOut() {
+        return run(() -> intakeRollerFunctionOUT());
+    }
+    public Command intakeRollersOff() {
+        return run(() -> io.rollersOffIO());
+    }
+    
+    private void intakeRollerFunctionIN() {
         if (CatzAbstractStateUtil.currentGamePieceState == CatzAbstractStateUtil.GamePieceState.CUBE) {
-            rollersInCube();
+            io.rollerVoltageIO(ROLLERS_PWR_CUBE_IN * 12);
         } else {
-            rollersInCone();
+            io.rollerVoltageIO(ROLLERS_PWR_CONE_IN * 12);
         }
     }
 
-    public void intakeRollerFunctionOUT() {
+    private void intakeRollerFunctionOUT() {
         if (CatzAbstractStateUtil.currentGamePieceState == CatzAbstractStateUtil.GamePieceState.CUBE) {
-            rollersOutCube();
+            io.rollerVoltageIO(ROLLERS_PWR_CUBE_OUT * 12);
         } else {
-            rollersOutCone();
+            io.rollerVoltageIO(ROLLERS_PWR_CONE_OUT * 12);
         }
-    }
-
-    public void intakeRollersOff() {
-        io.rollersOffIO();
     }
 
     private void rollersInCube() {
@@ -230,16 +237,16 @@ public class CatzIntakeSubsystem extends SubsystemBase {
 
     }
 
-    public void softLimitOverideDisabled() {
-        io.intakeConfigureSoftLimitOverride(false);
+    public Command softLimitOverideDisabled() {
+        return run(()-> io.intakeConfigureSoftLimitOverride(false));
     }
 
-    public void softLimitOverideEnabled() {
-        io.intakeConfigureSoftLimitOverride(true);
+    public Command softLimitOverideEnabled() {
+        return run(()-> io.intakeConfigureSoftLimitOverride(true));    
     }
     
     //getInstance method
-    public static CatzIntakeSubsystem getInstance() {
+    public static SubsystemCatzIntake getInstance() {
         return instance;
     }
 }

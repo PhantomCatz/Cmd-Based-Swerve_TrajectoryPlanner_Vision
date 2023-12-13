@@ -5,6 +5,7 @@
 package frc.robot.subsystems.Arm;
 
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import org.littletonrobotics.junction.Logger;
@@ -17,10 +18,10 @@ import frc.robot.Utils.CatzManipulatorPositions;
 import frc.robot.Utils.CatzSharedDataUtil;
 import frc.robot.Utils.CatzAbstractStateUtil;
 //import frc.robot.Robot.mechMode;
-import frc.robot.subsystems.Elevator.CatzElevatorSubsystem;
+import frc.robot.subsystems.Elevator.SubsystemCatzElevator;
 
-public class CatzArmSubsystem extends SubsystemBase {
-  private static CatzArmSubsystem instance = new CatzArmSubsystem();
+public class SubsystemCatzArm extends SubsystemBase {
+  private static SubsystemCatzArm instance = new SubsystemCatzArm();
 
   private final ArmIO io;
   private final ArmIOInputsAutoLogged  inputs = new ArmIOInputsAutoLogged();
@@ -42,7 +43,7 @@ public class CatzArmSubsystem extends SubsystemBase {
   private CatzManipulatorPositions m_targetPose;
 
 
-  private CatzArmSubsystem() {
+  private SubsystemCatzArm() {
     switch(CatzConstants.currentMode) {
         case REAL: io = new ArmIOReal();
             break;
@@ -80,25 +81,28 @@ public class CatzArmSubsystem extends SubsystemBase {
         else {
             io.setArmPosEncIO(m_targetPose.getArmPosEnc());
         }
+
+        //checking if arm has reached position
+        double currentPosition = inputs.armMotorEncoder;
+        double positionError = currentPosition - m_targetPose.getArmPosEnc();
+        if  ((Math.abs(positionError) <= ARM_POS_ERROR_THRESHOLD)) {
+            m_numConsectSamples++;
+                if(m_numConsectSamples >= 10) {   
+                    CatzSharedDataUtil.sharedArmInPos = true;
+                }
+        }
+        else {
+            m_numConsectSamples = 0;
+            CatzSharedDataUtil.sharedArmInPos = false;
+        } 
     }
     else { //full manual
-        io.setArmPwrIO(m_armPwr);
+        //io.setArmPwrIO(m_armPwr); 
+        io.setArmPwrIO(0);
     }
 
-    //checking if arm has reached position
-    double currentPosition = inputs.armMotorEncoder;
-    double positionError = currentPosition - m_targetPose.getArmPosEnc();
-    if  ((Math.abs(positionError) <= ARM_POS_ERROR_THRESHOLD)) {
-        m_numConsectSamples++;
-            if(m_numConsectSamples >= 10) {   
-                CatzSharedDataUtil.sharedArmInPos = true;
-            }
-    }
-    else {
-        m_numConsectSamples = 0;
-        CatzSharedDataUtil.sharedArmInPos = false;
-    }
   }
+  
     //updates the arm statemachine to auto and does auto cmds
     public void cmdUpdateArm(CatzManipulatorPositions targetPose)
     {
@@ -112,7 +116,10 @@ public class CatzArmSubsystem extends SubsystemBase {
     }
   
     //manually controls the arm and disables armpose object
-    public void setArmPwr(double pwr) {        
+    public Command setArmPwrCmd(double pwr) {
+        return run(() -> setArmPwr(pwr));
+    }
+    private void setArmPwr(double pwr) {        
         this.m_armPwr = pwr;
         this.m_targetPose = null;
     }
@@ -134,7 +141,7 @@ public class CatzArmSubsystem extends SubsystemBase {
         }
     } 
 
-    public static CatzArmSubsystem getInstance() {
+    public static SubsystemCatzArm getInstance() {
         return instance;
     }
 }

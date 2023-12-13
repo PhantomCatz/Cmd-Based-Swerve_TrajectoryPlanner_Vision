@@ -30,17 +30,18 @@ import frc.robot.Utils.CatzAbstractStateUtil.SetAbstractMechanismState;
 import frc.robot.commands.ManipulatorToPoseCmd;
 import frc.robot.commands.DriveCmds.Trajectory.TrajectoryFollowingCmd;
 import frc.robot.commands.DriveCmds.Trajectory.Paths.Trajectories;
-import frc.robot.subsystems.Arm.CatzArmSubsystem;
-import frc.robot.subsystems.Elevator.CatzElevatorSubsystem;
-import frc.robot.subsystems.Intake.CatzIntakeSubsystem;
-import frc.robot.subsystems.drivetrain.CatzDriveTrainSubsystem;
+import frc.robot.subsystems.Arm.SubsystemCatzArm;
+import frc.robot.subsystems.Elevator.SubsystemCatzElevator;
+import frc.robot.subsystems.Intake.SubsystemCatzIntake;
+import frc.robot.subsystems.drivetrain.SubsystemCatzDriveTrain;
+import frc.robot.CatzConstants.DriveConstants;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 
 public class CatzAutonomous {
-    static CatzDriveTrainSubsystem driveTrain = CatzDriveTrainSubsystem.getInstance(); 
-    static CatzElevatorSubsystem elevator = CatzElevatorSubsystem.getInstance();
-    static CatzArmSubsystem arm = CatzArmSubsystem.getInstance();
-    static CatzIntakeSubsystem intake = CatzIntakeSubsystem.getInstance();
+    static SubsystemCatzDriveTrain driveTrain = SubsystemCatzDriveTrain.getInstance(); 
+    static SubsystemCatzElevator elevator = SubsystemCatzElevator.getInstance();
+    static SubsystemCatzArm arm = SubsystemCatzArm.getInstance();
+    static SubsystemCatzIntake intake = SubsystemCatzIntake.getInstance();
     
     //private static PathPlannerPath driveStraighFullTurn = PathPlannerPath.fromPathFile("DriveStraightFullTurn");
     //private static PathPlannerPath feildSideDriveBack = PathPlannerPath.fromPathFile("FeildSideDriveBack");
@@ -73,7 +74,7 @@ public class CatzAutonomous {
         switch(autoChooser.get())
         {
             case TEST: return testPath();
-            case DRIVE_STRAIGHT: driveStraight();
+            case DRIVE_STRAIGHT: return driveStraight();
             case PARALEL_SCORE_2: return parallelScoreCube();
             default: 
             return new InstantCommand();
@@ -82,13 +83,16 @@ public class CatzAutonomous {
 
     public Command testPath()
     {
+        driveTrain.resetForAutonomous();
         return new SequentialCommandGroup(
-
-               new TrajectoryFollowingCmd(Trajectories.testTrajectoryStraight, Rotation2d.fromDegrees(180))
-                                        );
+            new TrajectoryFollowingCmd(Trajectories.testTrajectoryCurve, Rotation2d.fromDegrees(180)),
+            new TrajectoryFollowingCmd(Trajectories.testTrajectoryCurveGoBack, Rotation2d.fromDegrees(180)),
+            new TrajectoryFollowingCmd(Trajectories.testTrajectoryStraight, Rotation2d.fromDegrees(0))
+        );
     }
 
     public Command driveStraight() {
+        driveTrain.resetForAutonomous();
         return new TrajectoryFollowingCmd(Trajectories.testTrajectoryStraight, Rotation2d.fromDegrees(180));
     }
 
@@ -151,9 +155,9 @@ public class CatzAutonomous {
     {
 
         return new SequentialCommandGroup(
-                Commands.runOnce(() -> intake.intakeRollerFunctionIN()),
+                intake.intakeRollersIn(),
                 Commands.waitSeconds(0.5),
-                Commands.runOnce(() -> intake.intakeRollersOff())           
+                intake.intakeRollersOff()           
                                          );
     }
 

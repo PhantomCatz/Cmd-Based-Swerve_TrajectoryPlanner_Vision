@@ -16,16 +16,17 @@ import frc.robot.Utils.CatzAbstractStateUtil.SetAbstractMechanismState;
 import frc.robot.RobotContainer;
 import frc.robot.CatzConstants.ManipulatorPoseConstants;
 import frc.robot.RobotContainer.mechMode;
-import frc.robot.subsystems.Arm.CatzArmSubsystem;
-import frc.robot.subsystems.Elevator.CatzElevatorSubsystem;
-import frc.robot.subsystems.Intake.CatzIntakeSubsystem;
+import frc.robot.subsystems.Arm.SubsystemCatzArm;
+import frc.robot.subsystems.Elevator.SubsystemCatzElevator;
+import frc.robot.subsystems.Intake.SubsystemCatzIntake;
 
 
 
 public class ManipulatorToPoseCmd extends CommandBase {
-  private CatzElevatorSubsystem m_elevator = CatzElevatorSubsystem.getInstance();
-  private CatzIntakeSubsystem m_intake = CatzIntakeSubsystem.getInstance();
-  private CatzArmSubsystem m_arm = CatzArmSubsystem.getInstance();
+
+  private SubsystemCatzElevator m_elevator = SubsystemCatzElevator.getInstance();
+  private SubsystemCatzIntake m_intake = SubsystemCatzIntake.getInstance();
+  private SubsystemCatzArm m_arm = SubsystemCatzArm.getInstance();
   private CatzManipulatorPositions m_targetPose;
 
   //low level targetpose constructor 
@@ -110,10 +111,11 @@ public class ManipulatorToPoseCmd extends CommandBase {
       
   }
 
-  @Override
+  //isfinished is for knowing when autonomus commands finish to continue with autonmous
+  @Override 
   public boolean isFinished() {
-      return (!CatzSharedDataUtil.sharedElevatorInPos && 
-              !CatzSharedDataUtil.sharedIntakeInPos && 
-              !CatzSharedDataUtil.sharedArmInPos);
+      return (CatzSharedDataUtil.sharedElevatorInPos && 
+              CatzSharedDataUtil.sharedIntakeInPos && 
+              CatzSharedDataUtil.sharedArmInPos);
   }
 }

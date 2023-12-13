@@ -1,5 +1,7 @@
 package frc.robot.subsystems.vision;
     
+import javax.lang.model.util.ElementScanner14;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.*;
@@ -80,13 +82,23 @@ public class CatzAprilTag {
     public Pose2d getLimelightBotPose()
     {
         botPoseUpdate();
-        return new Pose2d(botPose[POS_X_INDEX],botPose[POS_Y_INDEX],Rotation2d.fromDegrees(botPose[ROT_Z_INDEX]));
+        if(botPose == null){
+            return null;
+        }else{
+            return new Pose2d(botPose[POS_X_INDEX],botPose[POS_Y_INDEX],Rotation2d.fromDegrees(botPose[ROT_Z_INDEX]));
+        }
     }
 
     //return the distance from center of robot to apriltag
     public double disToTag()
     {
         return (DISX_TAG_TO_TAG/2-Math.abs(botPose[POS_X_INDEX]));
+    }
+
+    public void smartDashboardAprilTag() {
+        SmartDashboard.putNumber("Limielightx", x);
+        SmartDashboard.putNumber("Limielighty", y);
+        SmartDashboard.putNumber("Limielighta", area);
     }
 
     public static CatzAprilTag getInstance()
@@ -98,15 +110,5 @@ public class CatzAprilTag {
         return instance;
     }
 
-    public void smartDashboardAprilTag()
-    {
-        SmartDashboard.putNumber("botpos Px", botPose[POS_X_INDEX]);
-        SmartDashboard.putNumber("botpos Py", botPose[POS_Y_INDEX]);
-        SmartDashboard.putNumber("botpos Rz", botPose[ROT_Z_INDEX]);
-        
-        SmartDashboard.putNumber("LimelightX", x);
-        SmartDashboard.putNumber("LimelightY", y);
-        SmartDashboard.putNumber("LimelightArea", area);
-    }
 
 }

@@ -8,13 +8,13 @@ import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.subsystems.drivetrain.CatzDriveTrainSubsystem.DriveConstants;
+import frc.robot.CatzConstants.DriveConstants;
 import frc.robot.CatzConstants.OIConstants;
-import frc.robot.subsystems.drivetrain.CatzDriveTrainSubsystem;
+import frc.robot.subsystems.drivetrain.SubsystemCatzDriveTrain;
 
 public class TeleopDriveCmd extends CommandBase {
 
-  private CatzDriveTrainSubsystem driveTrain = CatzDriveTrainSubsystem.getInstance();
+  private SubsystemCatzDriveTrain driveTrain = SubsystemCatzDriveTrain.getInstance();
   Supplier<Double> supplierLeftJoyX;
   Supplier<Double> supplierLeftJoyY;
   Supplier<Double> supplierRightJoyX;
@@ -26,17 +26,17 @@ public class TeleopDriveCmd extends CommandBase {
                         Supplier<Double> supplierLeftJoyY,
                         Supplier<Double> supplierRightJoyX,
                         Supplier<Double> supplierPwrMode,
-                        Supplier<Boolean> isFeildOriented) {
+                        Supplier<Boolean> supplierFieldOriented) {
     this.supplierLeftJoyX = supplierLeftJoyX;
     this.supplierLeftJoyY = supplierLeftJoyY;
     this.supplierRightJoyX = supplierRightJoyX;
     this.supplierPwrMode = supplierPwrMode;
-    this.isFieldOrientedDisabled = isFeildOriented;
+    this.isFieldOrientedDisabled = supplierFieldOriented;
 
     addRequirements(driveTrain);
   }
 
-  // Called when the command is initially scheduled.
+// Called when the command is initially scheduled.
   @Override
   public void initialize() {}
 
@@ -44,9 +44,9 @@ public class TeleopDriveCmd extends CommandBase {
   @Override
   public void execute() {
     //obtain realtime joystick inputs with supplier methods
-    double xSpeed = -supplierLeftJoyX.get();
-    double ySpeed = supplierLeftJoyY.get();
-    double turningSpeed = supplierRightJoyX.get();
+    double xSpeed = supplierLeftJoyY.get();
+    double ySpeed = supplierLeftJoyX.get();
+    double turningSpeed = -supplierRightJoyX.get();
 
     // Apply deadbands to prevent modules from receiving unintentional pwr
     xSpeed = Math.abs(xSpeed) > OIConstants.kDeadband ? xSpeed * DriveConstants.MAX_SPEED: 0.0;
@@ -66,7 +66,7 @@ public class TeleopDriveCmd extends CommandBase {
     }
 
     //send new chassisspeeds object to the drivetrain
-    driveTrain.driveRobotRelative(chassisSpeeds);
+    driveTrain.driveRobot(chassisSpeeds);
 
     //logging
     Logger.getInstance().recordOutput("robot xspeed", xSpeed);

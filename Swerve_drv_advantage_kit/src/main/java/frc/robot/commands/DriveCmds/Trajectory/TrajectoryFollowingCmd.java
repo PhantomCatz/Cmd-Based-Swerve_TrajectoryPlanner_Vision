@@ -11,35 +11,35 @@ import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.subsystems.drivetrain.CatzDriveTrainSubsystem;
-import frc.robot.subsystems.drivetrain.CatzDriveTrainSubsystem.DriveConstants;
+import frc.robot.subsystems.drivetrain.SubsystemCatzDriveTrain;
+import frc.robot.CatzConstants.DriveConstants;
 
 // Follows a trajectory
 public class TrajectoryFollowingCmd extends CommandBase{
-    private final double TIMEOUT_RATIO = 1.5;
+    private final double TIMEOUT_RATIO = 25;
     private final double END_POS_ERROR = 0.05;
-    private final double END_ROT_ERROR = Math.toRadians(5);
+    private final double END_ROT_ERROR = 2.5; //degrees
 
     private final Timer timer = new Timer();
     private final HolonomicDriveController controller;
-    private CatzDriveTrainSubsystem m_driveTrain = CatzDriveTrainSubsystem.getInstance();
+    private SubsystemCatzDriveTrain m_driveTrain = SubsystemCatzDriveTrain.getInstance();
 
     private final Trajectory trajectory;
-    private final Rotation2d targetHeading;
-    private Rotation2d initHeading;
+    private final Rotation2d endOrientation;
+    private Rotation2d initOrientation;
 
     /**
      * @param trajectory The trajectory to follow
      * @param refHeading The goal heading for the robot to be in while in the middle of the trajectory. Takes a Pose2d parameter so that the heading may change based on external factors. 
      */
-    public TrajectoryFollowingCmd(Trajectory trajectory, Rotation2d targetHeading)
+    public TrajectoryFollowingCmd(Trajectory trajectory, Rotation2d endOrientation)
     {
         this.trajectory = trajectory;
-        this.targetHeading = targetHeading; // this returns the desired orientation when given the current position (the function itself is given as an argument). But most of the times, it will just give a constant desired orientation.
+        this.endOrientation = endOrientation; // this returns the desired orientation when given the current position (the function itself is given as an argument). But most of the times, it will just give a constant desired orientation.
         // also, why is it called refheading? wouldn't something like targetOrientation be better
 
         controller = DriveConstants.holonomicDriveController; // see catzconstants
-       addRequirements(m_driveTrain);
+        addRequirements(m_driveTrain);
     }
 
     // reset and start timer
@@ -47,20 +47,25 @@ public class TrajectoryFollowingCmd extends CommandBase{
     public void initialize() {
         timer.reset();
         timer.start();
-        initHeading = m_driveTrain.getRotation2d();
+        initOrientation = m_driveTrain.getRotation2d();
     }
 
     // calculates if trajectory is finished
     @Override
     public boolean isFinished() {
         double maxTime = trajectory.getTotalTimeSeconds();
-        Pose2d dist = trajectory.sample(maxTime).poseMeters.relativeTo(m_driveTrain.getPose());
+        Pose2d currentPosition = m_driveTrain.getPose();
+        Pose2d dist = trajectory.sample(maxTime).poseMeters.relativeTo(currentPosition);
 
+        double angleError = Math.abs(endOrientation.getDegrees() - currentPosition.getRotation().getDegrees());
+        double posError = Math.hypot(dist.getX(), dist.getY());
+
+        System.out.println("Time left: " + (maxTime - timer.get()));
         return 
-            timer.get() > maxTime * TIMEOUT_RATIO || 
+            //timer.get() > maxTime * TIMEOUT_RATIO || 
             (
-                dist.getRotation().getDegrees() <= END_ROT_ERROR &&
-                Math.sqrt(Math.pow(dist.getX(), 2) + Math.pow(dist.getY(), 2)) <= END_POS_ERROR
+                angleError <= END_ROT_ERROR &&
+                posError <= END_POS_ERROR
             );
     }
 
@@ -70,11 +75,27 @@ public class TrajectoryFollowingCmd extends CommandBase{
     public void execute() {
         double currentTime = timer.get();
         Trajectory.State goal = trajectory.sample(currentTime);
+        Rotation2d targetOrientation = initOrientation.interpolate(endOrientation, currentTime / trajectory.getTotalTimeSeconds());
         Pose2d currentPosition = m_driveTrain.getPose();
         
-        ChassisSpeeds adjustedSpeed = controller.calculate(currentPosition, goal, initHeading.interpolate(targetHeading, currentTime / trajectory.getTotalTimeSeconds()));
-        adjustedSpeed.omegaRadiansPerSecond = - adjustedSpeed.omegaRadiansPerSecond;
-        m_driveTrain.driveRobotRelative(adjustedSpeed);
+        ChassisSpeeds adjustedSpeed = controller.calculate(currentPosition, goal, targetOrientation);
+        SwerveModuleState[] targetModuleStates = DriveConstants.swerveDriveKinematics.toSwerveModuleStates(adjustedSpeed);
+        m_driveTrain.setModuleStates(targetModuleStates);
+
+        System.out.println("Current Position " + currentPosition);
+        System.out.println("Target Position " + goal.poseMeters);
+        Logger.getInstance().recordOutput("Current Position", currentPosition);
+        Logger.getInstance().recordOutput("Target Position", goal.poseMeters);
+        Logger.getInstance().recordOutput("Adjusted VelX", adjustedSpeed.vxMetersPerSecond);
+        Logger.getInstance().recordOutput("Adjusted VelX", adjustedSpeed.vyMetersPerSecond);
+        Logger.getInstance().recordOutput("Adjusted VelW", adjustedSpeed.omegaRadiansPerSecond);
+
+        // for debugging
+        // System.out.println(m_driveTrain.getPose());
+        // m_driveTrain.LT_BACK_MODULE.setDesiredState(new SwerveModuleState(1.0, new Rotation2d(0.0)));
+        // m_driveTrain.RT_BACK_MODULE.setDesiredState(new SwerveModuleState(1.0, new Rotation2d(0.0)));
+        // m_driveTrain.LT_FRNT_MODULE.setDesiredState(new SwerveModuleState(1.0, new Rotation2d(0.0)));
+        // m_driveTrain.RT_FRNT_MODULE.setDesiredState(new SwerveModuleState(1.0, new Rotation2d(0.0)));
     }
 
     // stop all robot motion

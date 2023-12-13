@@ -11,10 +11,10 @@ import frc.robot.RobotContainer;
 import frc.robot.RobotContainer.mechMode;
 import frc.robot.Utils.CatzManipulatorPositions;
 import frc.robot.Utils.CatzSharedDataUtil;
-import frc.robot.subsystems.Elevator.CatzElevatorSubsystem;
+import frc.robot.subsystems.Elevator.SubsystemCatzElevator;
 
 public class ElevatorManualCmd extends CommandBase {
-  CatzElevatorSubsystem m_elevator = CatzElevatorSubsystem.getInstance();
+  SubsystemCatzElevator m_elevator = SubsystemCatzElevator.getInstance();
       
   Supplier<Double> supplierElevatorPwr;
   Supplier<Boolean> supplierManualMode;

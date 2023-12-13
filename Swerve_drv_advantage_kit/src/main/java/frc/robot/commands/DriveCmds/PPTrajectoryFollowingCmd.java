@@ -10,9 +10,8 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.CatzConstants;
-import frc.robot.subsystems.drivetrain.CatzDriveTrainSubsystem;
-import frc.robot.subsystems.drivetrain.CatzDriveTrainSubsystem.DriveConstants;
-
+import frc.robot.subsystems.drivetrain.SubsystemCatzDriveTrain;
+import frc.robot.CatzConstants.DriveConstants;
 import org.littletonrobotics.junction.Logger;
 
 public class PPTrajectoryFollowingCmd extends CommandBase {
@@ -21,7 +20,7 @@ public class PPTrajectoryFollowingCmd extends CommandBase {
     public static final double ALLOWABLE_POSE_ERROR = 0.05;
     public static final double ALLOWABLE_ROTATION_ERROR = Math.toRadians(2);
     private final PPHolonomicDriveController controller;
-    private final CatzDriveTrainSubsystem driveTrain = CatzDriveTrainSubsystem.getInstance();
+    private final SubsystemCatzDriveTrain driveTrain = SubsystemCatzDriveTrain.getInstance();
 
     /**
      * Timer object
@@ -74,14 +73,14 @@ public class PPTrajectoryFollowingCmd extends CommandBase {
         chassisSpeeds.vyMetersPerSecond +=
                 desiredState.accelerationMpsSq * heading.getSin() * ACCELERATION_COEFFICIENT;
 
-        driveTrain.driveRobotRelative(chassisSpeeds);
+        driveTrain.driveRobot(chassisSpeeds);
         Logger.getInstance().recordOutput("Desired Auto Pose", new Pose2d(desiredState.positionMeters, desiredState.heading));
     }
 
     @Override
     public void end(boolean interrupted) {
         this.timer.stop(); // Stop timer
-        driveTrain.driveRobotRelative(new ChassisSpeeds()); // Stop motors
+        driveTrain.driveRobot(new ChassisSpeeds()); // Stop motors
     }
 
     @Override

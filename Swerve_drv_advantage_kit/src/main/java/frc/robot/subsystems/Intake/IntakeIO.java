@@ -17,6 +17,8 @@ public interface IntakeIO {
 
     public default void rollersOnIO(double rollerPwr) {}
 
+    public default void rollerVoltageIO(double rollerVolts) {}
+
     public default void intakeManualHoldingIO(double targetHoldingPwr) {}
 
     public default void wristSetPercentOuputIO(double setIntakeMtrPwr) {}

@@ -5,11 +5,10 @@
 package frc.robot.commands.DriveCmds;
 
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Utils.CatzMathUtils;
-import frc.robot.subsystems.drivetrain.CatzDriveTrainSubsystem;
+import frc.robot.subsystems.drivetrain.SubsystemCatzDriveTrain;
 
 public class BalanceCmd extends CommandBase {
   /** Creates a new BalanceCmd. */
@@ -33,7 +32,7 @@ public class BalanceCmd extends CommandBase {
   public final double MAX_POWER = 0.30;
   public final double BALANCE_THREAD_PERIOD = 0.02;
 
-  private CatzDriveTrainSubsystem driveTrain = CatzDriveTrainSubsystem.getInstance();
+  private SubsystemCatzDriveTrain driveTrain = SubsystemCatzDriveTrain.getInstance();
   public BalanceCmd() 
   {
     addRequirements(driveTrain);
@@ -90,7 +89,7 @@ public class BalanceCmd extends CommandBase {
     ChassisSpeeds chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
                                             power, 0.0, 0.0, driveTrain.getRotation2d()
                                                               );
-    driveTrain.driveRobotRelative(chassisSpeeds);
+    driveTrain.driveRobot(chassisSpeeds);
 
     prevBalanceAngle = balanceAngle;
     prevTime = time;

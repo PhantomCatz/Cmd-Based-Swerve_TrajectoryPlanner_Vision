@@ -11,10 +11,10 @@ import frc.robot.RobotContainer;
 import frc.robot.RobotContainer.mechMode;
 import frc.robot.Utils.CatzManipulatorPositions;
 import frc.robot.Utils.CatzSharedDataUtil;
-import frc.robot.subsystems.Arm.CatzArmSubsystem;
+import frc.robot.subsystems.Arm.SubsystemCatzArm;
 
 public class ArmManualCmd extends CommandBase {
-  private CatzArmSubsystem m_arm = CatzArmSubsystem.getInstance();
+  private SubsystemCatzArm m_arm = SubsystemCatzArm.getInstance();
   private boolean armExtend;
   private boolean armRetract;
 
@@ -24,10 +24,9 @@ public class ArmManualCmd extends CommandBase {
 
   
   /** Creates a new ArmManualCmd. */
-  public ArmManualCmd(boolean armExtend, boolean armRetract) 
+  public ArmManualCmd(boolean armExtend) 
   {
     this.armExtend = armExtend;
-    this.armRetract = armRetract;
     addRequirements(m_arm);
   }
 
@@ -43,15 +42,15 @@ public class ArmManualCmd extends CommandBase {
   {
     if(armExtend == true)
     {
-        m_arm.setArmPwr(EXTEND_PWR);
+        m_arm.setArmPwrCmd(EXTEND_PWR);
     }
-    else if(armRetract == true)
+    else if(armExtend == false)
     {
-        m_arm.setArmPwr(RETRACT_PWR);
+        m_arm.setArmPwrCmd(RETRACT_PWR);
     }
     else if(CatzSharedDataUtil.sharedArmInControlMode)
     {
-        m_arm.setArmPwr(MANUAL_CONTROL_PWR_OFF);
+        m_arm.setArmPwrCmd(MANUAL_CONTROL_PWR_OFF);
     }
   }
 
