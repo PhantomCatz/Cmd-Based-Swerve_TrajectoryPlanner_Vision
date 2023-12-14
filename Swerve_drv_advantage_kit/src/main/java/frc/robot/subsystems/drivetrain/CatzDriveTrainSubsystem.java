@@ -5,28 +5,25 @@ import org.littletonrobotics.junction.Logger;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.CatzConstants;
-import frc.robot.Robot;
 import frc.robot.CatzConstants.DriveConstants;
 import frc.robot.Utils.GeometryUtils;
 import frc.robot.commands.DriveCmds.TeleopDriveCmd;
 import frc.robot.subsystems.vision.CatzAprilTag;;
 
 
-public class SubsystemCatzDriveTrain extends SubsystemBase {
+public class CatzDriveTrainSubsystem extends SubsystemBase {
 
  //---------------------CatzDriveTrain class Definitions------------------------------------
-    private static SubsystemCatzDriveTrain instance = new SubsystemCatzDriveTrain();
+    private static CatzDriveTrainSubsystem instance = new CatzDriveTrainSubsystem();
 
     private final GyroIO gyroIO;
     private final GyroIOInputsAutoLogged gyroInputs = new GyroIOInputsAutoLogged();
@@ -40,7 +37,7 @@ public class SubsystemCatzDriveTrain extends SubsystemBase {
     public final CatzSwerveModule RT_FRNT_MODULE;
     public final CatzSwerveModule RT_BACK_MODULE;
 
-    private SubsystemCatzDriveTrain() {   
+    private CatzDriveTrainSubsystem() {   
 
         switch(CatzConstants.currentMode) {
         case REAL: gyroIO = new GyroIONavX();
@@ -252,7 +249,7 @@ public class SubsystemCatzDriveTrain extends SubsystemBase {
         return modulePositions;
     }
 
-    public static SubsystemCatzDriveTrain getInstance() {
+    public static CatzDriveTrainSubsystem getInstance() {
         return instance;
     }
     

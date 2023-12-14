@@ -9,20 +9,19 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.subsystems.drivetrain.SubsystemCatzDriveTrain;
+import frc.robot.subsystems.drivetrain.CatzDriveTrainSubsystem;
 import frc.robot.CatzConstants.DriveConstants;
 
 // Follows a trajectory
 public class TrajectoryFollowingCmd extends CommandBase{
-    private final double TIMEOUT_RATIO = 25;
+    private final double TIMEOUT_RATIO = 3;
     private final double END_POS_ERROR = 0.05;
     private final double END_ROT_ERROR = 2.5; //degrees
 
     private final Timer timer = new Timer();
     private final HolonomicDriveController controller;
-    private SubsystemCatzDriveTrain m_driveTrain = SubsystemCatzDriveTrain.getInstance();
+    private CatzDriveTrainSubsystem m_driveTrain = CatzDriveTrainSubsystem.getInstance();
 
     private final Trajectory trajectory;
     private final Rotation2d endOrientation;
@@ -60,9 +59,8 @@ public class TrajectoryFollowingCmd extends CommandBase{
         double angleError = Math.abs(endOrientation.getDegrees() - currentPosition.getRotation().getDegrees());
         double posError = Math.hypot(dist.getX(), dist.getY());
 
-        System.out.println("Time left: " + (maxTime - timer.get()));
         return 
-            //timer.get() > maxTime * TIMEOUT_RATIO || 
+            timer.get() > maxTime * TIMEOUT_RATIO || 
             (
                 angleError <= END_ROT_ERROR &&
                 posError <= END_POS_ERROR
@@ -82,8 +80,7 @@ public class TrajectoryFollowingCmd extends CommandBase{
         SwerveModuleState[] targetModuleStates = DriveConstants.swerveDriveKinematics.toSwerveModuleStates(adjustedSpeed);
         m_driveTrain.setModuleStates(targetModuleStates);
 
-        System.out.println("Current Position " + currentPosition);
-        System.out.println("Target Position " + goal.poseMeters);
+        //data logging
         Logger.getInstance().recordOutput("Current Position", currentPosition);
         Logger.getInstance().recordOutput("Target Position", goal.poseMeters);
         Logger.getInstance().recordOutput("Adjusted VelX", adjustedSpeed.vxMetersPerSecond);
@@ -102,9 +99,7 @@ public class TrajectoryFollowingCmd extends CommandBase{
     @Override
     public void end(boolean interrupted) {
         timer.stop();
-
         m_driveTrain.stopDriving();
-        
         System.out.println("trajectory done");
     }
 }
