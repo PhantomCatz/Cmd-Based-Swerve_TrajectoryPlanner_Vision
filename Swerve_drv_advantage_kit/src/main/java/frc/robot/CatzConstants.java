@@ -154,7 +154,7 @@ public static final class ManipulatorPoseConstants
         
 
         public static final double MAX_SPEED = 3.0; // meters per second
-        public static final double MAX_ANGSPEED_RAD_PER_SEC = 3.0; // radians per second
+        public static final double MAX_ANGSPEED_RAD_PER_SEC = 2.0; // radians per second
         public static final double MAX_SPEED_DESATURATION = MAX_SPEED + MAX_ANGSPEED_RAD_PER_SEC * MODULE_DISTANCE_FROM_CENTER * Math.sqrt(2);
 
         public static final double SDS_L1_GEAR_RATIO = 8.14;       //SDS mk4i L1 ratio reduction

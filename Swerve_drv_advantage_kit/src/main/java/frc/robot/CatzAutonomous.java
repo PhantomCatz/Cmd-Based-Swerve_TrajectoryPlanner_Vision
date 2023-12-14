@@ -73,7 +73,7 @@ public class CatzAutonomous {
     {
         switch(autoChooser.get())
         {
-            case TEST: return testPath();
+            case TEST: return testPath2();
             case DRIVE_STRAIGHT: return driveStraight();
             case PARALEL_SCORE_2: return parallelScoreCube();
             default: 
@@ -89,6 +89,12 @@ public class CatzAutonomous {
             new TrajectoryFollowingCmd(Trajectories.testTrajectoryCurveGoBack, Rotation2d.fromDegrees(180)),
             new TrajectoryFollowingCmd(Trajectories.testTrajectoryStraight, Rotation2d.fromDegrees(0))
         );
+    }
+
+    public Command testPath2()
+    {
+        driveTrain.resetForAutonomous();
+        return new TrajectoryFollowingCmd(Trajectories.testTrajectoryBellsCurve, Rotation2d.fromDegrees(0));
     }
 
     public Command driveStraight() {

@@ -18,6 +18,7 @@ import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Threads;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -92,6 +93,8 @@ public class Robot extends LoggedRobot {
     // Instantiate our RobotContainer. This will perform all our button mappings to triggers, and put our
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
+
+    DriverStation.silenceJoystickConnectionWarning(true); //finally found the stupid thing
   }
 
 
@@ -155,6 +158,7 @@ public class Robot extends LoggedRobot {
       m_autonomousCommand.cancel();
     }
     RobotContainer.currentGameModeLED = gameModeLED.TeleOp;
+    
   }
 
   /** This function is called periodically during operator control. */
