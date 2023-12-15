@@ -59,6 +59,8 @@ public class CatzAutonomous {
 
     public Command getCommand()
     {
+        driveTrain.resetForAutonomous();
+
         switch(autoChooser.get())
         {
             case TEST: return testPath2();

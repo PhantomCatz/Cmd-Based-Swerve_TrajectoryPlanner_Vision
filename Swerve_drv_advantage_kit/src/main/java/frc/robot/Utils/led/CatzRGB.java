@@ -6,17 +6,13 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.util.Color;
 import frc.robot.CatzAutonomous;
 import frc.robot.CatzConstants;
-import frc.robot.Robot;
 import frc.robot.RobotContainer;
 import frc.robot.CatzConstants.AllianceColor;
-import frc.robot.subsystems.vision.CatzAprilTag;
-
-@SuppressWarnings("unused")
 public class CatzRGB 
 {
-    enum LEDSections
+    private enum LEDSections
     {
-        //dummy endpoints 65 total 34 left 31 right
+        //endpoints 65 total 34 left 31 right
         IntakeL(31, 32),   
         ArmL(22, 23),
         ElevatorL(18, 19),
@@ -182,7 +178,7 @@ public class CatzRGB
 
     public void LEDPeriodic()
     {
-        if(RobotContainer.currentGameModeLED == RobotContainer.gameModeLED.TeleOp){
+        if(RobotContainer.currentGameModeLED == RobotContainer.GameModeLED.TeleOp){
             fillLEDBuffer(RobotContainer.currentGamePiece.color);
             fillLEDBuffer(LEDSections.ArmL.start, LEDSections.ArmL.end, RobotContainer.armControlMode.color);
             fillLEDBuffer(LEDSections.IntakeL.start, LEDSections.IntakeL.end, RobotContainer.intakeControlMode.color);

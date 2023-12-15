@@ -157,29 +157,29 @@ import frc.robot.subsystems.drivetrain.CatzDriveTrainSubsystem;
 
    //--------------------------------------------LED setup------------------------------------------------
    //TBD in constants class
-   public static enum mechMode {
+   public static enum MechMode {
     AutoMode(Color.kGreen),
     ManualHoldMode(Color.kCyan),
     ManualMode(Color.kRed);
 
     public Color color;
-    mechMode(Color color){
+    MechMode(Color color){
       this.color = color;
     }
   }
 
-  public static enum gamePiece{
+  public static enum GamePiece{
     Cube(Color.kPurple),
     Cone(Color.kYellow),
     None(Color.kGhostWhite);
 
     public Color color;
-    gamePiece(Color color){
+    GamePiece(Color color){
       this.color = color;
     }
   }
 
-  public static enum gameModeLED{
+  public static enum GameModeLED{
     Autobalancing(led.oneColorFill, Color.kGreen),
     InAutonomous(led.startFlowing, led.PHANTOM_SAPPHIRE, Color.kWhite),
     MatchEnd(led.startFlowingRainbow),
@@ -188,16 +188,16 @@ import frc.robot.subsystems.drivetrain.CatzDriveTrainSubsystem;
 
     public ColorMethod method;
     public Color[] color;
-    private gameModeLED(ColorMethod method, Color... color) {
+    private GameModeLED(ColorMethod method, Color... color) {
       this.method = method;
       this.color = color;
     }
   }
 
-  public static mechMode intakeControlMode = mechMode.AutoMode;
-  public static mechMode elevatorControlMode = mechMode.AutoMode;
-  public static mechMode armControlMode = mechMode.AutoMode;
-  public static gameModeLED currentGameModeLED = gameModeLED.MatchEnd;
-  public static gamePiece currentGamePiece = gamePiece.None;
+  public static MechMode intakeControlMode = MechMode.AutoMode;
+  public static MechMode elevatorControlMode = MechMode.AutoMode;
+  public static MechMode armControlMode = MechMode.AutoMode;
+  public static GameModeLED currentGameModeLED = GameModeLED.MatchEnd;
+  public static GamePiece currentGamePiece = GamePiece.None;
 
  }

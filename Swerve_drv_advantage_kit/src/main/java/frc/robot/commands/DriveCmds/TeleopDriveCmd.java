@@ -1,7 +1,4 @@
-
 package frc.robot.commands.DriveCmds;
-
-
 
 import java.util.function.Supplier;
 
@@ -36,7 +33,7 @@ public class TeleopDriveCmd extends CommandBase {
     addRequirements(driveTrain);
   }
 
-// Called when the command is initially scheduled.
+  // Called when the command is initially scheduled.
   @Override
   public void initialize() {}
 

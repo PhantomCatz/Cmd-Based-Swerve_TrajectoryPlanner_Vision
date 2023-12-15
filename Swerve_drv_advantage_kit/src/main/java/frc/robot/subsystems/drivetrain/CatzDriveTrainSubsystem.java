@@ -19,10 +19,8 @@ import frc.robot.Utils.GeometryUtils;
 import frc.robot.commands.DriveCmds.TeleopDriveCmd;
 import frc.robot.subsystems.vision.CatzAprilTag;;
 
-
 public class CatzDriveTrainSubsystem extends SubsystemBase {
-
- //---------------------CatzDriveTrain class Definitions------------------------------------
+    //---------------------CatzDriveTrain class Definitions------------------------------------
     private static CatzDriveTrainSubsystem instance = new CatzDriveTrainSubsystem();
 
     private final GyroIO gyroIO;
@@ -40,13 +38,14 @@ public class CatzDriveTrainSubsystem extends SubsystemBase {
     private CatzDriveTrainSubsystem() {   
 
         switch(CatzConstants.currentMode) {
-        case REAL: gyroIO = new GyroIONavX();
-        break;
-        case REPLAY: gyroIO = new GyroIONavX() {};
-        break;
+            case REAL: gyroIO = new GyroIONavX();
+            break;
 
-        default: gyroIO = null;
-        break;
+            case REPLAY: gyroIO = new GyroIONavX() {};
+            break;
+
+            default: gyroIO = null;
+            break;
         }
         
         LT_FRNT_MODULE = new CatzSwerveModule(DriveConstants.LT_FRNT_DRIVE_ID, 
@@ -88,10 +87,10 @@ public class CatzDriveTrainSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         //update inputs(sensors/encoders) for code logic and advantage kit
-            LT_FRNT_MODULE.periodic();
-            LT_BACK_MODULE.periodic();
-            RT_BACK_MODULE.periodic();
-            RT_FRNT_MODULE.periodic();
+        LT_FRNT_MODULE.periodic();
+        LT_BACK_MODULE.periodic();
+        RT_BACK_MODULE.periodic();
+        RT_FRNT_MODULE.periodic();
         
         gyroIO.updateInputs(gyroInputs);
         Logger.getInstance().processInputs("Drive/gyroinputs ", gyroInputs);
@@ -108,9 +107,8 @@ public class CatzDriveTrainSubsystem extends SubsystemBase {
             Logger.getInstance().recordOutput("Drive/VisionPose" , aprilPose2d);
         }
         
-        
         //logging
-       Logger.getInstance().recordOutput("Obometry/pose", getPose());
+        Logger.getInstance().recordOutput("Obometry/pose", getPose());
         m_aprilTag.smartDashboardAprilTag();
 
         SmartDashboard.putNumber("gyroAngle", getGyroAngle());
@@ -252,5 +250,4 @@ public class CatzDriveTrainSubsystem extends SubsystemBase {
     public static CatzDriveTrainSubsystem getInstance() {
         return instance;
     }
-    
 }
