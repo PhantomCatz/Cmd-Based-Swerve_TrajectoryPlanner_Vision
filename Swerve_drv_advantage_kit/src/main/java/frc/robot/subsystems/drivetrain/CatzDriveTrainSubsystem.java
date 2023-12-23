@@ -5,28 +5,23 @@ import org.littletonrobotics.junction.Logger;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.CatzConstants;
-import frc.robot.Robot;
 import frc.robot.CatzConstants.DriveConstants;
 import frc.robot.Utils.GeometryUtils;
 import frc.robot.commands.DriveCmds.TeleopDriveCmd;
 import frc.robot.subsystems.vision.CatzAprilTag;;
 
-
-public class SubsystemCatzDriveTrain extends SubsystemBase {
-
- //---------------------CatzDriveTrain class Definitions------------------------------------
-    private static SubsystemCatzDriveTrain instance = new SubsystemCatzDriveTrain();
+public class CatzDriveTrainSubsystem extends SubsystemBase {
+    //---------------------CatzDriveTrain class Definitions------------------------------------
+    private static CatzDriveTrainSubsystem instance = new CatzDriveTrainSubsystem();
 
     private final GyroIO gyroIO;
     private final GyroIOInputsAutoLogged gyroInputs = new GyroIOInputsAutoLogged();
@@ -40,16 +35,17 @@ public class SubsystemCatzDriveTrain extends SubsystemBase {
     public final CatzSwerveModule RT_FRNT_MODULE;
     public final CatzSwerveModule RT_BACK_MODULE;
 
-    private SubsystemCatzDriveTrain() {   
+    private CatzDriveTrainSubsystem() {   
 
         switch(CatzConstants.currentMode) {
-        case REAL: gyroIO = new GyroIONavX();
-        break;
-        case REPLAY: gyroIO = new GyroIONavX() {};
-        break;
+            case REAL: gyroIO = new GyroIONavX();
+            break;
 
-        default: gyroIO = null;
-        break;
+            case REPLAY: gyroIO = new GyroIONavX() {};
+            break;
+
+            default: gyroIO = null;
+            break;
         }
         
         LT_FRNT_MODULE = new CatzSwerveModule(DriveConstants.LT_FRNT_DRIVE_ID, 
@@ -91,10 +87,10 @@ public class SubsystemCatzDriveTrain extends SubsystemBase {
     @Override
     public void periodic() {
         //update inputs(sensors/encoders) for code logic and advantage kit
-            LT_FRNT_MODULE.periodic();
-            LT_BACK_MODULE.periodic();
-            RT_BACK_MODULE.periodic();
-            RT_FRNT_MODULE.periodic();
+        LT_FRNT_MODULE.periodic();
+        LT_BACK_MODULE.periodic();
+        RT_BACK_MODULE.periodic();
+        RT_FRNT_MODULE.periodic();
         
         gyroIO.updateInputs(gyroInputs);
         Logger.getInstance().processInputs("Drive/gyroinputs ", gyroInputs);
@@ -111,9 +107,8 @@ public class SubsystemCatzDriveTrain extends SubsystemBase {
             Logger.getInstance().recordOutput("Drive/VisionPose" , aprilPose2d);
         }
         
-        
         //logging
-       Logger.getInstance().recordOutput("Obometry/pose", getPose());
+        Logger.getInstance().recordOutput("Obometry/pose", getPose());
         m_aprilTag.smartDashboardAprilTag();
 
         SmartDashboard.putNumber("gyroAngle", getGyroAngle());
@@ -132,7 +127,7 @@ public class SubsystemCatzDriveTrain extends SubsystemBase {
     //setting indivdual module states to each of the swerve modules
     public void setModuleStates(SwerveModuleState[] desiredStates) {
         //scaling down wheel speeds
-        SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, DriveConstants.MAX_SPEED);
+        SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, DriveConstants.MAX_SPEED_DESATURATION);
 
         //setting module stes to each of the swerve modules
         LT_FRNT_MODULE.setDesiredState(desiredStates[0]);
@@ -252,8 +247,7 @@ public class SubsystemCatzDriveTrain extends SubsystemBase {
         return modulePositions;
     }
 
-    public static SubsystemCatzDriveTrain getInstance() {
+    public static CatzDriveTrainSubsystem getInstance() {
         return instance;
     }
-    
 }

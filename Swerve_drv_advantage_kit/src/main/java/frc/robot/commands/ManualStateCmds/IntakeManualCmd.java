@@ -9,7 +9,7 @@ import java.util.function.Supplier;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.CatzConstants;
 import frc.robot.RobotContainer;
-import frc.robot.RobotContainer.mechMode;
+import frc.robot.RobotContainer.MechMode;
 import frc.robot.subsystems.Intake.SubsystemCatzIntake;
 
 public class IntakeManualCmd extends CommandBase {
@@ -36,7 +36,7 @@ public class IntakeManualCmd extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    RobotContainer.intakeControlMode = mechMode.AutoMode;
+    RobotContainer.intakeControlMode = MechMode.AutoMode;
   }
 
   // Called every time the scheduler runs while the command is scheduled.

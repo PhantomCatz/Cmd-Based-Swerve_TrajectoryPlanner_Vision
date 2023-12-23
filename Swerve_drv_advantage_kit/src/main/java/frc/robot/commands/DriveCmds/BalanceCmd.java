@@ -8,7 +8,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Utils.CatzMathUtils;
-import frc.robot.subsystems.drivetrain.SubsystemCatzDriveTrain;
+import frc.robot.subsystems.drivetrain.CatzDriveTrainSubsystem;
 
 public class BalanceCmd extends CommandBase {
   /** Creates a new BalanceCmd. */
@@ -32,7 +32,7 @@ public class BalanceCmd extends CommandBase {
   public final double MAX_POWER = 0.30;
   public final double BALANCE_THREAD_PERIOD = 0.02;
 
-  private SubsystemCatzDriveTrain driveTrain = SubsystemCatzDriveTrain.getInstance();
+  private CatzDriveTrainSubsystem driveTrain = CatzDriveTrainSubsystem.getInstance();
   public BalanceCmd() 
   {
     addRequirements(driveTrain);

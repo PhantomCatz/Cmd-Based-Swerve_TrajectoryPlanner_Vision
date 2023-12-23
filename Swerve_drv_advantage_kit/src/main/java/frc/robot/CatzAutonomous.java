@@ -1,11 +1,6 @@
 package frc.robot;
 
-import java.nio.file.Path;
-import java.security.DrbgParameters.Reseed;
-
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
-import org.littletonrobotics.junction.networktables.LoggedDashboardNumber;
-import org.littletonrobotics.junction.networktables.LoggedDashboardString;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathPlannerAuto;
@@ -13,9 +8,7 @@ import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.path.PathPlannerTrajectory;
 
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.util.sendable.Sendable;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -23,29 +16,24 @@ import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.CatzConstants.AllianceColor;
 import frc.robot.CatzConstants.ManipulatorPoseConstants;
-import frc.robot.Utils.CatzManipulatorPositions;
 import frc.robot.Utils.CatzAbstractStateUtil;
 import frc.robot.Utils.CatzAbstractStateUtil.GamePieceState;
-import frc.robot.Utils.CatzAbstractStateUtil.SetAbstractMechanismState;
 import frc.robot.commands.ManipulatorToPoseCmd;
 import frc.robot.commands.DriveCmds.Trajectory.TrajectoryFollowingCmd;
 import frc.robot.commands.DriveCmds.Trajectory.Paths.Trajectories;
 import frc.robot.subsystems.Arm.SubsystemCatzArm;
 import frc.robot.subsystems.Elevator.SubsystemCatzElevator;
 import frc.robot.subsystems.Intake.SubsystemCatzIntake;
-import frc.robot.subsystems.drivetrain.SubsystemCatzDriveTrain;
-import frc.robot.CatzConstants.DriveConstants;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import frc.robot.subsystems.drivetrain.CatzDriveTrainSubsystem;
 
 public class CatzAutonomous {
-    static SubsystemCatzDriveTrain driveTrain = SubsystemCatzDriveTrain.getInstance(); 
-    static SubsystemCatzElevator elevator = SubsystemCatzElevator.getInstance();
-    static SubsystemCatzArm arm = SubsystemCatzArm.getInstance();
-    static SubsystemCatzIntake intake = SubsystemCatzIntake.getInstance();
+    private CatzDriveTrainSubsystem driveTrain = CatzDriveTrainSubsystem.getInstance(); 
+    private SubsystemCatzElevator elevator = SubsystemCatzElevator.getInstance();
+    private SubsystemCatzArm arm = SubsystemCatzArm.getInstance();
+    private SubsystemCatzIntake intake = SubsystemCatzIntake.getInstance();
     
     //private static PathPlannerPath driveStraighFullTurn = PathPlannerPath.fromPathFile("DriveStraightFullTurn");
     //private static PathPlannerPath feildSideDriveBack = PathPlannerPath.fromPathFile("FeildSideDriveBack");
-
 
     public static LoggedDashboardChooser<AllianceColor> chosenAllianceColor = new LoggedDashboardChooser<>("alliance selector");
     private static LoggedDashboardChooser<AutoModes> autoChooser = new LoggedDashboardChooser<>("Auto Routine");
@@ -71,9 +59,11 @@ public class CatzAutonomous {
 
     public Command getCommand()
     {
+        driveTrain.resetForAutonomous();
+
         switch(autoChooser.get())
         {
-            case TEST: return testPath();
+            case TEST: return testPath2();
             case DRIVE_STRAIGHT: return driveStraight();
             case PARALEL_SCORE_2: return parallelScoreCube();
             default: 
@@ -89,6 +79,12 @@ public class CatzAutonomous {
             new TrajectoryFollowingCmd(Trajectories.testTrajectoryCurveGoBack, Rotation2d.fromDegrees(180)),
             new TrajectoryFollowingCmd(Trajectories.testTrajectoryStraight, Rotation2d.fromDegrees(0))
         );
+    }
+
+    public Command testPath2()
+    {
+        driveTrain.resetForAutonomous();
+        return new TrajectoryFollowingCmd(Trajectories.testTrajectoryBellsCurve, Rotation2d.fromDegrees(0));
     }
 
     public Command driveStraight() {
@@ -153,24 +149,11 @@ public class CatzAutonomous {
 
     public static SequentialCommandGroup intakeSequenceCommandGroup()
     {
-
-        return new SequentialCommandGroup(
-                intake.intakeRollersIn(),
-                Commands.waitSeconds(0.5),
-                intake.intakeRollersOff()           
-                                         );
+        return null;
+        // new SequentialCommandGroup(
+        //         intake.intakeRollersIn(),
+        //         Commands.waitSeconds(0.5),
+        //         intake.intakeRollersOff()           
+        //                                  );
     }
-
-
-
-
-
-
-
-
-    
-    
-
-
-
 }

@@ -1,17 +1,4 @@
-/***
- * RobotContainer
- * @version 1.0
- * @author Kynam Lenghiem
- * 
- * This class is how the command scheduler(robot.java replacment) is configured
- * Configures:
- * -xbox controller triggers
- * -default commands
- * -instanciated mechanisms using singleton implementation
- * -sets up autonomous from CatzAtutonomouschooser
- ***/
-
- package frc.robot;
+package frc.robot;
 
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -33,19 +20,24 @@ import frc.robot.commands.ManualStateCmds.IntakeManualCmd;
 import frc.robot.subsystems.Arm.SubsystemCatzArm;
 import frc.robot.subsystems.Elevator.SubsystemCatzElevator;
 import frc.robot.subsystems.Intake.SubsystemCatzIntake;
-import frc.robot.subsystems.drivetrain.SubsystemCatzDriveTrain;
- 
- 
- /**
-  * This class is where the bulk of the robot should be declared. Since Command-based is a
-  * "declarative" paradigm, very little robot logic should actually be handled in the {@link Robot}
-  * periodic methods (other than the scheduler calls). Instead, the structure of the robot (including
-  * subsystems, commands, and trigger mappings) should be declared here.
-  */
+import frc.robot.subsystems.drivetrain.CatzDriveTrainSubsystem;
+
+/**
+ * RobotContainer
+ * @version 1.0
+ * @author Kynam Lenghiem
+ * 
+ * This class is how the command scheduler(robot.java replacment) is configured
+ * Configures:
+ * -xbox controller triggers
+ * -default commands
+ * -instanciated mechanisms using singleton implementation
+ * -sets up autonomous from CatzAtutonomouschooser
+ */
  public class RobotContainer {
     
     //subsystems
-    private SubsystemCatzDriveTrain driveTrain; 
+    private CatzDriveTrainSubsystem driveTrain; 
     private SubsystemCatzElevator elevator;
     private SubsystemCatzIntake intake;
     private SubsystemCatzArm arm;
@@ -64,19 +56,17 @@ import frc.robot.subsystems.drivetrain.SubsystemCatzDriveTrain;
        
    /** The container for the robot. Contains subsystems, OI devices, and commands. 
     *    -since multiple classes are referencing these mechansims, 
-    *         mechanisms are instantiated inside mechanism class(singleton)
+    *     mechanisms are instantiated inside mechanism class(singleton)
    */
    public RobotContainer() {
     //instantiate subsystems
-     driveTrain = SubsystemCatzDriveTrain.getInstance(); 
+     driveTrain = CatzDriveTrainSubsystem.getInstance(); 
      elevator = SubsystemCatzElevator    .getInstance();
      arm = SubsystemCatzArm              .getInstance();          
      intake = SubsystemCatzIntake        .getInstance();
-
  
      xboxDrv = new CommandXboxController(XBOX_DRV_PORT); 
      xboxAux = new CommandXboxController(XBOX_AUX_PORT);
- 
  
      // Configure the trigger bindings and default cmds
      defaultCommands();
@@ -103,7 +93,7 @@ import frc.robot.subsystems.drivetrain.SubsystemCatzDriveTrain;
      xboxAux.leftTrigger().onTrue(new ArmManualCmd(false))
                           .onFalse(arm.setArmPwrCmd(0.0));
     //intake
-    xboxAux.leftStick().onTrue(new IntakeManualCmd(()-> xboxAux.getLeftY(), 
+     xboxAux.leftStick().onTrue(new IntakeManualCmd(()-> xboxAux.getLeftY(), 
                                                    ()-> xboxAux.leftStick().getAsBoolean()));
     //elevator     
      xboxAux.rightStick().onTrue(new ElevatorManualCmd(()-> xboxAux.getRightY(), 
@@ -125,8 +115,8 @@ import frc.robot.subsystems.drivetrain.SubsystemCatzDriveTrain;
         () -> CatzAbstractStateUtil.newGamePieceState(GamePieceState.CONE)
                              ));
  
-      //disabling softlimits only when both bumpers are pressed
-      //TBD how to set precedence with and and or methods
+     //disabling softlimits only when both bumpers are pressed
+     //TBD how to set precedence with and and or methods
      Trigger softLimitTrigger = xboxAux.leftBumper().and(xboxAux.rightBumper()); //tbd which is evaluated first? First one
      softLimitTrigger.onTrue(intake.softLimitOverideDisabled());
      softLimitTrigger.onFalse(intake.softLimitOverideEnabled());
@@ -167,29 +157,29 @@ import frc.robot.subsystems.drivetrain.SubsystemCatzDriveTrain;
 
    //--------------------------------------------LED setup------------------------------------------------
    //TBD in constants class
-   public static enum mechMode {
+   public static enum MechMode {
     AutoMode(Color.kGreen),
     ManualHoldMode(Color.kCyan),
     ManualMode(Color.kRed);
 
     public Color color;
-    mechMode(Color color){
+    MechMode(Color color){
       this.color = color;
     }
   }
 
-  public static enum gamePiece{
+  public static enum GamePiece{
     Cube(Color.kPurple),
     Cone(Color.kYellow),
     None(Color.kGhostWhite);
 
     public Color color;
-    gamePiece(Color color){
+    GamePiece(Color color){
       this.color = color;
     }
   }
 
-  public static enum gameModeLED{
+  public static enum GameModeLED{
     Autobalancing(led.oneColorFill, Color.kGreen),
     InAutonomous(led.startFlowing, led.PHANTOM_SAPPHIRE, Color.kWhite),
     MatchEnd(led.startFlowingRainbow),
@@ -198,16 +188,16 @@ import frc.robot.subsystems.drivetrain.SubsystemCatzDriveTrain;
 
     public ColorMethod method;
     public Color[] color;
-    private gameModeLED(ColorMethod method, Color... color) {
+    private GameModeLED(ColorMethod method, Color... color) {
       this.method = method;
       this.color = color;
     }
   }
 
-  public static mechMode intakeControlMode = mechMode.AutoMode;
-  public static mechMode elevatorControlMode = mechMode.AutoMode;
-  public static mechMode armControlMode = mechMode.AutoMode;
-  public static gameModeLED currentGameModeLED = gameModeLED.MatchEnd;
-  public static gamePiece currentGamePiece = gamePiece.None;
+  public static MechMode intakeControlMode = MechMode.AutoMode;
+  public static MechMode elevatorControlMode = MechMode.AutoMode;
+  public static MechMode armControlMode = MechMode.AutoMode;
+  public static GameModeLED currentGameModeLED = GameModeLED.MatchEnd;
+  public static GamePiece currentGamePiece = GamePiece.None;
 
  }

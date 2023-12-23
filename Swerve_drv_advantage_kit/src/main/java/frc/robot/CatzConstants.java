@@ -1,11 +1,3 @@
-/***
- * CatzConstants
- * @version 1.0
- * @author Kynam Lenghiem
- * 
- * This class is where reusable constants are defined
- ***/
-
 package frc.robot;
 
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
@@ -20,14 +12,13 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import frc.robot.Utils.CatzManipulatorPositions;
-/**
- * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
- * constants. This class should not be used for any other purpose. All constants should be declared
- * globally (i.e. public static). Do not put anything functional in this class.
- *
- * <p>It is advised to statically import this class (or one of its inner classes) wherever the
- * constants are needed, to reduce verbosity.
- */
+/***
+ * CatzConstants
+ * @version 1.0
+ * @author Kynam Lenghiem
+ * 
+ * This class is where reusable constants are defined
+ ***/
 public final class CatzConstants {
   public static final boolean tuningMode = false;
   public static final Mode currentMode = Mode.REAL;
@@ -135,7 +126,7 @@ public static final class ManipulatorPoseConstants
         public static final double  VEL_FF                        = 1.5;
 
         public static final Pose2d initPose = new Pose2d(0, 0, Rotation2d.fromDegrees(180));
-        private static final double MODULE_DISTANCE_FROM_CENTER = 0.298; // manhattan distance divided by 2
+        private static final double MODULE_DISTANCE_FROM_CENTER = 0.298;
 
 
         //not following the original coordinate system since the robot coordinate system is inverted
@@ -152,16 +143,15 @@ public static final class ManipulatorPoseConstants
             SWERVE_RIGHT_FRONT_LOCATION
         );
         
-
         public static final double MAX_SPEED = 3.0; // meters per second
-        public static final double MAX_ANGSPEED_RAD_PER_SEC = 3.0; // radians per second
+        public static final double MAX_ANGSPEED_RAD_PER_SEC = 2.0; // radians per second
         public static final double MAX_SPEED_DESATURATION = MAX_SPEED + MAX_ANGSPEED_RAD_PER_SEC * MODULE_DISTANCE_FROM_CENTER * Math.sqrt(2);
 
         public static final double SDS_L1_GEAR_RATIO = 8.14;       //SDS mk4i L1 ratio reduction
         public static final double SDS_L2_GEAR_RATIO = 6.75;       //SDS mk4i L2 ratio reduction
         
-        public static final double DRVTRAIN_WHEEL_DIAMETER_METERS             = 0.095;
-        public static final double DRVTRAIN_WHEEL_CIRCUMFERENCE        = (Math.PI * DRVTRAIN_WHEEL_DIAMETER_METERS);
+        public static final double DRVTRAIN_WHEEL_DIAMETER_METERS = 0.095;
+        public static final double DRVTRAIN_WHEEL_CIRCUMFERENCE   = (Math.PI * DRVTRAIN_WHEEL_DIAMETER_METERS);
 
         //uses a trapezoidal velocity/time graph enforced with a PID loop
         private static ProfiledPIDController autoTurnPIDController
@@ -171,7 +161,8 @@ public static final class ManipulatorPoseConstants
             autoTurnPIDController.enableContinuousInput(-Math.PI, Math.PI); //offset clamped between these two values
             autoTurnPIDController.setTolerance(Math.toRadians(0.1)); //tolerable error
         }
-            //TBD need to validated
+        
+        //TBD need to validated
         // calculates target chassis motion when given current position and desired trajectory
         public static final HolonomicDriveController holonomicDriveController = new HolonomicDriveController(
             new PIDController(2, 0, 0), // PID values for x offset

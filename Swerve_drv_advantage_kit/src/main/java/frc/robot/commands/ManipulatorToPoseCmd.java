@@ -15,7 +15,7 @@ import frc.robot.Utils.CatzAbstractStateUtil.GamePieceState;
 import frc.robot.Utils.CatzAbstractStateUtil.SetAbstractMechanismState;
 import frc.robot.RobotContainer;
 import frc.robot.CatzConstants.ManipulatorPoseConstants;
-import frc.robot.RobotContainer.mechMode;
+import frc.robot.RobotContainer.MechMode;
 import frc.robot.subsystems.Arm.SubsystemCatzArm;
 import frc.robot.subsystems.Elevator.SubsystemCatzElevator;
 import frc.robot.subsystems.Intake.SubsystemCatzIntake;
@@ -89,9 +89,9 @@ public class ManipulatorToPoseCmd extends CommandBase {
   @Override
   public void initialize() {
     System.out.println("initstatemachine");
-    RobotContainer.armControlMode = mechMode.AutoMode;
-    RobotContainer.elevatorControlMode = mechMode.AutoMode;
-    RobotContainer.intakeControlMode = mechMode.AutoMode;
+    RobotContainer.armControlMode = MechMode.AutoMode;
+    RobotContainer.elevatorControlMode = MechMode.AutoMode;
+    RobotContainer.intakeControlMode = MechMode.AutoMode;
   }
 
   @Override

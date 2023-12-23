@@ -65,6 +65,17 @@ public class Trajectories {
         DriveConstants.MAX_SPEED, DriveConstants.MAX_SPEED
     );
 
+    public static final Trajectory testTrajectoryBellsCurve = generateTrajectory(
+        new Pose2d(0, 0, Rotation2d.fromDegrees(0)),
+
+        List.of(
+            new Translation2d(1.5, 1.5)
+        ),
+
+        new Pose2d(3, 0, Rotation2d.fromDegrees(0)),
+        DriveConstants.MAX_SPEED, DriveConstants.MAX_SPEED
+    );
+
     // generates trajectory
     private static Trajectory generateTrajectory(Pose2d startPos, List<Translation2d> waypoints, Pose2d endPos, double maxVel, double maxAccel)
     {

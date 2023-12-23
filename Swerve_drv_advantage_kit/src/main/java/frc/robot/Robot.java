@@ -1,13 +1,3 @@
-/***
- * Robot.java
- * @version 1.0
- * @author Kynam Lenghiem
- * 
- * Robot.java now only serves to run the command scheduler every 20 ms in robot periodic
- * -This single loop runs all periodic functions gaurnteeing the accuracy of loops when
- * replaying in simulator.
- ***/
-
 package frc.robot;
 
 import org.littletonrobotics.junction.LoggedRobot;
@@ -18,50 +8,54 @@ import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Threads;
-import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.RobotContainer.gameModeLED;
-import frc.robot.Utils.led.CatzRGB;
-import frc.robot.Utils.led.ColorMethod;
-
+import frc.robot.RobotContainer.GameModeLED;
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
  * each mode, as described in the TimedRobot documentation. If you change the name of this class or
  * the package after creating this project, you must also update the build.gradle file in the
  * project.
  */
+
+/***
+ * Robot.java
+ * @version 1.0
+ * @author Kynam Lenghiem
+ * 
+ * Robot.java now only serves to run the command scheduler every 20 ms in robot periodic
+ * -This single loop runs all periodic functions gaurnteeing the accuracy of loops when
+ * replaying in simulator.
+ ***/
+
 public class Robot extends LoggedRobot {
   private Command m_autonomousCommand;
 
   private RobotContainer m_robotContainer;
 
-  /**
-   * This function is run when the robot is first started up and should be used for any
-   * initialization code.
-   */
   @Override
   public void robotInit() {
     Logger logger = Logger.getInstance();
 
     // Record metadata
-    logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);
-    logger.recordMetadata("BuildDate", BuildConstants.BUILD_DATE);
-    logger.recordMetadata("GitSHA", BuildConstants.GIT_SHA);
-    logger.recordMetadata("GitDate", BuildConstants.GIT_DATE);
-    logger.recordMetadata("GitBranch", BuildConstants.GIT_BRANCH);
-    switch (BuildConstants.DIRTY) {
-      case 0:
-        logger.recordMetadata("GitDirty", "All changes committed");
-        break;
-      case 1:
-        logger.recordMetadata("GitDirty", "Uncomitted changes");
-        break;
-      default:
-        logger.recordMetadata("GitDirty", "Unknown");
-        break;
-    }
+    // logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);
+    // logger.recordMetadata("BuildDate", BuildConstants.BUILD_DATE);
+    // logger.recordMetadata("GitSHA", BuildConstants.GIT_SHA);
+    // logger.recordMetadata("GitDate", BuildConstants.GIT_DATE);
+    // logger.recordMetadata("GitBranch", BuildConstants.GIT_BRANCH);
+    // switch (BuildConstants.DIRTY) {
+    //   case 0:
+    //     logger.recordMetadata("GitDirty", "All changes committed");
+    //     break;
+    //   case 1:
+    //     logger.recordMetadata("GitDirty", "Uncomitted changes");
+    //     break;
+    //   default:
+    //     logger.recordMetadata("GitDirty", "Unknown");
+    //     break;
+    // }
 
     // Set up data receivers & replay source
     switch (CatzConstants.currentMode) {
@@ -92,16 +86,11 @@ public class Robot extends LoggedRobot {
     // Instantiate our RobotContainer. This will perform all our button mappings to triggers, and put our
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
+
+    DriverStation.silenceJoystickConnectionWarning(true);
   }
 
 
-  /**
-   * This function is called every 20 ms, no matter the mode. Use this for items like diagnostics
-   * that you want ran during disabled, autonomous, teleoperated and test.
-   *
-   * <p>This runs after the mode specific periodic functions, but before LiveWindow and
-   * SmartDashboard integrated updating.
-   */
   @Override
   public void robotPeriodic() {
     Threads.setCurrentThreadPriority(true, 99);
@@ -120,28 +109,24 @@ public class Robot extends LoggedRobot {
     Threads.setCurrentThreadPriority(false, 10);
   }
 
-  /** This function is called once each time the robot enters Disabled mode. */
   @Override
   public void disabledInit() {
-    RobotContainer.currentGameModeLED = gameModeLED.MatchEnd;
+    RobotContainer.currentGameModeLED = GameModeLED.MatchEnd;
   }
 
   @Override
   public void disabledPeriodic() {}
 
-  /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
-    // schedule the autonomous command (example)
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();
     }
-    RobotContainer.currentGameModeLED = gameModeLED.InAutonomous;
+    RobotContainer.currentGameModeLED = GameModeLED.InAutonomous;
   }
 
-  /** This function is called periodically during autonomous. */
   @Override
   public void autonomousPeriodic() { }
 
@@ -154,10 +139,10 @@ public class Robot extends LoggedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
-    RobotContainer.currentGameModeLED = gameModeLED.TeleOp;
+    RobotContainer.currentGameModeLED = GameModeLED.TeleOp;
+    
   }
 
-  /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {}
 
@@ -167,15 +152,12 @@ public class Robot extends LoggedRobot {
     CommandScheduler.getInstance().cancelAll();
   }
 
-  /** This function is called periodically during test mode. */
   @Override
   public void testPeriodic() {}
 
-  /** This function is called once when the robot is first started up. */
   @Override
   public void simulationInit() {}
 
-  /** This function is called periodically whilst in simulation. */
   @Override
   public void simulationPeriodic() {}
 }

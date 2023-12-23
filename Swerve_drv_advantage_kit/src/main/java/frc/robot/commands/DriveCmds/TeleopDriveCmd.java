@@ -1,7 +1,4 @@
-
 package frc.robot.commands.DriveCmds;
-
-
 
 import java.util.function.Supplier;
 
@@ -10,11 +7,11 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.CatzConstants.DriveConstants;
 import frc.robot.CatzConstants.OIConstants;
-import frc.robot.subsystems.drivetrain.SubsystemCatzDriveTrain;
+import frc.robot.subsystems.drivetrain.CatzDriveTrainSubsystem;
 
 public class TeleopDriveCmd extends CommandBase {
 
-  private SubsystemCatzDriveTrain driveTrain = SubsystemCatzDriveTrain.getInstance();
+  private CatzDriveTrainSubsystem driveTrain = CatzDriveTrainSubsystem.getInstance();
   Supplier<Double> supplierLeftJoyX;
   Supplier<Double> supplierLeftJoyY;
   Supplier<Double> supplierRightJoyX;
@@ -36,7 +33,7 @@ public class TeleopDriveCmd extends CommandBase {
     addRequirements(driveTrain);
   }
 
-// Called when the command is initially scheduled.
+  // Called when the command is initially scheduled.
   @Override
   public void initialize() {}
 

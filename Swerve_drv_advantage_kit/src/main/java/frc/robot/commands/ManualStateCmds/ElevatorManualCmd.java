@@ -8,7 +8,7 @@ import java.util.function.Supplier;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.RobotContainer;
-import frc.robot.RobotContainer.mechMode;
+import frc.robot.RobotContainer.MechMode;
 import frc.robot.Utils.CatzManipulatorPositions;
 import frc.robot.Utils.CatzSharedDataUtil;
 import frc.robot.subsystems.Elevator.SubsystemCatzElevator;
@@ -36,7 +36,7 @@ public class ElevatorManualCmd extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    RobotContainer.elevatorControlMode = mechMode.AutoMode;
+    RobotContainer.elevatorControlMode = MechMode.AutoMode;
   }
 
   // Called every time the scheduler runs while the command is scheduled.
