@@ -8,7 +8,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Utils.CatzMathUtils;
-import frc.robot.subsystems.drivetrain.SubsystemCatzDriveTrain;
+import frc.robot.subsystems.drivetrain.SubsystemCatzDrivetrain;
 
 public class BalanceCmd extends CommandBase {
   /** Creates a new BalanceCmd. */
@@ -32,10 +32,10 @@ public class BalanceCmd extends CommandBase {
   public final double MAX_POWER = 0.30;
   public final double BALANCE_THREAD_PERIOD = 0.02;
 
-  private SubsystemCatzDriveTrain driveTrain = SubsystemCatzDriveTrain.getInstance();
+  private SubsystemCatzDrivetrain drivetrain = SubsystemCatzDrivetrain.getInstance();
   public BalanceCmd() 
   {
-    addRequirements(driveTrain);
+    addRequirements(drivetrain);
   }
 
   // Called when the command is initially scheduled.
@@ -52,7 +52,7 @@ public class BalanceCmd extends CommandBase {
   {
     time = balanceTimer.get();
 
-    balanceAngle = driveTrain.getRollAngle();
+    balanceAngle = drivetrain.getRollAngle();
 
     if(prevTime < 0.0)
     {
@@ -87,9 +87,9 @@ public class BalanceCmd extends CommandBase {
     }
 
     ChassisSpeeds chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
-                                            power, 0.0, 0.0, driveTrain.getRotation2d()
+                                            power, 0.0, 0.0, drivetrain.getRotation2d()
                                                               );
-    driveTrain.driveRobot(chassisSpeeds);
+    drivetrain.driveRobot(chassisSpeeds);
 
     prevBalanceAngle = balanceAngle;
     prevTime = time;

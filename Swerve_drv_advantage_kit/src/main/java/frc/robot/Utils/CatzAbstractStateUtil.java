@@ -9,14 +9,13 @@
 package frc.robot.Utils;
 
 import frc.robot.RobotContainer;
-import frc.robot.RobotContainer.gamePiece;
+import frc.robot.RobotContainer.GamePiece;
 
 public class CatzAbstractStateUtil 
 {
 public static SetAbstractMechanismState currentAbstractMechState = null;
 
   public static enum SetAbstractMechanismState {
-
     SCORE_HIGH,
     SCORE_MID,
     SCORE_LOW,
@@ -39,13 +38,13 @@ public static SetAbstractMechanismState currentAbstractMechState = null;
 
     //LED logic
     if(currentGamePieceState == GamePieceState.CONE) {
-      RobotContainer.currentGamePiece = gamePiece.Cone;
+      RobotContainer.currentGamePiece = GamePiece.Cone;
     } 
     else if(currentGamePieceState == GamePieceState.CUBE) {
-      RobotContainer.currentGamePiece = gamePiece.Cube;
+      RobotContainer.currentGamePiece = GamePiece.Cube;
     }
     else {
-      RobotContainer.currentGamePiece = gamePiece.None;
+      RobotContainer.currentGamePiece = GamePiece.None;
     }
   }
 }

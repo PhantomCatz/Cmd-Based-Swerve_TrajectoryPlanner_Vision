@@ -28,19 +28,10 @@ public class CatzSwerveModule {
     private final ModuleIO io;
     private final ModuleIOInputsAutoLogged   inputs = new ModuleIOInputsAutoLogged();
 
-    private PIDController m_pid;
+    private ProfiledPIDController m_ProfiledPID;
     private final SimpleMotorFeedforward m_driveFeedforward = new SimpleMotorFeedforward(1, 3);
     private final SimpleMotorFeedforward m_turnFeedforward = new SimpleMotorFeedforward(1, 0.5);
-
-    /* 
-    private final ProfiledPIDController m_turningPIDController =
-      new ProfiledPIDController(
-          1,
-          0,
-          0,
-          new TrapezoidProfile.Constraints(
-              kModuleMaxAngularVelocity, kModuleMaxAngularAcceleration));
-                */
+                
 
     private final double kP = 0.55; //cuz error is in tenths place so no need to mutiply kp value
     private final double kI = 0.0;
@@ -67,7 +58,7 @@ public class CatzSwerveModule {
                 break;
         }
 
-        m_pid = new PIDController(kP, kI, kD);
+        m_ProfiledPID = new ProfiledPIDController(kP, kI, kD, new TrapezoidProfile.Constraints(3.0, 3.0)); //tbd need to find out max velocity and acceleration for steering mtrs
 
         m_wheelOffset = offset;
     }
@@ -90,24 +81,6 @@ public class CatzSwerveModule {
         }
         else {       
             io.setSteerPwrIO(pwr);
-        }
-    }
-
-    private void setSteerVoltage(double volts) {
-        if(CatzConstants.currentMode == CatzConstants.Mode.SIM) {
-
-        }
-        else {       
-            io.setSteerVoltageIO(volts);
-        }
-    }
-
-    private void setDrivePercent(double pwr) {
-        if(CatzConstants.currentMode == CatzConstants.Mode.SIM) {
-           io.setDriveSimPwrIO(pwr);
-        }
-        else {       
-            io.setDrivePwrPercentIO(pwr);
         }
     }
 
@@ -152,15 +125,16 @@ public class CatzSwerveModule {
      */
     public void setDesiredState(SwerveModuleState state) {
 
+        //optimize wheel angles
         state = CatzMathUtils.optimize(state, getCurrentRotation());
         
         //ff control
         double driveFeedforward = m_driveFeedforward.calculate(state.speedMetersPerSecond);
-        //double turnFeedforward = m_turnFeedforward.calculate(m_pid.getSetpoint().velocity);
+        double turnFeedforward = m_turnFeedforward.calculate(m_ProfiledPID.getSetpoint().velocity);
 
         //calculate turn voltage
-        double steerPIDpwr = - m_pid.calculate(getAbsEncRadians(), state.angle.getRadians()); 
-        setSteerPower(steerPIDpwr);
+        double steerPIDpwr = - m_ProfiledPID.calculate(getAbsEncRadians(), state.angle.getRadians()); 
+        setSteerPower(steerPIDpwr + turnFeedforward);
 
         //calculate drive pwr
         double drivePwrVelocity = Conversions.MPSToFalcon(state.speedMetersPerSecond, 
@@ -171,7 +145,7 @@ public class CatzSwerveModule {
             io.setDriveControlIO(velocitySetter.withVelocity(drivePwrVelocity));   
         }
         else { //set pwr for REAL/SIM
-            setDriveVelocity(drivePwrVelocity); //+ driveFeedforward);
+            setDriveVelocity(drivePwrVelocity + driveFeedforward);
         }
 
         if(m_index == 1){
