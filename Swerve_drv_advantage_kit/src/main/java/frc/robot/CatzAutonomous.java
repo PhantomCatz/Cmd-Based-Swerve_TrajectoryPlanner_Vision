@@ -1,5 +1,7 @@
 package frc.robot;
 
+import java.sql.Driver;
+
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -8,13 +10,12 @@ import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.path.PathPlannerTrajectory;
 
 import edu.wpi.first.math.geometry.Rotation2d;
-
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import frc.robot.CatzConstants.AllianceColor;
 import frc.robot.CatzConstants.ManipulatorPoseConstants;
 import frc.robot.Utils.CatzAbstractStateUtil;
 import frc.robot.Utils.CatzAbstractStateUtil.GamePieceState;
@@ -24,10 +25,10 @@ import frc.robot.commands.DriveCmds.Trajectory.Paths.Trajectories;
 import frc.robot.subsystems.Arm.SubsystemCatzArm;
 import frc.robot.subsystems.Elevator.SubsystemCatzElevator;
 import frc.robot.subsystems.Intake.SubsystemCatzIntake;
-import frc.robot.subsystems.drivetrain.CatzDriveTrainSubsystem;
+import frc.robot.subsystems.drivetrain.SubsystemCatzDrivetrain;
 
 public class CatzAutonomous {
-    private CatzDriveTrainSubsystem driveTrain = CatzDriveTrainSubsystem.getInstance(); 
+    private SubsystemCatzDrivetrain driveTrain = SubsystemCatzDrivetrain.getInstance(); 
     private SubsystemCatzElevator elevator = SubsystemCatzElevator.getInstance();
     private SubsystemCatzArm arm = SubsystemCatzArm.getInstance();
     private SubsystemCatzIntake intake = SubsystemCatzIntake.getInstance();
@@ -35,7 +36,7 @@ public class CatzAutonomous {
     //private static PathPlannerPath driveStraighFullTurn = PathPlannerPath.fromPathFile("DriveStraightFullTurn");
     //private static PathPlannerPath feildSideDriveBack = PathPlannerPath.fromPathFile("FeildSideDriveBack");
 
-    public static LoggedDashboardChooser<AllianceColor> chosenAllianceColor = new LoggedDashboardChooser<>("alliance selector");
+    public static LoggedDashboardChooser<DriverStation.Alliance> chosenAllianceColor = new LoggedDashboardChooser<>("alliance selector");
     private static LoggedDashboardChooser<AutoModes> autoChooser = new LoggedDashboardChooser<>("Auto Routine");
 
     private enum AutoModes {
@@ -47,8 +48,8 @@ public class CatzAutonomous {
 
     public CatzAutonomous()
     {
-        chosenAllianceColor.addDefaultOption("Blue Alliance", CatzConstants.AllianceColor.BlUE_ALLIANCE);
-        chosenAllianceColor.addOption       ("Red Alliance",  CatzConstants.AllianceColor.RED_ALLIANCE);
+        chosenAllianceColor.addDefaultOption("Blue Alliance", DriverStation.Alliance.Blue);
+        chosenAllianceColor.addOption       ("Red Alliance",  DriverStation.Alliance.Red);
 
         autoChooser.addDefaultOption("Do Nothing", null);
 

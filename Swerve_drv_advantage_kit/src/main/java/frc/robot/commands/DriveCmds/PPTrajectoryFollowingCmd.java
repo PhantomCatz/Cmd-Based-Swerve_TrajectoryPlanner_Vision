@@ -10,7 +10,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.CatzConstants;
-import frc.robot.subsystems.drivetrain.CatzDriveTrainSubsystem;
+import frc.robot.subsystems.drivetrain.SubsystemCatzDrivetrain;
 import frc.robot.CatzConstants.DriveConstants;
 import org.littletonrobotics.junction.Logger;
 
@@ -20,7 +20,7 @@ public class PPTrajectoryFollowingCmd extends CommandBase {
     public static final double ALLOWABLE_POSE_ERROR = 0.05;
     public static final double ALLOWABLE_ROTATION_ERROR = Math.toRadians(2);
     private final PPHolonomicDriveController controller;
-    private final CatzDriveTrainSubsystem driveTrain = CatzDriveTrainSubsystem.getInstance();
+    private final SubsystemCatzDrivetrain driveTrain = SubsystemCatzDrivetrain.getInstance();
 
     /**
      * Timer object

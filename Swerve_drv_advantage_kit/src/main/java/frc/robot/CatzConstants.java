@@ -9,6 +9,7 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import frc.robot.Utils.CatzManipulatorPositions;
@@ -36,11 +37,6 @@ public final class CatzConstants {
     /** Replaying from a log file. */
     REPLAY
   }
-  //--------------------Alliance color---------------------------
-  public static enum AllianceColor {
-    BlUE_ALLIANCE,
-    RED_ALLIANCE
-  }
 
  public static final class OIConstants {
   public static final int kDriverControllerPort = 0;
@@ -52,9 +48,11 @@ public final class CatzConstants {
 
   public static final double kDeadband = 0.1;
 }
+public static final class VisionConstants {
+  public static final Translation3d LIMELIGHT_OFFSET = new Translation3d(0.0, 0.0, 0.0);
+}
 
-public static final class ManipulatorPoseConstants
-{
+public static final class ManipulatorPoseConstants {
   public static final CatzManipulatorPositions SCORE_HIGH_CONE = new CatzManipulatorPositions(ElevatorConstants.ELEVATOR_POS_ENC_CNTS_HIGH,
                                                                                               ArmConstants.POS_ENC_INCH_EXTEND,
                                                                                               IntakeConstants.SCORE_CONE_HIGH_ENC_POS_TELOP);
@@ -128,6 +126,7 @@ public static final class ManipulatorPoseConstants
         public static final Pose2d initPose = new Pose2d(0, 0, Rotation2d.fromDegrees(180));
         private static final double MODULE_DISTANCE_FROM_CENTER = 0.298;
 
+        public static final double ESTIMATION_COEFFICIENT = 0.025;
 
         //not following the original coordinate system since the robot coordinate system is inverted
         private static final Translation2d SWERVE_LEFT_FRONT_LOCATION  = new Translation2d(MODULE_DISTANCE_FROM_CENTER, MODULE_DISTANCE_FROM_CENTER);

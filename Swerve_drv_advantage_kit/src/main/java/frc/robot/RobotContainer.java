@@ -20,7 +20,8 @@ import frc.robot.commands.ManualStateCmds.IntakeManualCmd;
 import frc.robot.subsystems.Arm.SubsystemCatzArm;
 import frc.robot.subsystems.Elevator.SubsystemCatzElevator;
 import frc.robot.subsystems.Intake.SubsystemCatzIntake;
-import frc.robot.subsystems.drivetrain.CatzDriveTrainSubsystem;
+import frc.robot.subsystems.drivetrain.SubsystemCatzDrivetrain;
+import frc.robot.subsystems.vision.SubsystemCatzVision;
 
 /**
  * RobotContainer
@@ -37,10 +38,11 @@ import frc.robot.subsystems.drivetrain.CatzDriveTrainSubsystem;
  public class RobotContainer {
     
     //subsystems
-    private CatzDriveTrainSubsystem driveTrain; 
+    private SubsystemCatzDrivetrain driveTrain; 
     private SubsystemCatzElevator elevator;
     private SubsystemCatzIntake intake;
     private SubsystemCatzArm arm;
+    private SubsystemCatzVision vision;
 
     private final CatzAutonomous auton = new CatzAutonomous();
     private static CatzRGB        led = new CatzRGB();
@@ -57,13 +59,14 @@ import frc.robot.subsystems.drivetrain.CatzDriveTrainSubsystem;
    /** The container for the robot. Contains subsystems, OI devices, and commands. 
     *    -since multiple classes are referencing these mechansims, 
     *     mechanisms are instantiated inside mechanism class(singleton)
-   */
+    */
    public RobotContainer() {
     //instantiate subsystems
-     driveTrain = CatzDriveTrainSubsystem.getInstance(); 
+     driveTrain = SubsystemCatzDrivetrain.getInstance(); 
      elevator = SubsystemCatzElevator    .getInstance();
      arm = SubsystemCatzArm              .getInstance();          
      intake = SubsystemCatzIntake        .getInstance();
+     vision = SubsystemCatzVision        .getInstance();
  
      xboxDrv = new CommandXboxController(XBOX_DRV_PORT); 
      xboxAux = new CommandXboxController(XBOX_AUX_PORT);

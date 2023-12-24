@@ -2,12 +2,12 @@ package frc.robot.Utils.led;
 
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.util.Color;
 import frc.robot.CatzAutonomous;
 import frc.robot.CatzConstants;
 import frc.robot.RobotContainer;
-import frc.robot.CatzConstants.AllianceColor;
 public class CatzRGB 
 {
     private enum LEDSections
@@ -194,8 +194,8 @@ public class CatzRGB
         led.setData(ledBuffer);
     }
 
-    public Color enumToAllianceColor(AllianceColor color){
-        if(color == CatzConstants.AllianceColor.BlUE_ALLIANCE){
+    public Color enumToAllianceColor(DriverStation.Alliance chosenAlliance){
+        if(chosenAlliance == DriverStation.Alliance.Blue){
             return Color.kBlue;
         }
         else{

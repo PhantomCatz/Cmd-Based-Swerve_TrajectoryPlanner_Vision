@@ -10,7 +10,7 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.subsystems.drivetrain.CatzDriveTrainSubsystem;
+import frc.robot.subsystems.drivetrain.SubsystemCatzDrivetrain;
 import frc.robot.CatzConstants.DriveConstants;
 
 public class TrajectoryFollowingCmd extends CommandBase{
@@ -20,7 +20,7 @@ public class TrajectoryFollowingCmd extends CommandBase{
 
     private final Timer timer = new Timer();
     private final HolonomicDriveController controller;
-    private CatzDriveTrainSubsystem m_driveTrain = CatzDriveTrainSubsystem.getInstance();
+    private SubsystemCatzDrivetrain m_driveTrain = SubsystemCatzDrivetrain.getInstance();
 
     private final Trajectory trajectory;
     private final Rotation2d endOrientation;

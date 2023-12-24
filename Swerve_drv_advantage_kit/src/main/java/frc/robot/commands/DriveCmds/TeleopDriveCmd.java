@@ -7,11 +7,11 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.CatzConstants.DriveConstants;
 import frc.robot.CatzConstants.OIConstants;
-import frc.robot.subsystems.drivetrain.CatzDriveTrainSubsystem;
+import frc.robot.subsystems.drivetrain.SubsystemCatzDrivetrain;
 
 public class TeleopDriveCmd extends CommandBase {
 
-  private CatzDriveTrainSubsystem driveTrain = CatzDriveTrainSubsystem.getInstance();
+  private SubsystemCatzDrivetrain driveTrain = SubsystemCatzDrivetrain.getInstance();
   Supplier<Double> supplierLeftJoyX;
   Supplier<Double> supplierLeftJoyY;
   Supplier<Double> supplierRightJoyX;
